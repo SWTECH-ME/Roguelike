@@ -1088,28 +1088,128 @@ felhasználó barátság, stb.</p>
 
 <h1><a name="8"></a>8. Dokumentációkkal kapcsolatos követelmények</h1>
 
-<p>Fajták, média stb.</p>
+<p>A projekt során az alábbi dokumentumokat fogjuk elkészíteni. Ezek biztosítják a fejlesztés nyomon követhetőségét:</p>
+
+<ul>
+	<li>
+		<p><b>Projekt- és specifikációs dokumentumok:</b></p>
+		<ul>
+			<li><p><i>Szerepe:</i> A szoftver céljainak, a megoldandó problémáknak és a legfontosabb funkcióknak a leírása mindenki számára érthető formában.</p></li>
+			<li><p><i>Formátum:</i> Elektronikus szöveges dokumentum (PDF).</p></li>
+			<li><p><i>Célközönség:</i> Megrendelők, menedzserek, oktatók.</p></li>
+		</ul>
+	</li>
+	<li>
+		<p><b>Rendszerterv:</b></p>
+		<ul>
+			<li><p><i>Szerepe:</i> A játék belső szerkezetének és működésének bemutatása vázlatok és ábrák segítségével.</p></li>
+			<li><p><i>Formátum:</i> Szöveges dokumentum ábrákkal (PDF).</p></li>
+			<li><p><i>Célközönség:</i> A fejlesztőcsapat és a technikai ellenőrök.</p></li>
+		</ul>
+	</li>
+	<li>
+		<p><b>Felhasználói kézikönyv:</b></p>
+		<ul>
+			<li><p><i>Szerepe:</i> Érthető, lépésről lépésre haladó útmutató a játékosok számára a program elindításához, a játék megértéséhez.</p></li>
+			<li><p><i>Formátum:</i> Játékban megjelenő útmutató ablak.</p></li>
+			<li><p><i>Célközönség:</i> A szoftver végfelhasználói (a játékosok).</p></li>
+		</ul>
+	</li>
+</ul>
 
 <p><br>
 <br>
-
 </p>
 
 <h1><a name="9"></a>9. Kockázat lista</h1>
 
-<p>Itt kell felsorolni minden olyan kockázati tényezőt
-(esetleg
-rangsorolva is), amelyek előre láthatók, és
-befolyásolhatják a
-fejlesztés eredményességét illetve
-határidőn belüli teljesítését. Ha
-lehetséges, adjuk meg a kockázat csökkentése
-érdekében megtehető
-intézkedéseket.</p>
+<p>A fejlesztés során az alábbi előre látható kockázatokkal tervezünk, amelyek veszélyeztethetik a határidőre történő átadást:</p>
+
+<table border="1" bordercolor="#000000" cellpadding="4" cellspacing="0" width="100%">
+	<colgroup>
+		<col width="25*">
+		<col width="25*">
+		<col width="25*">
+		<col width="25*">
+	</colgroup>
+	<thead>
+		<tr valign="top">
+			<th width="25%">
+				<p>Kockázati tényező</p>
+			</th>
+			<th width="25%">
+				<p>Hatás</p>
+			</th>
+			<th width="25%">
+				<p>Valószínűség</p>
+			</th>
+			<th width="25%">
+				<p>Kockázatcsökkentő intézkedés</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr valign="top">
+			<td width="25%">
+				<p><b>Túlvállalás (Túl sok funkció tervezése)</b></p>
+			</td>
+			<td width="25%">
+				<p>Ha rengeteg kártyát, szabályt és játékmódot tervezünk, a csapat kifuthat az időből, és a program befejezetlen marad.</p>
+			</td>
+			<td width="25%">
+				<p>Magas</p>
+			</td>
+			<td width="25%">
+				<p>Kezdetben csak egy alap, működőképes verziót készítünk el. Új elemeket csak akkor adunk hozzá, ha az alapjáték már hibátlanul működik.</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="25%">
+				<p><b>Bonyolult extra kártyák ütközése</b></p>
+			</td>
+			<td width="25%">
+				<p>A különböző különleges kártyák és szorzók kombinálása nem várt hibákat okozhat, így a játék rosszul számolhatja a pontokat.</p>
+			</td>
+			<td width="25%">
+				<p>Közepes</p>
+			</td>
+			<td width="25%">
+				<p>A szabályok nagyon pontos megtervezése, valamint a pontszámítási folyamat folyamatos ellenőrzése a fejlesztés során.</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="25%">
+				<p><b>A grafikus megjelenítés nehézségei</b></p>
+			</td>
+			<td width="25%">
+				<p>Mivel a játékot kész keretrendszer nélkül készítjük, a grafikus elemek (kártyák mozgatása, animációk, gombok, stb.) kialakítása a vártnál több időt vehet igénybe.</p>
+			</td>
+			<td width="25%">
+				<p>Magas</p>
+			</td>
+			<td width="25%">
+				<p>A megjelenítést és a játék szabályait teljesen különválasztjuk. Kezdetben egy rendkívül egyszerű, díszítések nélküli felületet készítünk, hogy a játék játszható legyen. A kinézetet csak a legvégén finomítjuk.</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="25%">
+				<p><b>Erőforrás-hiány (Csapattagok leterheltsége)</b></p>
+			</td>
+			<td width="25%">
+				<p>A félév közbeni egyéb egyetemi kötelezettségek (pl. zárthelyik) miatt a fejlesztésre szánt idő lecsökken, a munka megakadhat.</p>
+			</td>
+			<td width="25%">
+				<p>Magas</p>
+			</td>
+			<td width="25%">
+				<p>A feladatok kis és könnyen elvégezhető részekre bontása. Rendszeres, rövid egyeztetések tartása a problémamentes haladás érdekében.</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
 
 <p><br>
 <br>
-
 </p>
 
 <h1><a name="10"></a>10. Szótár</h1>
