@@ -1,0 +1,241 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Vízió Dokumentum - tökmind1</title>
+</head>
+<body>
+
+<h1 align="middle"><b>Vízió Dokumentum "tökmind1"</b></h1>
+<table cellspacing="3" cellpadding="4" border="1" width="90%">
+    <colgroup><col width="15%"><col width="10%"><col width="45%"><col width="30%"></colgroup>
+    <thead>
+        <tr valign="top">
+            <th><p>Dátum</p></th>
+            <th><p>Verzió</p></th>
+            <th><p>Leírás</p></th>
+            <th><p>Szerző</p></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr valign="top">
+            <td><p align="left">2026. 09. 29.</p></td>
+            <td><p align="left">1.0</p></td>
+            <td><p>Kezdeti verzió a Vízió dokumentumhoz, a kombináció alapú roguelike kártyajátékhoz igazítva.</p></td>
+            <td><p>tökmind1 csoport</p></td>
+        </tr>
+		<tr valign="top">
+		<td><p align="left">2026. 09. 29.</p></td>
+		<td><p align="left">1.1</p></td>
+		<td><p>Bevezetés és Szótár pontok elkészítése</p></td>
+		<td><p>Pál Bence Marcell</p></td>
+		</tr>
+		<tr valign="top">
+		<td><p align="left">2026. 09. 29.</p></td>
+		<td><p align="left">1.2</p></td>
+		<td><p>Dokumentációkkal kapcsolatos követelmények, és Kockázati lista pontok elkészítése.</p></td>
+		<td><p>Stark Ádám</p></td>
+		</tr>
+		<tr valign="top">
+		<td><p align="left">2026. 09. 29.</p></td>
+		<td><p align="left">1.3</p></td>
+		<td><p>Korlátozások És Minőséggel kapcsolatos elvárások pontjainak elkészítése</p></td>
+		<td><p>Ruttkay Zoltán Gergő</p></td>
+		</tr>
+		<tr valign="top">
+		<td><p align="left">2026. 09. 29.</p></td>
+		<td><p align="left">1.4</p></td>
+		<td><p>A végtermék áttekintése, jellemzői, és biztosított szolgáltatásai pontok elkészítése</p></td>
+		<td><p>Géczy Márk</p></td>
+		</tr>
+    </tbody>
+</table>
+
+<br>
+
+<hr>
+
+<h4 id="tartalomjegyzek">Tartalomjegyzék</h4>
+<ol>
+    <li><a href="#bevezetes">1. Bevezetés</a></li>
+    <li><a href="#alkalmazas_helye">2. Az alkalmazás helye</a>
+        <ul>
+            <li><a href="#uzleti_lehetosegek">2.1 Üzleti lehetőségek</a></li>
+            <li><a href="#problema_megfogalmazasa">2.2 A probléma megfogalmazása</a></li>
+            <li><a href="#elkészult_termek_helye">2.3 Az elkészült termék helye</a></li>
+        </ul>
+    </li>
+    <li><a href="#erintettek_es_felhasznalok">3. Érintettek és felhasználók</a>
+        <ul>
+            <li><a href="#erintettek_osszefoglalasa">3.1. Az érintettek összefoglalása</a></li>
+            <li><a href="#felhasznalok_osszefoglalasa">3.2. A felhasználók összefoglalása</a></li>
+            <li><a href="#felhasznaloi_kornyezet">3.3 Felhasználói környezet</a></li>
+            <li><a href="#illetekesek_adatai">3.4. Illetékesek adatai</a></li>
+            <li><a href="#felhasznalok_adatai">3.5. Felhasználók adatai</a></li>
+        </ul>
+    </li>
+    <li><a href="#vegtermek_attekintese">4. A végtermék áttekintése</a>
+        <ul>
+            <li><a href="#termek_kapcsolatai">4.1 A termék kapcsolatai</a></li>
+            <li><a href="#termek_hasznalatanak_elonyei">4.2. A termék használatának előnyei</a></li>
+            <li><a href="#feltelezesek_es_fuggosegek">4.3. Feltételezések és függőségek</a></li>
+            <li><a href="#koltsegbecsles">4.4 Költségbecslés</a></li>
+            <li><a href="#installacio">4.5. Installáció</a></li>
+        </ul>
+    </li>
+    <li><a href="#vegtermek_jellemzoi">5. A végtermék jellemzői, biztosított szolgáltatások</a></li>
+    <li><a href="#korlatozasok">6. Korlátozások</a></li>
+    <li><a href="#minosegi_elvarasok">7. Minőségi elvárások</a></li>
+    <li><a href="#dokumentacios_kovetelmenyek">8. Dokumentációkkal kapcsolatos követelmények</a></li>
+    <li><a href="#kockazat_lista">9. Kockázat lista</a></li>
+    <li><a href="#szotar">10. Szótár</a></li>
+</ol>
+
+<hr>
+
+<h4 id="bevezetes">1. Bevezetés</h4>
+<p>A készítendő alkalmazás egy "Kombináció alapú roguelike kártyajáték". Ez egy taktikai fókuszú, egyjátékos digitális kártyajáték. A játék célja az hogy a felhasználó, az előre meghatározott "deck"-ből kihúzott n-számú kártyákból összeálló kezéből olyan kombinációkat tegyen le a játékmezőre, amivel a lehető legtöbb pontot éri el. A bizonyos köröket a játékos akkor nyeri meg, hogyha a meghatározott mennyiségű letételi alkalmak során sikerül elérnie annyi pontot amennyi a körben szükséges a továbbhaladáshoz. A teljesítményt és az érvényességet a háttérben futó pontozó motor értékeli. A játék Rougelike elemntejként minden megnyert kör után a játékosnak lehetősége van fejlesztéseket választani egy random "pool"-ból. Ezek a fejlesztések jelentősen megkönnyítik a későbbi pontszerzést, és magukba foglalhatnak különböző multiplier-eket (szorzókat), vagy olyan komplex gameplay módosítókat, amelyek alapvető mechanikákat változtatnak meg. Amennyiben a játékosnak nem sikerül a szinthez előre meghatározott pontszámot összegyűjtenie, bekövetkezik a permadeath: a jelenlegi run azonnal véget ér, a folyamat megszakad, és a játék alaphelyzetéből csak egy teljesen új játékot lehet kezdeni</p>
+
+<h4 id="alkalmazas_helye">2. Az alkalmazás helye</h4>
+
+<h5 id="uzleti_lehetosegek">2.1 Üzleti lehetőségek</h5>
+	<p>INSERT HERE<p>
+<h5 id="problema_megfogalmazasa">2.2 A probléma megfogalmazása</h5>
+	<p>INSERT HERE<p>
+<h5 id="elkészult_termek_helye">2.3 Az elkészült termék helye</h5>
+	<p>INSERT HERE<p>
+<h4 id="erintettek_es_felhasznalok">3. Érintettek és felhasználók</h4>
+
+<h5 id="erintettek_osszefoglalasa">3.1. Az érintettek összefoglalása</h5>
+<table border="1" cellspacing="0" cellpadding="4" width="100%">
+    <thead>
+        <tr valign="top">
+            <th>Elnevezés</th>
+            <th>Leírás</th>
+            <th>Szerep</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Megrendelő / Oktató</td>
+            <td>A Szoftvertechnológia tárgy oktatói és gyakorlatvezetői (Kunné Tamás Judit).</td>
+            <td>Követelményeket támasztanak, ellenőrzik és értékelik az elkészült dokumentációt és szkeletont.</td>
+        </tr>
+        <tr>
+            <td>Fejlesztő csapat</td>
+            <td>A "tökmind1" csoport tagjai (egyetemi hallgatók).</td>
+            <td>A szoftver tervezése, dokumentálása és a prototípus elkészítése.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h5 id="felhasznalok_osszefoglalasa">3.2. A felhasználók összefoglalása</h5>
+<table border="1" cellspacing="0" cellpadding="4" width="100%">
+    <thead>
+        <tr valign="top">
+            <th>Elnevezés</th>
+            <th>Leírás</th>
+            <th>Illetékes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Játékos (Player)</td>
+            <td>Aki elindítja a programot, kártyákat húz és kombinációkat hoz létre.</td>
+            <td>Fejlesztő csapat (tesztelés során) és az értékelő oktatók.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h5 id="felhasznaloi_kornyezet">3.3 Felhasználói környezet</h5>
+<ul>
+    <li><b>Platform:</b> INSERT HERE</li>
+    <li><b>Felhasználószám:</b> INSERT HERE</li>
+    <li><b>Használati idő:</b> INSERT HERE</li>
+    <li><b>Más alkalmazásokkal való integráció:</b> Jelenleg nem szükséges.</li>
+</ul>
+
+<h5 id="illetekesek_adatai">3.4. Illetékesek adatai</h5>
+<p>Kunné Tamás Judit (Gyakorlatvezető)</p>
+
+<h5 id="felhasznalok_adatai">3.5. Felhasználók adatai</h5>
+<p>A tesztfelhasználók a fejlesztőcsapat tagjai: Pál Bence Marcell, Ruttkay Zoltán Gergő, Stark Ádám, Géczy Márk, Hajdú István Károly.</p>
+
+<h4 id="vegtermek_attekintese">4. A végtermék áttekintése</h4>
+
+<h5 id="termek_kapcsolatai">4.1 A termék kapcsolatai</h5>
+<p>A termék egy önálló (standalone) asztali alkalmazás, nem része nagyobb rendszernek, hálózati kapcsolatot az alapműködéshez nem igényel.</p>
+
+<h5 id="termek_hasznalatanak_elonyei">4.2. A termék használatának előnyei</h5>
+<table border="1" cellspacing="0" cellpadding="4" width="100%">
+    <thead>
+        <tr valign="top">
+            <th>A megrendelő (vagy felhasználó) haszna (előnyei)</th>
+            <th>Az ezt támogató rendszer jellemző(k)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Változatos játékélmény minden indításkor</td>
+            <td>Roguelike jelleggel véletlenszerűen generált kártyapaklik és egyre nehezedő pontszámkövetelmények (run state machine).</td>
+        </tr>
+        <tr>
+            <td>Intellektuális kihívás</td>
+            <td>Összetett kártyakombinációs motor (pontozó motor), amely jutalmazza a stratégiai tervezést.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h5 id="feltelezesek_es_fuggosegek">4.3. Feltételezések és függőségek</h5>
+<p>Feltételezzük, hogy a célplatformokon (Windows/Linux) rendelkezésre áll egy megfelelő Java Futási Környezet (JRE), mivel a fejlesztés Java nyelven történik.</p>
+
+<h5 id="koltsegbecsles">4.4 Költségbecslés</h5>
+<p>Mivel egyetemi projektről van szó, pénzügyi költségbecslés nem értelmezhető. A ráfordítás a csapattagok munkaóráiban (tervezés, dokumentálás, kódolás) mérhető.</p>
+
+<h5 id="installacio">4.5. Installáció</h5>
+<p>A felhasználónak rendelkeznie kell a megfelelő Java környezettel. Az alkalmazás futtatható JAR fájlként vagy forráskódból fordítva áll majd rendelkezésre, külön telepítőprogram egyelőre nem szükséges.</p>
+
+<h4 id="vegtermek_jellemzoi">5. A végtermék jellemzői, biztosított szolgáltatások</h4>
+<ul>
+    <li><b>Kártyahúzás és paklikezelés:</b> A játékos egy virtuális pakliból lapokat húzhat a kezébe.</li>
+    <li><b>Kombinációk kialakítása:</b> A kézben lévő lapokból szabályos kombinációk összeállítása és kijátszása.</li>
+    <li><b>Pontszámítás:</b> A kijátszott kártyák és azok kombinációi alapján automatikus pontszámítás, beleértve a szorzókat (multipliers) is.</li>
+    <li><b>Állapotkezelés (Run State Machine):</b> A szintek közötti előrehaladás, a célszámok (célpontszám) követése, valamint a győzelem/vereség feltételeinek ellenőrzése.</li>
+</ul>
+
+<h4 id="korlatozasok">6. Korlátozások</h4>
+<p>A felhasználói felület (GUI) komplexitása korlátozott lehet az implementációra szánt szűkös időkeret miatt, elsődlegesen a logikai mag (backend) helyes működésére koncentrálunk.</p>
+
+<h4 id="minosegi_elvarasok">7. Minőségi elvárások</h4>
+<ul>
+    <li><b>Megbízhatóság:</b> A pontozó motornak (kombinációk kiértékelése) 100%-os pontossággal, hibátlanul kell működnie. Memóriaszivárgások és túlcsordulások elkerülése.</li>
+    <li><b>Felhasználóbarátság:</b> Egyértelmű vizuális vagy szöveges visszajelzés arról, hogy egy kiválasztott kártyakombináció érvényes-e és mennyi pontot ér.</li>
+</ul>
+
+<h4 id="dokumentacios_kovetelmenyek">8. Dokumentációkkal kapcsolatos követelmények</h4>
+<p>A dokumentációkat a Szoftvertechnológia tárgy előírásainak megfelelően, szabványos HTML formátumban, decimális számozású fejezetekkel, tartalomjegyzékkel és "history" (verziótörténet) táblázattal ellátva kell leadni. A Microsoft Word HTML kimenete nem megengedett.</p>
+
+<h4 id="kockazat_lista">9. Kockázat lista</h4>
+<ol>
+    <li><b>Tapasztalathiány a GUI fejlesztésben:</b> Java felületkészítésben való járatlanság lelassíthatja a vizuális megjelenítést. <i>Kezelés: Egyszerűsített felület, logikára fókuszálás.</i></li>
+    <li><b>Komplex kombinációs logika:</b> A sokféle kártyaszabály miatt a kód nehezen átláthatóvá válhat. <i>Kezelés: Erős objektumorientált tervezés (OOP) és egységtesztek (JUnit) alkalmazása.</i></li>
+    <li><b>Csapattagok közötti koordináció:</b> Az időhiány vagy kommunikációs zavarok csúszásokhoz vezethetnek. <i>Kezelés: Folyamatos Trello használat és rendszeres Discord egyeztetések.</i></li>
+</ol>
+
+<h4 id="szotar">10. Szótár</h4>
+<ul>
+    <ul>
+    <li><b>Roguelike:</b> Olyan videojáték műfaj, amelyre jellemző a véletlenszerűen generált szintek (jelen esetben kártyapaklik) és a "permadeath", ami azt jelenti, hogy a játék elvesztése esetén a teljes folyamat elölről kezdődik.</li>
+    <li><b>Run:</b> Egy teljes végigjátszási kísérlet a kezdettől fogva egészen a győzelemig vagy a vereségig.</li>
+    <li><b>Kombináció:</b> Bizonyos szabályok szerint összetartozó kártyák csoportja (például egyező számok vagy színek), amelyek kijátszása a játékmezőre pontot ér a játékos számára.</li>
+    <li><b>Pontozó motor:</b> A szoftver azon része, amely kiszámítja, hogy egy adott kártyakombináció pontosan mennyi pontot eredményez.</li>
+    <li><b>Multiplier (Szorzó):</b> Olyan speciális kártya vagy játékbeli hatás, amely a megszerzett alappontszámot valamilyen értékkel többszörözi.</li>
+    <li><b>Deck:</b> Az a játékos számára előre meghatározott kártyahalmaz (pakli), amelyből a rendszer a körök során a kártyákat biztosítja.</li>
+    <li><b>Pool:</b> Egy véletlenszerű elemekből álló halmaz, amelyből a játékos a megnyert körök után különböző fejlesztéseket választhat.</li>
+    <li><b>Letételi alkalom:</b> A játékos számára biztosított, meghatározott mennyiségű lehetőség egy körön belül arra, hogy a kezéből kártyákat játsszon ki a pontszerzés érdekében.</li>
+    <li><b>Gameplay módosító:</b> Olyan játékmenet módosító fejlesztés, amely megváltoztat bizonyos mechanikákat, ezzel segítve és megkönnyítve a játékost a célpontszám elérésében.</li>
+    <li><b>Permadeath:</b> A játékmechanika azon tulajdonsága, hogy ha a játékos nem éri el a körhöz szükséges pontszámot, a játék azonnal véget ér, és a következő kísérletnél minden fejlesztés és haladás nullázódik.</li>
+</ul>
+</ul>
+
+</body>
+</html>
