@@ -867,6 +867,85 @@
 	</p>
 
 	Vízió dokumentum minta.html
+<h1><a name="4"></a>4. A végtermék áttekintése</h1>
+
+<p>
+A roguelike kártyajátékunk célja, hogy egy könnyen tanulható, mégis mély stratégiai élményt nyújtó játék legyen. 
+A játék lényege, hogy különböző kártyákból és módosítókból számtalan kombinációkat, stratégiákat lehessen összeállítani, 
+amivel a játékos egy véletlenszerűen generált, egyre nehezedő pályán halad előre. A játékos célja, hogy a szintekben 
+minél tovább jusson. A rendszer modulárisan épül fel: külön kezeli a kombinációs logikát, a játékmenetet és a 
+felhasználói felületet. Ezek a részek együttműködve adják ki a teljes játékélményt, és lehetővé teszik, hogy a 
+későbbiekben könnyen bővíthető legyen új kártyákkal, játékmódokkal vagy mechanikákkal.
+</p>
+
+<p><br></p>
+
+<h2><a name="41"></a>4.1 A termék kapcsolatai</h2>
+
+<p>
+A játék több egymásra épülő komponensből áll. A kártyamodell felel a kártyák tulajdonságaiért, ritkaságáért és hatásaiért, 
+míg a kombinációs motor számolja ki, hogy az adott kártyák a módosítókkal milyen pontszámot vagy szorzót eredményeznek együtt. 
+A játékmenet modul kezeli a köröket, a véletlenszerű bolt menüt és a pályák véletlenszerű generálását. A felhasználói felület 
+mindezt átláthatóan, egyszerűen jeleníti meg, hogy a játékos könnyen követhesse a pakliját, a kézben lévő kártyákat és a pontszámot. 
+A játék önálló alkalmazásként működik, a moduláris felépítés miatt később más rendszerekhez vagy platformokhoz is könnyen igazítható.
+</p>
+
+<p><br></p>
+
+<h2><a name="42"></a>4.2. A termék használatának előnyei</h2>
+
+<p>
+A játék legnagyobb előnye, hogy egyszerre nyújt szórakoztató és újrajátszható élményt. A véletlenszerű pályagenerálásnak 
+köszönhetően minden játék más, így a játék hosszú távon is változatos marad. A játékos kreatív módon építheti fel a pakliját, 
+és különböző kártyakombinációkkal érhet el magas pontszámokat. A cél a gyors és pörgős játékélmény biztosítása.
+</p>
+
+<p><br></p>
+
+<h2><a name="43"></a>4.3. Feltételezések és függőségek</h2>
+
+<p>
+A fejlesztés során feltételezzük, hogy a játék Java környezetben stabilan fut majd Windows és Linux rendszereken egyaránt. 
+A grafikai igények alacsonyak, így gyengébb gépeken is jó teljesítményen fut. A projekt függ a Java Runtime Environment 
+meglététől, valamint a GitHub folyamatos elérhetőségétől, hiszen a verziókövetés és a közös munka ezen keresztül történik. 
+A projekt sikere nagyban múlik azon, hogy a kombinációs motor hibamentesen működjön, mivel ez a játék egyik legfontosabb eleme.
+</p>
+
+<p><br></p>
+
+<h2><a name="44"></a>4.4 Költségbecslés</h2>
+
+<p>
+A projekt órai keretek között, ingyenes szoftverekkel készül, így a költségek elsősorban időráfordításból állnak. 
+A félév során várhatóan minden csapattag 60–80 munkaórát fordít a fejlesztésre. A szükséges eszközök – IntelliJ IDEA, 
+GitHub, Discord – mind ingyenesen használhatók, és a fejlesztéshez szükséges hardvert a saját laptopjaink biztosítják. 
+A projektnek nincs közvetlen pénzügyi költsége, a teljes ráfordítás a csapat munkájából áll.
+</p>
+
+<p><br></p>
+
+<h2><a name="45"></a>4.5 Installáció</h2>
+
+<p>
+A játék telepítése egyszerű és felhasználóbarát. A felhasználó egy letölthető futtatható fájlon keresztül indíthatja el majd 
+a játékot, amely valószínűleg .jar vagy .exe formátumú lesz. A játék nem igényel külön telepítőt vagy bonyolult konfigurációt, 
+mindössze egy működő Java környezetre van szükség.
+</p>
+
+<p><br></p>
+
+<h1><a name="5"></a>5. A végtermék jellemzői, biztosított szolgáltatások</h1>
+
+<p>
+A játék olyan szolgáltatásokat nyújt, amelyek a felhasználó számára könnyen érthetőek és élvezetesek. A játékos különböző 
+kártyákat húzhat, módosíthatja a pakliját, és kreatív kombinációkat állíthat össze, amelyekkel magas pontszámokat érhet el. 
+A roguelike jelleg miatt minden futás más, így a játék folyamatosan új kihívásokat kínál. A pontozási rendszer átláthatóan 
+mutatja, hogyan teljesít a játékos, és milyen hatást érnek el a különböző kártyakombinációk. Bizonyos eseményeknél lehetőség 
+van a kártyák fejlesztésére vagy átalakítására, ami tovább növeli a stratégiai mélységet. A felhasználói felület egyszerű 
+és intuitív, így a játékos könnyen követheti a játék állapotát. A játék menti a korábbi eredményeket és statisztikákat, 
+így a játékos visszanézheti a fejlődését. A véletlenszerű elemek és a kombinációs lehetőségek miatt a játék hosszú távon is 
+újrajátszható és élvezetes marad.
+</p>
 
 	<h1><a name="6"></a>6. Korlátozások</h1>
 
