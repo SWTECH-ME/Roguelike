@@ -62,6 +62,12 @@
 				<td><p>A végtermék áttekintése, jellemzői, és biztosított szolgáltatásai pontok elkészítése</p></td>
 				<td><p>Géczy Márk</p></td>
 			</tr>
+			<tr valign="top">
+				<td><p align="left">2026. 09. 29.</p></td>
+				<td><p align="left">1.5</p></td>
+				<td><p>Az alkalmazás helye, valamint az érintettek és felhasználók pontok elkészítése</p></td>
+				<td><p>Hajdú István Károly</p></td>
+			</tr>
 		</tbody>
 	</table>
 	<p style="margin-bottom: 0cm;"><br></p>
@@ -123,58 +129,153 @@
 	<p style="margin-bottom: 0cm;"><br></p>
 
 	<h1 id="alkalmazas_helye">2. Az alkalmazás helye</h1>
+
 	<p>Ennek a fejezetnek a célja az alkalmazás által megoldandó probléma
 		elhelyezése a környezetében.</p>
-	<p><br><br></p>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h2 id="uzleti_lehetosegek">2.1 Üzleti lehetőségek</h2>
-	<p>Az alkalmazás által nyújtott üzleti lehetőségek, illeszkedése a
-		szervezet céljaihoz.</p>
-	<p><br><br></p>
+
+	<p>A kombináció alapú roguelike kártyajáték egy önállóan játszható, szórakoztató célú termék. A fejlesztőcsapat
+		céljaihoz az illeszkedik, hogy egy saját ötletű, működő játékot hozzon létre, amely megtalálja a közönségét.
+		A termék lehetőségei:</p>
+
+	<ul>
+		<li>
+			<p><strong>Bizonyítottan népszerű műfaj:</strong> A roguelike kártyajátékok rendkívül kedveltek (például
+				<i>Slay the Spire</i>, <i>Balatro</i>), vagyis a játékmenet iránt igazolt az érdeklődés. A játék saját
+				ötlete, a kártyakombinációkra épülő pontgyűjtés, ezen belül külön színt hoz.</p>
+		</li>
+		<li>
+			<p><strong>Széles közönség:</strong> Mivel a játék kis gépigényű, régebbi vagy gyengébb számítógépen is
+				játszható, így többen kipróbálhatják, mint a nagy erőforrás-igényű hasonló játékokat.</p>
+		</li>
+		<li>
+			<p><strong>Hosszú élettartam:</strong> A játék felépítése lehetővé teszi, hogy később új kártyákkal,
+				fejlesztésekkel és szabályokkal bővítsük, így a játékosok hosszabb távon is új tartalmat kaphatnak.</p>
+		</li>
+	</ul>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h2 id="22">2.2 A probléma megfogalmazása</h2>
-	<p>A fejlesztendő alkalmazás által megoldandó probléma megfogalmazása
-		a leendő felhasználók szemszögéből.</p>
-	<p>Definiálni kell</p>
+
+	<p>A játékosok számára kevés olyan egyjátékos kártyajáték érhető el, amely egyszerre rövid, taktikai gondolkodást
+		igénylő, minden végigjátszásnál más élményt nyújtó, és amely régebbi vagy gyengébb számítógépen is gond nélkül
+		fut. A népszerű, hasonló játékok többnyire fizetősek, nagyobb erőforrás-igényűek, és a játékos nem láthatja
+		át, hogyan működnek belül.</p>
+
 	<ul>
-		<li><p>magát a problémát</p></li>
-		<li><p>azokat a résztvevőket, akiket a probléma (és megoldása érint)</p></li>
-		<li><p>milyen befolyással van rájuk a probléma</p></li>
-		<li><p>melyek lesznek a sikeres megoldás legfontosabb hasznos hatásai</p></li>
+		<li>
+			<p><strong>A probléma:</strong> Hiányzik egy könnyen elérhető, átlátható szabályú, alacsony gépigényű,
+				újrajátszható kártyajáték, amelyben a játékos kártyakombinációkkal pontokat gyűjt, és a megnyert körök után
+				fejlesztésekkel erősítheti a következő próbálkozásait.</p>
+		</li>
+		<li>
+			<p><strong>Az érintett résztvevők:</strong> a játékosok és a fejlesztőcsapat.</p>
+		</li>
+		<li>
+			<p><strong>A probléma hatása rájuk:</strong> A játékosok nem találnak megfelelő, rövid ideig is élvezhető
+				játékot, vagy nem tudnak játszani vele, mert a gépük nem elég erős. A fejlesztőcsapat számára a
+				probléma egyben feladat: egy összetett szabályrendszert kell hibátlanul megvalósítani úgy, hogy a
+				pontszámítás minden kártyakombinációnál helyes maradjon.</p>
+		</li>
+		<li>
+			<p><strong>A sikeres megoldás legfontosabb hasznos hatásai:</strong></p>
+			<ul>
+				<li>
+					<p>A játék szabályai gyorsan megérthetők, a kártyák és a kombinációk leírása jól olvasható.</p>
+				</li>
+				<li>
+					<p>Minden új játék más, mert a kártyák kihúzása és a fejlesztések felkínálása véletlenszerű,
+						így a játék hosszú távon is érdekes marad.</p>
+				</li>
+				<li>
+					<p>A játék pörgős, a kártyahúzás és a pontozás késleltetés nélkül történik.</p>
+				</li>
+				<li>
+					<p>Alacsony teljesítményű számítógépen is akadozás nélkül fut.</p>
+				</li>
+				<li>
+					<p>A játékosok kezében egy stabilan működő, később bővíthető játék van.</p>
+				</li>
+			</ul>
+		</li>
 	</ul>
-	<p><br><br></p>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h2 id="23">2.3 Az elkészült termék helye</h2>
-	<p>Itt az elkészült terméket kell elhelyezni a környezetében. Ennek
-		keretében le kell írni, hogy</p>
+
 	<ul>
-		<li><p style="">kinek készült (melyik / milyen szervezetnek)</p></li>
-		<li><p style="">ki fogja használni</p></li>
-		<li><p style="">milyen alkalmazás kategóriába tartozik (pl. fejlesztőeszköz, vállalati információs rendszer, stb.)</p></li>
-		<li><p>mi az alapvető haszna</p></li>
-		<li><p>milyen alternatívák lehetnek a fejlesztésen kívül (meglevő más rendszer, másféle megoldás, ezek előnyei, hátrányai)</p></li>
-		<li><p>miben különbözik alapvetően az elkészült termék az alternatíváktól</p></li>
+		<li>
+			<p><strong>Kinek készült:</strong> Mindenkinek, aki szeret kártyajátékkal játszani, és a roguelike műfajt,
+				a taktikus gondolkodást kedveli.</p>
+		</li>
+		<li>
+			<p><strong>Ki fogja használni:</strong> Magánszemély játékosok, akik egyedül, rövid időre szeretnének
+				gondolkodtató játékot játszani.</p>
+		</li>
+		<li>
+			<p><strong>Alkalmazás kategória:</strong> Szórakoztató szoftver, azon belül egyjátékos, 2D-s, asztali
+				számítógépen futó kártyajáték.</p>
+		</li>
+		<li>
+			<p><strong>Az alapvető haszna:</strong> Szórakozás és gondolkodtatás a játékosnak: rövid, mégis mély,
+				minden alkalommal más élményt ad.</p>
+		</li>
+		<li>
+			<p><strong>Alternatívák a fejlesztésen kívül:</strong></p>
+			<ul>
+				<li>
+					<p><i>Slay the Spire, Balatro:</i> kiforrott, látványos, sok tartalmat tartalmazó játékok, de fizetősek,
+						nagyobb gépigényűek, és a játékos nem tud beleszólni a szabályaikba.</p>
+				</li>
+				<li>
+					<p><i>Hagyományos kártyajátékok (pasziánsz, póker) fizikai paklival vagy egyszerű digitális
+						változatban:</i> ismertek és ingyenesek, de nincs bennük fejlődés, a játékos nem erősíti a
+						próbálkozásait, és a végigjátszások között nincs változatosság.</p>
+				</li>
+			</ul>
+		</li>
+		<li>
+			<p><strong>Miben különbözik az elkészült termék az alternatíváktól:</strong> Saját ötletű, könnyen
+				bővíthető felépítésű játék. A kártyakombinációk pontozását különálló, a háttérben futó pontozó
+				motor végzi, a játékos pedig a megnyert körök után véletlenszerűen kínált fejlesztésekből
+				választhat, amelyek akár a játék alapvető szabályait is megváltoztatják. Kis erőforrás-igénye miatt
+				régi számítógépen is játszható.</p>
+		</li>
 	</ul>
-	<p><br><br></p>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h1 id="3">3. Érintettek és felhasználók</h1>
-	<p>Ebben a fejezetben össze kell foglalni a rendszer által érintett,
-		és az azt majdan használó személyek / szervezetek alapvető
-		jellemzőit. Először nem a konkrét személyek érdekesek, hanem a
-		beosztásuk, viszonyuk a szervezethez és az alkalmazáshoz stb.</p>
-	<p>Azt kell tudni megállapítani, hogy az érintettek és a felhasználók
-		mindegyikét összegyűjtöttük-e, hiszen a követelmények az ő
-		szükségleteikből adódnak, és sok esetben tőlük szerezhetők be az ide
-		vonatkozó információk.</p>
-	<p>Ezek után össze kell gyűjteni az adott szerepet (érintett, illetve
-		felhasználó) reprezentáló konkrét személyeket, ha vannak ilyenek,
-		hiszen velük kell együtt dolgozni a fejlesztés számos
-		munkafolyamatában.</p>
-	<p><br><br></p>
+
+	<p>Ebben a fejezetben összefoglaljuk a rendszer által érintett, és az azt majdan használó személyek és szervezetek
+		alapvető jellemzőit.</p>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h2 id="31">3.1. Az érintettek összefoglalása</h2>
-	<p>Célszerű egy alábbi táblázat kitöltése</p>
+
 	<table border="1" bordercolor="#000000" cellpadding="4" cellspacing="0" width="100%">
+
 		<colgroup>
 			<col width="85*">
 			<col width="85*">
@@ -182,39 +283,112 @@
 		</colgroup>
 		<thead>
 			<tr valign="top">
-				<th width="33%"><p>Elnevezés</p></th>
-				<th width="33%"><p>Leírás</p></th>
-				<th width="33%"><p>Szerep</p></th>
+
+				<th width="33%">
+
+					<p>Elnevezés</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Leírás</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Szerep</p>
+
+				</th>
+
 			</tr>
+
 		</thead>
 		<tbody>
+
 			<tr valign="top">
-				<td width="33%"><p>Magyarázat: Az érintett típusa</p></td>
-				<td width="33%"><p>Magyarázat: Milyen köze van az alkalmazáshoz?</p></td>
-				<td width="33%"><p>Magyarázat: Milyen szerepet játszik a fejlesztésben?</p></td>
+
+				<td width="33%">
+
+					<p>Fejlesztőcsapat</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Öt fős csapat, amely a játékot kitalálta, és megtervezi és elkészíti.</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Meghatározza a játék szabályait és tartalmát, megvalósítja és teszteli a játékot, és
+						gondoskodik a későbbi bővítésről.</p>
+
+				</td>
+
 			</tr>
+
 			<tr valign="top">
-				<td width="33%"><p>Példa: webmester</p></td>
-				<td width="33%"><p>Példa: Karbantartja és aktualizálja a honlapot, segít a felhasználóknak.</p></td>
-				<td width="33%"><p>Példa: Bejegyzi a weblapot a szolgáltatónál, tartalommal feltölti és teszteli az alkalmazást.</p></td>
+
+				<td width="33%">
+
+					<p>Játékosok</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Azok a személyek, akik a kész játékkal játszanak, és akiknek a szórakozását a játék szolgálja.</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Kipróbálják a játékot, visszajelzést adnak a nehézségről, az érthetőségről és a
+						használhatóságról, és ezzel segítenek a hibák felderítésében.</p>
+
+				</td>
+
 			</tr>
+
 			<tr valign="top">
-				<td width="33%"><p><br></p></td>
-				<td width="33%"><p><br></p></td>
-				<td width="33%"><p><br></p></td>
+
+				<td width="33%">
+
+					<p>Szabadon felhasználható tartalmak készítői</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Külső készítők, akiknek nyílt vagy szabad licencű képeit, hangjait a játék felhasználhatja.</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Közvetve járulnak hozzá a fejlesztéshez azzal, hogy a játék megjelenéséhez és hangjaihoz
+						felhasználható anyagot biztosítanak. Csak akkor érintettek, ha ilyen anyagot használunk.</p>
+
+				</td>
+
 			</tr>
-			<tr valign="top">
-				<td width="33%"><p><br></p></td>
-				<td width="33%"><p><br></p></td>
-				<td width="33%"><p><br></p></td>
-			</tr>
+
+
 		</tbody>
 	</table>
-	<p><br><br></p>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h2 id="32">3.2. A felhasználók összefoglalása</h2>
-	<p>Célszerű egy alábbi táblázat kitöltése</p>
+
 	<table border="1" bordercolor="#000000" cellpadding="4" cellspacing="0" width="100%">
+
 		<colgroup>
 			<col width="85*">
 			<col width="85*">
@@ -222,59 +396,220 @@
 		</colgroup>
 		<thead>
 			<tr valign="top">
-				<th width="33%"><p>Elnevezés</p></th>
-				<th width="33%"><p>Leírás</p></th>
-				<th width="33%"><p>Illetékes</p></th>
+
+				<th width="33%">
+
+					<p>Elnevezés</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Leírás</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Illetékes</p>
+
+				</th>
+
 			</tr>
+
 		</thead>
 		<tbody>
+
 			<tr valign="top">
-				<td width="33%"><p>Magyarázat: A felhasználó típusa</p></td>
-				<td width="33%"><p>Magyarázat: Mit reprezentál az alkalmazással kapcsolatban?</p></td>
-				<td width="33%"><p>Magyarázat: Melyik illetékes reprezentálja ebben a fejlesztésben?</p></td>
+
+				<td width="33%">
+
+					<p>Játékos</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Az egyetlen felhasználói szerep. A játékos elindítja a játékot, kártyákat választ és játszik ki,
+						fejlesztéseket választ, és egyedül halad végig a köreken. Külön karbantartói vagy
+						adminisztrátori szerep nincs.</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>A fejlesztőcsapat tagjai, akik a fejlesztés során játékosként képviselik a felhasználókat, és a
+						játékot kipróbáló személyek.</p>
+
+				</td>
+
 			</tr>
-			<tr valign="top">
-				<td width="33%"><p>Példa: tartalom karbantartó</p></td>
-				<td width="33%"><p>Példa: site adminisztrátor</p></td>
-				<td width="33%"><p>Példa: a webmester feladat</p></td>
-			</tr>
-			<tr valign="top">
-				<td width="33%"><p><br></p></td>
-				<td width="33%"><p><br></p></td>
-				<td width="33%"><p><br></p></td>
-			</tr>
-			<tr valign="top">
-				<td width="33%"><p><br></p></td>
-				<td width="33%"><p><br></p></td>
-				<td width="33%"><p><br></p></td>
-			</tr>
+
+
 		</tbody>
 	</table>
-	<p><br><br></p>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h2 id="33">3.3 Felhasználói környezet</h2>
-	<p>Itt kell leírni mindent, ami a fejlesztés ezen fázisában már
-		tudható a végtermék használatának körülményeiről. Ide tartozhatnak
-		például ilyen információk:</p>
+
 	<ul>
-		<li><p>Milyen platformon fog futni az átadott alkalmazás, és várhatóan változni fog-e?</p></li>
-		<li><p>Hány felhasználó fogja használni egy időben átlagosan, és hány felhasználó várható maximálisan?</p></li>
-		<li><p>Van-e valami várható trendje a felhasználószámnak?</p></li>
-		<li><p>Mennyi ideig fogja használni a rendszert egy felhasználó, és ez mennyire változó?</p></li>
-		<li><p>Milyen különleges körülményekkel kell számolni (egyedi hardware eszközök, mobil kliensek stb.)?</p></li>
-		<li><p>Milyen más alkalmazásokkal kell várhatóan integrálni a terméket?</p></li>
+
+		<li>
+			<p><strong>Platform:</strong> Asztali vagy hordozható személyi számítógép, amelyen a Java programok futtatásához
+				szükséges környezet telepítve van. A játék alacsony teljesítményű gépen, például integrált
+				grafikus vezérlős laptopon is akadozás nélkül fut. A platform a fejlesztés során várhatóan nem
+				változik.</p>
+		</li>
+		<li>
+			<p><strong>Felhasználók száma:</strong> Egyjátékos program, ezért egyszerre egy felhasználó használja egy
+				számítógépen. Az átlagos és a maximális egyidejű felhasználószám is egy. Nincs szerver, és nincs
+				szükség internetkapcsolatra.</p>
+		</li>
+		<li>
+			<p><strong>Felhasználószám trendje:</strong> A felhasználók száma nem befolyásolja a rendszer működését.
+				Nincs várható növekedési trend, amelyre fel kellene készülni.</p>
+		</li>
+		<li>
+			<p><strong>Használat időtartama:</strong> Egy végigjátszás rövid, előzetes becslés szerint húsz-negyven perc.
+				Ez a játékos teljesítményétől függően változó: egy korai vereség után gyorsan véget ér, egy sikeres
+				végigjátszás hosszabb ideig tart. Egy játékos akár többször egymás után is játszhat.</p>
+		</li>
+		<li>
+			<p><strong>Különleges körülmények:</strong> Nincs szükség egyedi hardverre vagy mobil eszközre. A játék
+				kezelése egérrel (és szükség esetén billentyűzettel) történik.</p>
+		</li>
+		<li>
+			<p><strong>Integráció más alkalmazásokkal:</strong> A játék önálló program, nem kell más alkalmazással
+				együttműködnie.</p>
+		</li>
 	</ul>
-	<p><br><br></p>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h2 id="34">3.4. Illetékesek adatai</h2>
-	<p><br><br></p>
+
+	<p>Az alábbi személyek segítik a fejlesztés során a munkát. Az elérhetőség a GitHub-felhasználónév, ahol a projekt
+		tárolása és a csapaton belüli egyeztetés zajlik.</p>
+
+	<table border="1" bordercolor="#000000" cellpadding="4" cellspacing="0" width="100%">
+
+		<colgroup>
+			<col width="85*">
+			<col width="85*">
+			<col width="85*">
+		</colgroup>
+		<thead>
+			<tr valign="top">
+
+				<th width="33%">
+
+					<p>Név</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Szerep</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Elérhetőség (GitHub)</p>
+
+				</th>
+
+			</tr>
+
+		</thead>
+		<tbody>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Pál Bence Marcell</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>palbm</p>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Ruttkay Zoltán Gergő</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>ruttkayzoltan</p>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Stark Ádám</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>adamstark1</p>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Géczy Márk</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>Mark-Geczy</p>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Hajdú István Károly</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>Zev1du</p>
+				</td>
+			</tr>
+
+
+		</tbody>
+	</table>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h2 id="35">3.5. Felhasználók adatai</h2>
-	<p><br><br></p>
-	<p>Ebben a két alfejezetben lehet rögzíteni azon személyek adatait,
-		elérhetőségét, felelősségét, akik a rendszer fejlesztése során az
-		adott szerepekben segítik a fejlesztők munkáját.</p>
-	<p><br><br></p>
+
+	<p>A fejlesztés jelenlegi szakaszában nincs külön kijelölt, azonosított felhasználó. A játékosok szempontjait a
+		csapattagok képviselik, akik a fejlesztés során rendszeresen kipróbálják a játékot. Ha később külső kipróbálók
+		is bekapcsolódnak, az ő adataikat ide kell felvenni.</p>
+
+	<p><br>
+		<br>
+
+	</p>
 
 	<h1 id="4">4. A végtermék áttekintése</h1>
 	<p>
