@@ -383,8 +383,7 @@
 	<ol>
 
 
-		<p style="margin-bottom: 0cm;">Itt szerepelhet a készítendő
-			alkalmazás legáltalánosabb leírása, fantázianeve, ha van, stb.</p>
+		<p style="margin-bottom: 0cm;">A készítendő alkalmazás egy "Kombináció alapú roguelike kártyajáték". Ez egy taktikai fókuszú, egyjátékos digitális kártyajáték. A játék célja az hogy a felhasználó, az előre meghatározott "deck"-ből kihúzott n-számú kártyákból összeálló kezéből olyan kombinációkat tegyen le a játékmezőre, amivel a lehető legtöbb pontot éri el. A bizonyos köröket a játékos akkor nyeri meg, hogyha a meghatározott mennyiségű letételi alkalmak során sikerül elérnie annyi pontot amennyi a körben szükséges a továbbhaladáshoz. A teljesítményt és az érvényességet a háttérben futó pontozó motor értékeli. A játék Rougelike elemntejként minden megnyert kör után a játékosnak lehetősége van fejlesztéseket választani egy random "pool"-ból. Ezek a fejlesztések jelentősen megkönnyítik a későbbi pontszerzést, és magukba foglalhatnak különböző multiplier-eket (szorzókat), vagy olyan komplex gameplay módosítókat, amelyek alapvető mechanikákat változtatnak meg. Amennyiben a játékosnak nem sikerül a szinthez előre meghatározott pontszámot összegyűjtenie, bekövetkezik a permadeath: a jelenlegi run azonnal véget ér, a folyamat megszakad, és a játék alaphelyzetéből csak egy teljesen új játékot lehet kezdeni</p>
 
 	</ol>
 
@@ -1349,17 +1348,22 @@
 
 	<h1><a name="10"></a>10. Szótár</h1>
 
-	<p>Itt adjuk meg a szövegben előforduló szakterületi kifejezések (és
-		kivételesen az elkerülhetetlen informatikai szakkifejezések)
-		definícióját vagy magyarázatát. A definícióban vagy magyarázatban
-		csak a szótárban levő kifejezések és köznapi kifejezések
-		szerepelhetnek.</p>
-
-	<p>Ez a fejezet adja meg az alapját annak a szógyűjteménynek, amely
-		önálló dokumentummá válva a fejlesztés során folyamatosan bővül és
-		egyre pontosabb magyarázatokat tartalmaz, megteremtve ezzel annak
-		lehetőségét, hogy elkerüljük a fejlesztők és a szakterületi szakértők
-		közötti félreértéseket.</p>
+	<p>
+		<ul>
+    <ul>
+    <li><b>Roguelike:</b> Olyan videojáték műfaj, amelyre jellemző a véletlenszerűen generált szintek (jelen esetben kártyapaklik) és a "permadeath", ami azt jelenti, hogy a játék elvesztése esetén a teljes folyamat elölről kezdődik.</li>
+    <li><b>Run:</b> Egy teljes végigjátszási kísérlet a kezdettől fogva egészen a győzelemig vagy a vereségig.</li>
+    <li><b>Kombináció:</b> Bizonyos szabályok szerint összetartozó kártyák csoportja (például egyező számok vagy színek), amelyek kijátszása a játékmezőre pontot ér a játékos számára.</li>
+    <li><b>Pontozó motor:</b> A szoftver azon része, amely kiszámítja, hogy egy adott kártyakombináció pontosan mennyi pontot eredményez.</li>
+    <li><b>Multiplier (Szorzó):</b> Olyan speciális kártya vagy játékbeli hatás, amely a megszerzett alappontszámot valamilyen értékkel többszörözi.</li>
+    <li><b>Deck:</b> Az a játékos számára előre meghatározott kártyahalmaz (pakli), amelyből a rendszer a körök során a kártyákat biztosítja.</li>
+    <li><b>Pool:</b> Egy véletlenszerű elemekből álló halmaz, amelyből a játékos a megnyert körök után különböző fejlesztéseket választhat.</li>
+    <li><b>Letételi alkalom:</b> A játékos számára biztosított, meghatározott mennyiségű lehetőség egy körön belül arra, hogy a kezéből kártyákat játsszon ki a pontszerzés érdekében.</li>
+    <li><b>Gameplay módosító:</b> Olyan játékmenet módosító fejlesztés, amely megváltoztat bizonyos mechanikákat, ezzel segítve és megkönnyítve a játékost a célpontszám elérésében.</li>
+    <li><b>Permadeath:</b> A játékmechanika azon tulajdonsága, hogy ha a játékos nem éri el a körhöz szükséges pontszámot, a játék azonnal véget ér, és a következő kísérletnél minden fejlesztés és haladás nullázódik.</li>
+</ul>
+</ul>
+	</p>
 
 	<p><br>
 		<br>
