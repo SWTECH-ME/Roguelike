@@ -68,6 +68,12 @@
 				<td><p>Az alkalmazás helye, valamint az érintettek és felhasználók pontok elkészítése</p></td>
 				<td><p>Hajdú István Károly</p></td>
 			</tr>
+			<tr valign="top">
+				<td><p align="left">2026. 10. 02.</p></td>
+				<td><p align="left">1.6</p></td>
+				<td><p>2. és 3. fejezet pontosítása és stilisztikai korrekciója oktatói visszajelzés alapján</p></td>
+				<td><p>Hajdú István Károly</p></td>
+			</tr>
 		</tbody>
 	</table>
 	<p style="margin-bottom: 0cm;"><br></p>
@@ -167,24 +173,25 @@
 
 	<h2 id="22">2.2 A probléma megfogalmazása</h2>
 
-	<p>A játékosok számára kevés olyan egyjátékos kártyajáték érhető el, amely egyszerre rövid, taktikai gondolkodást
-		igénylő, minden végigjátszásnál más élményt nyújtó, és amely régebbi vagy gyengébb számítógépen is gond nélkül
-		fut. A népszerű, hasonló játékok többnyire fizetősek, nagyobb erőforrás-igényűek, és a játékos nem láthatja
-		át, hogyan működnek belül.</p>
+	<p>A játékosok számára kevés olyan egyjátékos kártyajáték érhető el, amely egyszerre kínál gyors lefolyású (akár
+		20–40 perces futamokban élvezhető), mély taktikai gondolkodást igénylő játékmenetet, minden végigjátszásnál más
+		élményt nyújt, és alacsonyabb számítási kapacitású számítógépeken is zökkenőmentesen fut. A népszerű, hasonló
+		játékok többnyire fizetősek, nagyobb erőforrás-igényűek, és zárt forráskódúak, így a játékos nem láthatja át
+		a háttérben futó pontozási és mechanikai működést.</p>
 
 	<ul>
 		<li>
 			<p><strong>A probléma:</strong> Hiányzik egy könnyen elérhető, átlátható szabályú, alacsony gépigényű,
 				újrajátszható kártyajáték, amelyben a játékos kártyakombinációkkal pontokat gyűjt, és a megnyert körök után
-				fejlesztésekkel erősítheti a következő próbálkozásait.</p>
+				véletlenszerűen felkínált fejlesztésekkel, szorzókkal teheti egyre hatékonyabbá a pakliját a későbbi szintekhez.</p>
 		</li>
 		<li>
 			<p><strong>Az érintett résztvevők:</strong> a játékosok és a fejlesztőcsapat.</p>
 		</li>
 		<li>
-			<p><strong>A probléma hatása rájuk:</strong> A játékosok nem találnak megfelelő, rövid ideig is élvezhető
-				játékot, vagy nem tudnak játszani vele, mert a gépük nem elég erős. A fejlesztőcsapat számára a
-				probléma egyben feladat: egy összetett szabályrendszert kell hibátlanul megvalósítani úgy, hogy a
+			<p><strong>A probléma hatása rájuk:</strong> A játékosok nehezen találnak olyan kártyajátékot, amely rövidebb
+				időkeretben is teljes értékű élményt nyújt anélkül, hogy magas hardverkövetelményeket támasztana. A fejlesztőcsapat
+				számára a probléma egyben feladat: egy összetett szabályrendszert kell hibátlanul megvalósítani úgy, hogy a
 				pontszámítás minden kártyakombinációnál helyes maradjon.</p>
 		</li>
 		<li>
@@ -223,37 +230,41 @@
 				a taktikus gondolkodást kedveli.</p>
 		</li>
 		<li>
-			<p><strong>Ki fogja használni:</strong> Magánszemély játékosok, akik egyedül, rövid időre szeretnének
-				gondolkodtató játékot játszani.</p>
+			<p><strong>Ki fogja használni:</strong> Magánszemély játékosok, akik egyedül, akár rövidebb (20–40 perces)
+				etapokban szeretnének stratégiai, gondolkodtató játékot játszani.</p>
 		</li>
 		<li>
 			<p><strong>Alkalmazás kategória:</strong> Szórakoztató szoftver, azon belül egyjátékos, 2D-s, asztali
 				számítógépen futó kártyajáték.</p>
 		</li>
 		<li>
-			<p><strong>Az alapvető haszna:</strong> Szórakozás és gondolkodtatás a játékosnak: rövid, mégis mély,
-				minden alkalommal más élményt ad.</p>
+			<p><strong>Az alapvető haszna:</strong> Értékes szórakozás és stratégiai gondolkodás: pörgős, gyors menetekben
+				is élvezhető, mégis mély döntési helyzeteket kínál, miközben minden újrakezdett futam egyedi élményt ad.</p>
 		</li>
 		<li>
 			<p><strong>Alternatívák a fejlesztésen kívül:</strong></p>
 			<ul>
 				<li>
-					<p><i>Slay the Spire, Balatro:</i> kiforrott, látványos, sok tartalmat tartalmazó játékok, de fizetősek,
-						nagyobb gépigényűek, és a játékos nem tud beleszólni a szabályaikba.</p>
+					<p><i>Slay the Spire, Balatro:</i> Kiforrott, látványos kereskedelmi játékok, azonban fizetősek,
+						zárt forráskódúak (a játékos nem látja át a belső algoritmusokat), nagyobb hardverigényűek,
+						és nem biztosítanak lehetőséget a szabályrendszer vagy kártyakészlet moduláris bővítésére, testreszabására.</p>
 				</li>
 				<li>
 					<p><i>Hagyományos kártyajátékok (pasziánsz, póker) fizikai paklival vagy egyszerű digitális
-						változatban:</i> ismertek és ingyenesek, de nincs bennük fejlődés, a játékos nem erősíti a
-						próbálkozásait, és a végigjátszások között nincs változatosság.</p>
+						változatban:</i> Széles körben ismertek és ingyenesek, de hiányzik belőlük a roguelike fejlődési
+						rendszer: a játékos nem tud a menetek során új képességeket, pontszorzókat vagy szabálymódosítókat
+						felhalmozni a paklija erősítésére, így a játékmenet nem kínál körről körre mélyülő szinergiákat és
+						hosszú távú változatosságot.</p>
 				</li>
 			</ul>
 		</li>
 		<li>
-			<p><strong>Miben különbözik az elkészült termék az alternatíváktól:</strong> Saját ötletű, könnyen
-				bővíthető felépítésű játék. A kártyakombinációk pontozását különálló, a háttérben futó pontozó
-				motor végzi, a játékos pedig a megnyert körök után véletlenszerűen kínált fejlesztésekből
-				választhat, amelyek akár a játék alapvető szabályait is megváltoztatják. Kis erőforrás-igénye miatt
-				régi számítógépen is játszható.</p>
+			<p><strong>Miben különbözik az elkészült termék az alternatíváktól:</strong> Saját ötletű, modulárisan könnyen
+				bővíthető felépítésű játék. A kártyakombinációk pontozását különálló, a háttérben futó, átlátható pontozó
+				motor végzi, a játékos pedig a megnyert körök után véletlenszerűen kínált fejlesztésekből választhat, amelyek
+				egyedi szorzókkal és játékmenet-módosító mechanikákkal mélyítik a stratégiát. Alacsony hardver- és erőforrás-igénye
+				révén régebbi vagy alacsonyabb számítási kapacitású, integrált grafikus vezérlővel (iGPU) rendelkező személyi
+				számítógépeken is akadozás nélkül játszható, mindössze egy alapvető Java futtatókörnyezetet igényelve.</p>
 		</li>
 	</ul>
 
