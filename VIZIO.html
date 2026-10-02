@@ -1,0 +1,863 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html style="direction: ltr;">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<title>Vízió dokumentum minta</title>
+	<meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Win32)">
+	<meta name="AUTHOR" content="Lajos Ficsor">
+	<meta name="CREATED" content="20050222;15124300">
+	<meta name="CHANGEDBY" content="Lajos Ficsor">
+	<meta name="CHANGED" content="20060216;19093796">
+</head>
+
+<body>
+	<h1>
+		<p align="center"><b>Vízió dokumentum</b></p>
+	</h1>
+	<table cellspacing="3" cellpadding="4" border="1" width="90%" align="center">
+		<colgroup>
+			<col width="15%">
+			<col width="10%">
+			<col width="45%">
+			<col width="30%">
+		</colgroup>
+		<thead>
+			<tr valign="top">
+				<th><p>Dátum</p></th>
+				<th><p>Verzió</p></th>
+				<th><p>Leírás</p></th>
+				<th><p>Szerző</p></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr valign="top">
+				<td><p align="left">2026. 09. 29.</p></td>
+				<td><p align="left">1.0</p></td>
+				<td><p>Kezdeti verzió a Vízió dokumentumhoz, a kombináció alapú roguelike kártyajátékhoz igazítva.</p></td>
+				<td><p>tökmind1 csoport</p></td>
+			</tr>
+			<tr valign="top">
+				<td><p align="left">2026. 09. 29.</p></td>
+				<td><p align="left">1.1</p></td>
+				<td><p>Bevezetés és Szótár pontok elkészítése</p></td>
+				<td><p>Pál Bence Marcell</p></td>
+			</tr>
+			<tr valign="top">
+				<td><p align="left">2026. 09. 29.</p></td>
+				<td><p align="left">1.2</p></td>
+				<td><p>Dokumentációkkal kapcsolatos követelmények, és Kockázati lista pontok elkészítése.</p></td>
+				<td><p>Stark Ádám</p></td>
+			</tr>
+			<tr valign="top">
+				<td><p align="left">2026. 09. 29.</p></td>
+				<td><p align="left">1.3</p></td>
+				<td><p>Korlátozások És Minőséggel kapcsolatos elvárások pontjainak elkészítése</p></td>
+				<td><p>Ruttkay Zoltán Gergő</p></td>
+			</tr>
+			<tr valign="top">
+				<td><p align="left">2026. 09. 29.</p></td>
+				<td><p align="left">1.4</p></td>
+				<td><p>A végtermék áttekintése, jellemzői, és biztosított szolgáltatásai pontok elkészítése</p></td>
+				<td><p>Géczy Márk</p></td>
+			</tr>
+			<tr valign="top">
+				<td><p align="left">2026. 09. 29.</p></td>
+				<td><p align="left">1.5</p></td>
+				<td><p>Az alkalmazás helye, valamint az érintettek és felhasználók pontok elkészítése</p></td>
+				<td><p>Hajdú István Károly</p></td>
+			</tr>
+		</tbody>
+	</table>
+	<p style="margin-bottom: 0cm;"><br></p>
+
+	<h4 id="tartalomjegyzek">Tartalomjegyzék</h4>
+	<ol style="list-style-type: none; padding-left: 20px;">
+		<li><a href="#bevezetes">1. Bevezetés</a></li>
+		<li><a href="#alkalmazas_helye">2. Az alkalmazás helye</a>
+			<ul style="list-style-type: none;">
+				<li><a href="#uzleti_lehetosegek">2.1 Üzleti lehetőségek</a></li>
+				<li><a href="#22">2.2 A probléma megfogalmazása</a></li>
+				<li><a href="#23">2.3 Az elkészült termék helye</a></li>
+			</ul>
+		</li>
+		<li><a href="#3">3. Érintettek és felhasználók</a>
+			<ul style="list-style-type: none;">
+				<li><a href="#31">3.1. Az érintettek összefoglalása</a></li>
+				<li><a href="#32">3.2. A felhasználók összefoglalása</a></li>
+				<li><a href="#33">3.3 Felhasználói környezet</a></li>
+				<li><a href="#34">3.4. Illetékesek adatai</a></li>
+				<li><a href="#35">3.5. Felhasználók adatai</a></li>
+			</ul>
+		</li>
+		<li><a href="#4">4. A végtermék áttekintése</a>
+			<ul style="list-style-type: none;">
+				<li><a href="#41">4.1 A termék kapcsolatai</a></li>
+				<li><a href="#42">4.2. A termék használatának előnyei</a></li>
+				<li><a href="#43">4.3. Feltételezések és függőségek</a></li>
+				<li><a href="#44">4.4 Költségbecslés</a></li>
+				<li><a href="#45">4.5. Installáció</a></li>
+			</ul>
+		</li>
+		<li><a href="#5">5. A végtermék jellemzői, biztosított szolgáltatások</a></li>
+		<li><a href="#6">6. Korlátozások</a></li>
+		<li><a href="#7">7. Minőségi elvárások</a></li>
+		<li><a href="#8">8. Dokumentációkkal kapcsolatos követelmények</a></li>
+		<li><a href="#9">9. Kockázat lista</a></li>
+		<li><a href="#szotar">10. Szótár</a></li>
+	</ol>
+
+	<hr>
+
+	<p><br><br></p>
+	<p style="margin-bottom: 0cm;"><br></p>
+	<p style="margin-bottom: 0cm;"><br></p>
+
+	<h1 id="bevezetes">1. Bevezetés</h1>
+	<p>A készítendő alkalmazás egy "Kombináció alapú roguelike kártyajáték". Ez egy taktikai fókuszú, egyjátékos
+		digitális kártyajáték. A játék célja az hogy a felhasználó, az előre meghatározott "deck"-ből kihúzott n-számú
+		kártyákból összeálló kezéből olyan kombinációkat tegyen le a játékmezőre, amivel a lehető legtöbb pontot éri el.
+		A bizonyos köröket a játékos akkor nyeri meg, hogyha a meghatározott mennyiségű letételi alkalmak során sikerül
+		elérnie annyi pontot amennyi a körben szükséges a továbbhaladáshoz. A teljesítményt és az érvényességet a
+		háttérben futó pontozó motor értékeli. A játék Rougelike elemntejként minden megnyert kör után a játékosnak
+		lehetősége van fejlesztéseket választani egy random "pool"-ból. Ezek a fejlesztések jelentősen megkönnyítik a
+		későbbi pontszerzést, és magukba foglalhatnak különböző multiplier-eket (szorzókat), vagy olyan komplex gameplay
+		módosítókat, amelyek alapvető mechanikákat változtatnak meg. Amennyiben a játékosnak nem sikerül a szinthez
+		előre meghatározott pontszámot összegyűjtenie, bekövetkezik a permadeath: a jelenlegi run azonnal véget ér, a
+		folyamat megszakad, és a játék alaphelyzetéből csak egy teljesen új játékot lehet kezdeni</p>
+	<p style="margin-bottom: 0cm;"><br></p>
+
+	<h1 id="alkalmazas_helye">2. Az alkalmazás helye</h1>
+
+	<p>Ennek a fejezetnek a célja az alkalmazás által megoldandó probléma
+		elhelyezése a környezetében.</p>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h2 id="uzleti_lehetosegek">2.1 Üzleti lehetőségek</h2>
+
+	<p>A kombináció alapú roguelike kártyajáték egy önállóan játszható, szórakoztató célú termék. A fejlesztőcsapat
+		céljaihoz az illeszkedik, hogy egy saját ötletű, működő játékot hozzon létre, amely megtalálja a közönségét.
+		A termék lehetőségei:</p>
+
+	<ul>
+		<li>
+			<p><strong>Bizonyítottan népszerű műfaj:</strong> A roguelike kártyajátékok rendkívül kedveltek (például
+				<i>Slay the Spire</i>, <i>Balatro</i>), vagyis a játékmenet iránt igazolt az érdeklődés. A játék saját
+				ötlete, a kártyakombinációkra épülő pontgyűjtés, ezen belül külön színt hoz.</p>
+		</li>
+		<li>
+			<p><strong>Széles közönség:</strong> Mivel a játék kis gépigényű, régebbi vagy gyengébb számítógépen is
+				játszható, így többen kipróbálhatják, mint a nagy erőforrás-igényű hasonló játékokat.</p>
+		</li>
+		<li>
+			<p><strong>Hosszú élettartam:</strong> A játék felépítése lehetővé teszi, hogy később új kártyákkal,
+				fejlesztésekkel és szabályokkal bővítsük, így a játékosok hosszabb távon is új tartalmat kaphatnak.</p>
+		</li>
+	</ul>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h2 id="22">2.2 A probléma megfogalmazása</h2>
+
+	<p>A játékosok számára kevés olyan egyjátékos kártyajáték érhető el, amely egyszerre rövid, taktikai gondolkodást
+		igénylő, minden végigjátszásnál más élményt nyújtó, és amely régebbi vagy gyengébb számítógépen is gond nélkül
+		fut. A népszerű, hasonló játékok többnyire fizetősek, nagyobb erőforrás-igényűek, és a játékos nem láthatja
+		át, hogyan működnek belül.</p>
+
+	<ul>
+		<li>
+			<p><strong>A probléma:</strong> Hiányzik egy könnyen elérhető, átlátható szabályú, alacsony gépigényű,
+				újrajátszható kártyajáték, amelyben a játékos kártyakombinációkkal pontokat gyűjt, és a megnyert körök után
+				fejlesztésekkel erősítheti a következő próbálkozásait.</p>
+		</li>
+		<li>
+			<p><strong>Az érintett résztvevők:</strong> a játékosok és a fejlesztőcsapat.</p>
+		</li>
+		<li>
+			<p><strong>A probléma hatása rájuk:</strong> A játékosok nem találnak megfelelő, rövid ideig is élvezhető
+				játékot, vagy nem tudnak játszani vele, mert a gépük nem elég erős. A fejlesztőcsapat számára a
+				probléma egyben feladat: egy összetett szabályrendszert kell hibátlanul megvalósítani úgy, hogy a
+				pontszámítás minden kártyakombinációnál helyes maradjon.</p>
+		</li>
+		<li>
+			<p><strong>A sikeres megoldás legfontosabb hasznos hatásai:</strong></p>
+			<ul>
+				<li>
+					<p>A játék szabályai gyorsan megérthetők, a kártyák és a kombinációk leírása jól olvasható.</p>
+				</li>
+				<li>
+					<p>Minden új játék más, mert a kártyák kihúzása és a fejlesztések felkínálása véletlenszerű,
+						így a játék hosszú távon is érdekes marad.</p>
+				</li>
+				<li>
+					<p>A játék pörgős, a kártyahúzás és a pontozás késleltetés nélkül történik.</p>
+				</li>
+				<li>
+					<p>Alacsony teljesítményű számítógépen is akadozás nélkül fut.</p>
+				</li>
+				<li>
+					<p>A játékosok kezében egy stabilan működő, később bővíthető játék van.</p>
+				</li>
+			</ul>
+		</li>
+	</ul>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h2 id="23">2.3 Az elkészült termék helye</h2>
+
+	<ul>
+		<li>
+			<p><strong>Kinek készült:</strong> Mindenkinek, aki szeret kártyajátékkal játszani, és a roguelike műfajt,
+				a taktikus gondolkodást kedveli.</p>
+		</li>
+		<li>
+			<p><strong>Ki fogja használni:</strong> Magánszemély játékosok, akik egyedül, rövid időre szeretnének
+				gondolkodtató játékot játszani.</p>
+		</li>
+		<li>
+			<p><strong>Alkalmazás kategória:</strong> Szórakoztató szoftver, azon belül egyjátékos, 2D-s, asztali
+				számítógépen futó kártyajáték.</p>
+		</li>
+		<li>
+			<p><strong>Az alapvető haszna:</strong> Szórakozás és gondolkodtatás a játékosnak: rövid, mégis mély,
+				minden alkalommal más élményt ad.</p>
+		</li>
+		<li>
+			<p><strong>Alternatívák a fejlesztésen kívül:</strong></p>
+			<ul>
+				<li>
+					<p><i>Slay the Spire, Balatro:</i> kiforrott, látványos, sok tartalmat tartalmazó játékok, de fizetősek,
+						nagyobb gépigényűek, és a játékos nem tud beleszólni a szabályaikba.</p>
+				</li>
+				<li>
+					<p><i>Hagyományos kártyajátékok (pasziánsz, póker) fizikai paklival vagy egyszerű digitális
+						változatban:</i> ismertek és ingyenesek, de nincs bennük fejlődés, a játékos nem erősíti a
+						próbálkozásait, és a végigjátszások között nincs változatosság.</p>
+				</li>
+			</ul>
+		</li>
+		<li>
+			<p><strong>Miben különbözik az elkészült termék az alternatíváktól:</strong> Saját ötletű, könnyen
+				bővíthető felépítésű játék. A kártyakombinációk pontozását különálló, a háttérben futó pontozó
+				motor végzi, a játékos pedig a megnyert körök után véletlenszerűen kínált fejlesztésekből
+				választhat, amelyek akár a játék alapvető szabályait is megváltoztatják. Kis erőforrás-igénye miatt
+				régi számítógépen is játszható.</p>
+		</li>
+	</ul>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h1 id="3">3. Érintettek és felhasználók</h1>
+
+	<p>Ebben a fejezetben összefoglaljuk a rendszer által érintett, és az azt majdan használó személyek és szervezetek
+		alapvető jellemzőit.</p>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h2 id="31">3.1. Az érintettek összefoglalása</h2>
+
+	<table border="1" bordercolor="#000000" cellpadding="4" cellspacing="0" width="100%">
+
+		<colgroup>
+			<col width="85*">
+			<col width="85*">
+			<col width="85*">
+		</colgroup>
+		<thead>
+			<tr valign="top">
+
+				<th width="33%">
+
+					<p>Elnevezés</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Leírás</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Szerep</p>
+
+				</th>
+
+			</tr>
+
+		</thead>
+		<tbody>
+
+			<tr valign="top">
+
+				<td width="33%">
+
+					<p>Fejlesztőcsapat</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Öt fős csapat, amely a játékot kitalálta, és megtervezi és elkészíti.</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Meghatározza a játék szabályait és tartalmát, megvalósítja és teszteli a játékot, és
+						gondoskodik a későbbi bővítésről.</p>
+
+				</td>
+
+			</tr>
+
+			<tr valign="top">
+
+				<td width="33%">
+
+					<p>Játékosok</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Azok a személyek, akik a kész játékkal játszanak, és akiknek a szórakozását a játék szolgálja.</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Kipróbálják a játékot, visszajelzést adnak a nehézségről, az érthetőségről és a
+						használhatóságról, és ezzel segítenek a hibák felderítésében.</p>
+
+				</td>
+
+			</tr>
+
+			<tr valign="top">
+
+				<td width="33%">
+
+					<p>Szabadon felhasználható tartalmak készítői</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Külső készítők, akiknek nyílt vagy szabad licencű képeit, hangjait a játék felhasználhatja.</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Közvetve járulnak hozzá a fejlesztéshez azzal, hogy a játék megjelenéséhez és hangjaihoz
+						felhasználható anyagot biztosítanak. Csak akkor érintettek, ha ilyen anyagot használunk.</p>
+
+				</td>
+
+			</tr>
+
+
+		</tbody>
+	</table>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h2 id="32">3.2. A felhasználók összefoglalása</h2>
+
+	<table border="1" bordercolor="#000000" cellpadding="4" cellspacing="0" width="100%">
+
+		<colgroup>
+			<col width="85*">
+			<col width="85*">
+			<col width="85*">
+		</colgroup>
+		<thead>
+			<tr valign="top">
+
+				<th width="33%">
+
+					<p>Elnevezés</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Leírás</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Illetékes</p>
+
+				</th>
+
+			</tr>
+
+		</thead>
+		<tbody>
+
+			<tr valign="top">
+
+				<td width="33%">
+
+					<p>Játékos</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>Az egyetlen felhasználói szerep. A játékos elindítja a játékot, kártyákat választ és játszik ki,
+						fejlesztéseket választ, és egyedül halad végig a köreken. Külön karbantartói vagy
+						adminisztrátori szerep nincs.</p>
+
+				</td>
+
+				<td width="33%">
+
+					<p>A fejlesztőcsapat tagjai, akik a fejlesztés során játékosként képviselik a felhasználókat, és a
+						játékot kipróbáló személyek.</p>
+
+				</td>
+
+			</tr>
+
+
+		</tbody>
+	</table>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h2 id="33">3.3 Felhasználói környezet</h2>
+
+	<ul>
+
+		<li>
+			<p><strong>Platform:</strong> Asztali vagy hordozható személyi számítógép, amelyen a Java programok futtatásához
+				szükséges környezet telepítve van. A játék alacsony teljesítményű gépen, például integrált
+				grafikus vezérlős laptopon is akadozás nélkül fut. A platform a fejlesztés során várhatóan nem
+				változik.</p>
+		</li>
+		<li>
+			<p><strong>Felhasználók száma:</strong> Egyjátékos program, ezért egyszerre egy felhasználó használja egy
+				számítógépen. Az átlagos és a maximális egyidejű felhasználószám is egy. Nincs szerver, és nincs
+				szükség internetkapcsolatra.</p>
+		</li>
+		<li>
+			<p><strong>Felhasználószám trendje:</strong> A felhasználók száma nem befolyásolja a rendszer működését.
+				Nincs várható növekedési trend, amelyre fel kellene készülni.</p>
+		</li>
+		<li>
+			<p><strong>Használat időtartama:</strong> Egy végigjátszás rövid, előzetes becslés szerint húsz-negyven perc.
+				Ez a játékos teljesítményétől függően változó: egy korai vereség után gyorsan véget ér, egy sikeres
+				végigjátszás hosszabb ideig tart. Egy játékos akár többször egymás után is játszhat.</p>
+		</li>
+		<li>
+			<p><strong>Különleges körülmények:</strong> Nincs szükség egyedi hardverre vagy mobil eszközre. A játék
+				kezelése egérrel (és szükség esetén billentyűzettel) történik.</p>
+		</li>
+		<li>
+			<p><strong>Integráció más alkalmazásokkal:</strong> A játék önálló program, nem kell más alkalmazással
+				együttműködnie.</p>
+		</li>
+	</ul>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h2 id="34">3.4. Illetékesek adatai</h2>
+
+	<p>Az alábbi személyek segítik a fejlesztés során a munkát. Az elérhetőség a GitHub-felhasználónév, ahol a projekt
+		tárolása és a csapaton belüli egyeztetés zajlik.</p>
+
+	<table border="1" bordercolor="#000000" cellpadding="4" cellspacing="0" width="100%">
+
+		<colgroup>
+			<col width="85*">
+			<col width="85*">
+			<col width="85*">
+		</colgroup>
+		<thead>
+			<tr valign="top">
+
+				<th width="33%">
+
+					<p>Név</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Szerep</p>
+
+				</th>
+
+				<th width="33%">
+
+					<p>Elérhetőség (GitHub)</p>
+
+				</th>
+
+			</tr>
+
+		</thead>
+		<tbody>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Pál Bence Marcell</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>palbm</p>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Ruttkay Zoltán Gergő</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>ruttkayzoltan</p>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Stark Ádám</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>adamstark1</p>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Géczy Márk</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>Mark-Geczy</p>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td width="33%">
+					<p>Hajdú István Károly</p>
+				</td>
+				<td width="33%">
+					<p>Fejlesztő, csapattag</p>
+				</td>
+				<td width="33%">
+					<p>Zev1du</p>
+				</td>
+			</tr>
+
+
+		</tbody>
+	</table>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h2 id="35">3.5. Felhasználók adatai</h2>
+
+	<p>A fejlesztés jelenlegi szakaszában nincs külön kijelölt, azonosított felhasználó. A játékosok szempontjait a
+		csapattagok képviselik, akik a fejlesztés során rendszeresen kipróbálják a játékot. Ha később külső kipróbálók
+		is bekapcsolódnak, az ő adataikat ide kell felvenni.</p>
+
+	<p><br>
+		<br>
+
+	</p>
+
+	<h1 id="4">4. A végtermék áttekintése</h1>
+	<p>
+		A roguelike kártyajátékunk célja, hogy egy könnyen tanulható, mégis mély stratégiai élményt nyújtó játék legyen.
+		A játék lényege, hogy különböző kártyákból és módosítókból számtalan kombinációkat, stratégiákat lehessen összeállítani,
+		amivel a játékos egy véletlenszerűen generált, egyre nehezedő pályán halad előre. A játékos célja, hogy a szintekben
+		minél tovább jusson. A rendszer modulárisan épül fel: külön kezeli a kombinációs logikát, a játékmenetet és a
+		felhasználói felületet. Ezek a részek együttműködve adják ki a teljes játékélményt, és lehetővé teszik, hogy a
+		későbbiekben könnyen bővíthető legyen új kártyákkal, játékmódokkal vagy mechanikákkal.
+	</p>
+	<p><br></p>
+	
+	<h2 id="41">4.1 A termék kapcsolatai</h2>
+	<p>
+		A játék több egymásra épülő komponensből áll. A kártyamodell felel a kártyák tulajdonságaiért, ritkaságáért és hatásaiért,
+		míg a kombinációs motor számolja ki, hogy az adott kártyák a módosítókkal milyen pontszámot vagy szorzót eredményeznek együtt.
+		A játékmenet modul kezeli a köröket, a véletlenszerű bolt menüt és a pályák véletlenszerű generálását. A felhasználói felület
+		mindezt átláthatóan, egyszerűen jeleníti meg, hogy a játékos könnyen követhesse a pakliját, a kézben lévő kártyákat és a pontszámot.
+		A játék önálló alkalmazásként működik, a moduláris felépítés miatt később más rendszerekhez vagy platformokhoz is könnyen igazítható.
+	</p>
+	<p><br></p>
+	
+	<h2 id="42">4.2. A termék használatának előnyei</h2>
+	<p>
+		A játék legnagyobb előnye, hogy egyszerre nyújt szórakoztató és újrajátszható élményt. A véletlenszerű pályagenerálásnak
+		köszönhetően minden játék más, így a játék hosszú távon is változatos marad. A játékos kreatív módon építheti fel a pakliját,
+		és különböző kártyakombinációkkal érhet el magas pontszámokat. A cél a gyors és pörgős játékélmény biztosítása.
+	</p>
+	<p><br></p>
+	
+	<h2 id="43">4.3. Feltételezések és függőségek</h2>
+	<p>
+		A fejlesztés során feltételezzük, hogy a játék Java környezetben stabilan fut majd Windows és Linux rendszereken egyaránt.
+		A grafikai igények alacsonyak, így gyengébb gépeken is jó teljesítményen fut. A projekt függ a Java Runtime Environment
+		meglététől, valamint a GitHub folyamatos elérhetőségétől, hiszen a verziókövetés és a közös munka ezen keresztül történik.
+		A projekt sikere nagyban múlik azon, hogy a kombinációs motor hibamentesen működjön, mivel ez a játék egyik legfontosabb eleme.
+	</p>
+	<p><br></p>
+	
+	<h2 id="44">4.4 Költségbecslés</h2>
+	<p>
+		A projekt órai keretek között, ingyenes szoftverekkel készül, így a költségek elsősorban időráfordításból állnak.
+		A félév során várhatóan minden csapattag 60–80 munkaórát fordít a fejlesztésre. A szükséges eszközök – IntelliJ IDEA,
+		GitHub, Discord – mind ingyenesen használhatók, és a fejlesztéshez szükséges hardvert a saját laptopjaink biztosítják.
+		A projektnek nincs közvetlen pénzügyi költsége, a teljes ráfordítás a csapat munkájából áll.
+	</p>
+	<p><br></p>
+	
+	<h2 id="45">4.5 Installáció</h2>
+	<p>
+		A játék telepítése egyszerű és felhasználóbarát. A felhasználó egy letölthető futtatható fájlon keresztül indíthatja el majd
+		a játékot, amely valószínűleg .jar vagy .exe formátumú lesz. A játék nem igényel külön telepítőt vagy bonyolult konfigurációt,
+		mindössze egy működő Java környezetre van szükség.
+	</p>
+	<p><br></p>
+	
+	<h1 id="5">5. A végtermék jellemzői, biztosított szolgáltatások</h1>
+	<p>
+		A játék olyan szolgáltatásokat nyújt, amelyek a felhasználó számára könnyen érthetőek és élvezetesek. A játékos különböző
+		kártyákat húzhat, módosíthatja a pakliját, és kreatív kombinációkat állíthat össze, amelyekkel magas pontszámokat érhet el.
+		A roguelike jelleg miatt minden futás más, így a játék folyamatosan új kihívásokat kínál. A pontozási rendszer átláthatóan
+		mutatja, hogyan teljesít a játékos, és milyen hatást érnek el a különböző kártyakombinációk. Bizonyos eseményeknél lehetőség
+		van a kártyák fejlesztésére vagy átalakítására, ami tovább növeli a stratégiai mélységet. A felhasználói felület egyszerű
+		és intuitív, így a játékos könnyen követheti a játék állapotát. A játék menti a korábbi eredményeket és statisztikákat,
+		így a játékos visszanézheti a fejlődését. A véletlenszerű elemek és a kombinációs lehetőségek miatt a játék hosszú távon is
+		újrajátszható és élvezetes marad.
+	</p>
+
+	<h1 id="6">6. Korlátozások</h1>
+	<ul>
+		<li>
+			<p>
+				<strong>Technológiai korlátozások:</strong> A rendszernek Java programozási nyelvben kell megvalósulnia,
+				objektumorientált elvek és a megadott tervezési minták alapján. A kódoláshoz az IntelliJ IDEA fejlesztői
+				környezetet, a verziókövetéshez és biztonsági mentésekhez pedig a GitHubot használjuk.
+			</p>
+		</li>
+		<li>
+			<p>
+				<strong>Hardveres korlátozások:</strong> A kártyajátékot úgy kell megtervezni, hogy alacsony kapacitású
+				személyi számítógépeken (pl. integrált grafikus vezérlővel rendelkező laptopokon, régebbi számítógépeken) is
+				akadozás nélkül, stabil képfrissítéssel fusson, mivel a grafikai igénye alacsony (2D-s kártyaalapú felület).
+			</p>
+		</li>
+		<li>
+			<p>
+				<strong>Erőforrás- és időbeli korlátozások:</strong>
+				A projektet egy 5 fős hallgatói csapat (Pál Bence Marcell, Ruttkay Zoltán Gergő, Stark Ádám, Géczy Márk és
+				Hajdú István Károly) valósítja meg korlátozott humán erőforrással a félév során meghatározott részhatáridők
+				(mérföldkövek) szigorú betartásával. A félév korlátozott hossza miatt a funkcióknak illeszkedniük kell a
+				mérföldkövekhez és a részhatáridőkhöz, így a komplexebb, végtelen kártyakombinációs rendszereket priorizálni kell.
+			</p>
+		</li>
+		<li>
+			<p>
+				<strong>Jogi és licencelési korlátozások:</strong>
+				A játékmenet tervezésekor inspirációként szolgálnak ugyan olyan sikeres címek, mint a <i>Slay the Spire</i> vagy a
+				<i>Balatro</i>, azonban a játék grafikus elemei, kódja és egyedi mechanikái saját készítésűek kell legyenek, vagy
+				nyílt forráskódú/szabadon felhasználható asseteket kell alkalmazni a szerzői jogi előírások betartása érdekében.
+			</p>
+		</li>
+	</ul>
+	<p><br><br></p>
+
+	<h1 id="7">7. Minőségi elvárások</h1>
+	<ul>
+		<li>
+			<p>
+				<strong>Teljesítmény és válaszidő:</strong> A kártyahúzásnak, a kombinációk kiértékelésének és az
+				ellentámadásoknak vizuálisan késleltetés nélkül, 0,1 másodpercen belül meg kell történniük, hogy a
+				játékmenet pörgős maradjon.
+			</p>
+		</li>
+		<li>
+			<p>
+				<strong>Felhasználóbarátság:</strong> Mivel kártyajátékról van szó, a felhasználói felületnek
+				intuitívnak, átláthatónak és könnyen kezelhetőnek kell lennie: a kártyák leírása jól olvasható
+				legyen, a kombinációs lehetőségek és a státuszok (buffok/debuffok) vizuálisan egyértelműen jelölve legyenek.
+			</p>
+		</li>
+		<li>
+			<p>
+				<strong>Megbízhatóság és hibakezelés:</strong> A programnak stabilan kell működnie érvénytelen lépések
+				vagy hibás kártya-összevonási kísérletek esetén is (pl. ha a játékos olyan kártyákat próbál kombinálni,
+				amikre nincs érvényes szabály). A rendszer ilyenkor nem fagyhat le, hanem hibaüzenettel vagy logikai
+				visszavonással kell reagálnia. A program nem fagyhat le helytelen játékos-kattintás vagy hirtelen kilépés esetén sem.
+			</p>
+		</li>
+		<li>
+			<p>
+				<strong>Karbantarthatóság és kódminőség:</strong> Az objektumorientált elvek (pl. egységbezárás,
+				öröklődés a kártyatípusoknál) szigorú betartása, hogy a félév során könnyen lehessen új kártyákat vagy
+				szabályokat beintegrálni a spagettikód elkerülése érdekében.
+			</p>
+		</li>
+	</ul>
+	<p><br><br></p>
+
+	<h1 id="8">8. Dokumentációkkal kapcsolatos követelmények</h1>
+	<p>A projekt során az alábbi dokumentumokat fogjuk elkészíteni. Ezek biztosítják a fejlesztés nyomon követhetőségét:</p>
+	<ul>
+		<li>
+			<p><b>Projekt- és specifikációs dokumentumok:</b></p>
+			<ul>
+				<li><p><i>Szerepe:</i> A szoftver céljainak, a megoldandó problémáknak és a legfontosabb funkcióknak a leírása mindenki számára érthető formában.</p></li>
+				<li><p><i>Formátum:</i> Elektronikus szöveges dokumentum (PDF).</p></li>
+				<li><p><i>Célközönség:</i> Megrendelők, menedzserek, oktatók.</p></li>
+			</ul>
+		</li>
+		<li>
+			<p><b>Rendszerterv:</b></p>
+			<ul>
+				<li><p><i>Szerepe:</i> A játék belső szerkezetének és működésének bemutatása vázlatok és ábrák segítségével.</p></li>
+				<li><p><i>Formátum:</i> Szöveges dokumentum ábrákkal (PDF).</p></li>
+				<li><p><i>Célközönség:</i> A fejlesztőcsapat és a technikai ellenőrök.</p></li>
+			</ul>
+		</li>
+		<li>
+			<p><b>Felhasználói kézikönyv:</b></p>
+			<ul>
+				<li><p><i>Szerepe:</i> Érthető, lépésről lépésre haladó útmutató a játékosok számára a program elindításához, a játék megértéséhez.</p></li>
+				<li><p><i>Formátum:</i> Játékban megjelenő útmutató ablak.</p></li>
+				<li><p><i>Célközönség:</i> A szoftver végfelhasználói (a játékosok).</p></li>
+			</ul>
+		</li>
+	</ul>
+	<p><br><br></p>
+
+	<h1 id="9">9. Kockázat lista</h1>
+	<p>A fejlesztés során az alábbi előre látható kockázatokkal tervezünk, amelyek veszélyeztethetik a határidőre
+		történő átadást:</p>
+	<table border="1" bordercolor="#000000" cellpadding="4" cellspacing="0" width="100%">
+		<colgroup>
+			<col width="25*">
+			<col width="25*">
+			<col width="25*">
+			<col width="25*">
+		</colgroup>
+		<thead>
+			<tr valign="top">
+				<th width="25%"><p>Kockázati tényező</p></th>
+				<th width="25%"><p>Hatás</p></th>
+				<th width="25%"><p>Valószínűség</p></th>
+				<th width="25%"><p>Kockázatcsökkentő intézkedés</p></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr valign="top">
+				<td width="25%"><p><b>Túlvállalás (Túl sok funkció tervezése)</b></p></td>
+				<td width="25%"><p>Ha rengeteg kártyát, szabályt és játékmódot tervezünk, a csapat kifuthat az időből, és a program befejezetlen marad.</p></td>
+				<td width="25%"><p>Magas</p></td>
+				<td width="25%"><p>Kezdetben csak egy alap, működőképes verziót készítünk el. Új elemeket csak akkor adunk hozzá, ha az alapjáték már hibátlanul működik.</p></td>
+			</tr>
+			<tr valign="top">
+				<td width="25%"><p><b>Bonyolult extra kártyák ütközése</b></p></td>
+				<td width="25%"><p>A különböző különleges kártyák és szorzók kombinálása nem várt hibákat okozhat, így a játék rosszul számolhatja a pontokat.</p></td>
+				<td width="25%"><p>Közepes</p></td>
+				<td width="25%"><p>A szabályok nagyon pontos megtervezése, valamint a pontszámítási folyamat folyamatos ellenőrzése a fejlesztés során.</p></td>
+			</tr>
+			<tr valign="top">
+				<td width="25%"><p><b>A grafikus megjelenítés nehézségei</b></p></td>
+				<td width="25%"><p>Mivel a játékot kész keretrendszer nélkül készítjük, a grafikus elemek (kártyák mozgatása, animációk, gombok, stb.) kialakítása a vártnál több időt vehet igénybe.</p></td>
+				<td width="25%"><p>Magas</p></td>
+				<td width="25%"><p>A megjelenítést és a játék szabályait teljesen különválasztjuk. Kezdetben egy rendkívül egyszerű, díszítések nélküli felületet készítünk, hogy a játék játszható legyen. A kinézetet csak a legvégén finomítjuk.</p></td>
+			</tr>
+			<tr valign="top">
+				<td width="25%"><p><b>Erőforrás-hiány (Csapattagok leterheltsége)</b></p></td>
+				<td width="25%"><p>A félév közbeni egyéb egyetemi kötelezettségek (pl. zárthelyik) miatt a fejlesztésre szánt idő lecsökken, a munka megakadhat.</p></td>
+				<td width="25%"><p>Magas</p></td>
+				<td width="25%"><p>A feladatok kis és könnyen elvégezhető részekre bontása. Rendszeres, rövid egyeztetések tartása a problémamentes haladás érdekében.</p></td>
+			</tr>
+		</tbody>
+	</table>
+	<p><br><br></p>
+
+	<h1 id="szotar">10. Szótár</h1>
+	<ul>
+		<ul>
+			<li><b>Roguelike:</b> Olyan videojáték műfaj, amelyre jellemző a véletlenszerűen generált szintek (jelen esetben kártyapaklik) és a "permadeath", ami azt jelenti, hogy a játék elvesztése esetén a teljes folyamat elölről kezdődik.</li>
+			<li><b>Run:</b> Egy teljes végigjátszási kísérlet a kezdettől fogva egészen a győzelemig vagy a vereségig.</li>
+			<li><b>Kombináció:</b> Bizonyos szabályok szerint összetartozó kártyák csoportja (például egyező számok vagy színek), amelyek kijátszása a játékmezőre pontot ér a játékos számára.</li>
+			<li><b>Pontozó motor:</b> A szoftver azon része, amely kiszámítja, hogy egy adott kártyakombináció pontosan mennyi pontot eredményez.</li>
+			<li><b>Multiplier (Szorzó):</b> Olyan speciális kártya vagy játékbeli hatás, amely a megszerzett alappontszámot valamilyen értékkel többszörözi.</li>
+			<li><b>Deck:</b> Az a játékos számára előre meghatározott kártyahalmaz (pakli), amelyből a rendszer a körök során a kártyákat biztosítja.</li>
+			<li><b>Pool:</b> Egy véletlenszerű elemekből álló halmaz, amelyből a játékos a megnyert körök után különböző fejlesztéseket választhat.</li>
+			<li><b>Letételi alkalom:</b> A játékos számára biztosított, meghatározott mennyiségű lehetőség egy körön belül arra, hogy a kezéből kártyákat játsszon ki a pontszerzés érdekében.</li>
+			<li><b>Gameplay módosító:</b> Olyan játékmenet módosító fejlesztés, amely megváltoztat bizonyos mechanikákat, ezzel segítve és megkönnyítve a játékost a célpontszám elérésében.</li>
+			<li><b>Permadeath:</b> A játékmechanika azon tulajdonsága, hogy ha a játékos nem éri el a körhöz szükséges pontszámot, a játék azonnal véget ér, és a következő kísérletnél minden fejlesztés és haladás nullázódik.</li>
+			<li><b>Platform:</b> Az a hardver- vagy szoftverkörnyezet (pl. Windows, Linux), amelyen a megírt alkalmazás futtatható.</li>
+			<li><b>Java Runtime Environment (JRE):</b> A Java programozási nyelven írt alkalmazások futtatásához szükséges futtatókörnyezet, amely biztosítja a rendszerfüggetlen működést.</li>
+			<li><b>Verziókövetés:</b> Olyan rendszer (esetünkben a Git), amely rögzíti a forráskódban végzett módosításokat, lehetővé téve a korábbi állapotok visszaállítását és a biztonságos csapatmunkát.</li>
+			<li><b>GitHub:</b> Egy felhőalapú szolgáltatás és platform, amely a verziókövetett kódbázisok tárolására, menedzselésére és a fejlesztők közötti kollaborációra szolgál.</li>
+			<li><b>Objektumorientált elvek (OOP):</b> Olyan programozási módszertan, amely a valós világot "objektumokként" (adatok és a hozzájuk tartozó műveletek egységeként) modellezi le a kódban.</li>
+			<li><b>Egységbezárás (Encapsulation):</b> Az objektumorientált programozás egyik alapelve, amely az adatokat és a metódusokat egy védett egységbe zárja, elrejtve a belső működést a külső hivatkozások elől.</li>
+			<li><b>Öröklődés (Inheritance):</b> OOP alapelv, amely lehetővé teszi, hogy egy új osztály (pl. egy speciális kártya) átvegye egy már meglévő szülőosztály (pl. általános kártya) tulajdonságait és viselkedését, ezzel csökkentve a kódismétlést.</li>
+			<li><b>Tervezési minták (Design Patterns):</b> Jól bevált, újrahasznosítható megoldási sablonok a szoftverfejlesztés során gyakran ismétlődő tervezési problémákra.</li>
+			<li><b>Fejlesztői környezet (IDE):</b> Komplex szoftver (például az IntelliJ IDEA), amely integráltan tartalmazza a programozáshoz szükséges eszközöket (szövegszerkesztő, hibakereső, fordítóprogram).</li>
+			<li><b>Spagettikód:</b> Olyan rosszul strukturált, átláthatatlan és kusza forráskód, amelynek a megértése, bővítése és karbantartása rendkívül nehéz.</li>
+			<li><b>Nyílt forráskódú (Open-source):</b> Olyan szoftver vagy digitális erőforrás (pl. grafikai asset), amelynek forrásanyaga vagy kódja bárki számára szabadon megtekinthető, használható és módosítható.</li>
+		</ul>
+	</ul>
+	
+
+	<div type="FOOTER">
+		<p style="margin-top: 0.5cm; margin-bottom: 0cm;" align="center">
+			<sdfield type="PAGE" subtype="RANDOM" format="PAGE">1</sdfield>
+		</p>
+	</div>
+
+</body>
+</html>
