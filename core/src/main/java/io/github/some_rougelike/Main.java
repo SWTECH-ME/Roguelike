@@ -18,7 +18,7 @@ public class Main extends ApplicationAdapter {
         batch = new SpriteBatch();
         image = new Texture("lwjgl3/bin/main/609019193_2648602242189483_7703116507261013376_n.jpg");
         
-        startupSound = Gdx.audio.newSound(Gdx.files.internal("startup.mp3"));
+        startupSound = Gdx.audio.newSound(Gdx.files.internal("startup.mp"));
         startupSound.play(1.0f);
         
     }
