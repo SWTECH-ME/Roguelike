@@ -1,5 +1,4 @@
 package io.github.some_rougelike.screens;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -9,29 +8,29 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.some_rougelike.Assets;
+import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.ui.MainMenuUIBuilder;
 
 public class MainMenuScreen extends ScreenAdapter {
     private Stage stage;
 
-    public MainMenuScreen() {
-        stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
+public MainMenuScreen(Main main) {
+    stage = new Stage(new ScreenViewport());
 
-        Skin skin = Assets.getInstance().getSkin("ui/uiskin.json");
-        Texture bgTexture = Assets.getInstance().getTexture("ui/background.jpg"); // CHANGE BACKGROUND HERE
+    Skin skin = Assets.getInstance().getSkin("ui/uiskin.json");
+    Texture bgTexture = Assets.getInstance().getTexture("ui/background.jpg");
 
-        Image background = new Image(bgTexture);
-        background.setFillParent(true); 
-        stage.addActor(background);
+    Image background = new Image(bgTexture);
+    background.setFillParent(true);
+    stage.addActor(background);
 
-        MainMenuUIBuilder uiBuilder = new MainMenuUIBuilder();
-        uiBuilder.build(stage, skin);
-    }
+    new MainMenuUIBuilder().build(stage, skin, main);
+}
 
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(stage);
         SoundManager.getInstance().startMenuMusic();
         SoundManager.getInstance().play(SoundManager.SoundEvent.GAME_OPEN);
     }
