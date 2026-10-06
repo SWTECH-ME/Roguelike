@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.some_rougelike.Assets;
+import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.ui.MainMenuUIBuilder;
 
 public class MainMenuScreen extends ScreenAdapter {
@@ -27,6 +28,12 @@ public class MainMenuScreen extends ScreenAdapter {
 
         MainMenuUIBuilder uiBuilder = new MainMenuUIBuilder();
         uiBuilder.build(stage, skin);
+    }
+
+    @Override
+    public void show() {
+        SoundManager.getInstance().startMenuMusic();
+        SoundManager.getInstance().play(SoundManager.SoundEvent.GAME_OPEN);
     }
 
     @Override
