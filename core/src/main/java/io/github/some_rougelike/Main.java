@@ -1,6 +1,7 @@
 package io.github.some_rougelike;
 
 import com.badlogic.gdx.Game;
+import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.screens.MainMenuScreen;
 
 public class Main extends Game {
@@ -9,6 +10,7 @@ public class Main extends Game {
     public void create() {
         Assets.getInstance().load();
         Assets.getInstance().finishLoading();
+        SoundManager.getInstance().load();
         
         this.setScreen(new MainMenuScreen());
     }
@@ -21,5 +23,7 @@ public class Main extends Game {
     @Override
     public void dispose() {
         super.dispose();
+        SoundManager.getInstance().dispose();
+        Assets.getInstance().dispose();
     }
 }
