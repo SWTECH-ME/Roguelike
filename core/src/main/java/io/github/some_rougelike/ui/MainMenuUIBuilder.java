@@ -1,5 +1,6 @@
 package io.github.some_rougelike.ui;
 
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -10,9 +11,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
+   import io.github.some_rougelike.Main;
+   import io.github.some_rougelike.screens.CollectionScreen;
+   import io.github.some_rougelike.screens.FriendsScreen;
+   import io.github.some_rougelike.screens.GameScreen;
+   import io.github.some_rougelike.screens.ProfileScreen;
+   import io.github.some_rougelike.screens.SettingsScreen;
+
 public class MainMenuUIBuilder {
 
-    public void build(Stage stage, Skin skin) {
+    public void build(Stage stage, Skin skin, Main main) {
         Label messageLabel = new Label("", skin);
         messageLabel.setFontScale(1.5f);
         messageLabel.setAlignment(Align.center);
@@ -55,39 +63,39 @@ public class MainMenuUIBuilder {
 
 
         playButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                messageLabel.setText("Clicked: PLAY");
-            }
-        });
+    @Override
+    public void clicked(InputEvent event, float x, float y) {
+        main.switchScreen(new GameScreen(main));
+    }
+});
 
-        collectionButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                messageLabel.setText("Clicked: COLLECTION");
-            }
-        });
+collectionButton.addListener(new ClickListener() {
+    @Override
+    public void clicked(InputEvent event, float x, float y) {
+        main.switchScreen(new CollectionScreen(main));
+    }
+});
 
-        profileBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                messageLabel.setText("Clicked: PROFILE");
-            }
-        });
+profileBtn.addListener(new ClickListener() {
+    @Override
+    public void clicked(InputEvent event, float x, float y) {
+        main.switchScreen(new ProfileScreen(main));
+    }
+});
 
-        settingsBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                messageLabel.setText("Clicked: SETTINGS");
-            }
-        });
+settingsBtn.addListener(new ClickListener() {
+    @Override
+    public void clicked(InputEvent event, float x, float y) {
+        main.switchScreen(new SettingsScreen(main));
+    }
+});
 
-        friendsBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                messageLabel.setText("Clicked: FRIENDS");
-            }
-        });
+friendsBtn.addListener(new ClickListener() {
+    @Override
+    public void clicked(InputEvent event, float x, float y) {
+        main.switchScreen(new FriendsScreen(main));
+    }
+});
 
         exitButton.addListener(new ClickListener() {
             @Override
