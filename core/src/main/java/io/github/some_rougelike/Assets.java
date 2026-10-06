@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Disposable;
 
 public class Assets implements Disposable {
     private static final Assets INSTANCE = new Assets();
-    final AssetManager assetManager;
+    private final AssetManager assetManager;
 
     private Assets() {
         assetManager = new AssetManager();
