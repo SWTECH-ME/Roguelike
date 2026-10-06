@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -16,19 +17,30 @@ import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.ui.MainMenuUIBuilder;
 
 public class MainMenuScreen extends ScreenAdapter {
+    private static final boolean USE_ANIMATED_BACKGROUND = true; // Set to false to use a static background image instead of an animated one
+
     private Stage stage;
 
-public MainMenuScreen(Main main) {
-    stage = new Stage(new ScreenViewport());
-
-    Skin skin = Assets.getInstance().getSkin("ui/uiskin.json");
-    Texture bgTexture = Assets.getInstance().getTexture("ui/background.jpg");
+    public MainMenuScreen(Main main) {
+        stage = new Stage(new ScreenViewport());
 
         Skin skin = Assets.getInstance().getSkin("ui/uiskin.json");
+        stage.addActor(USE_ANIMATED_BACKGROUND ? createAnimatedBackground() : createStaticBackground());
+
+        new MainMenuUIBuilder().build(stage, skin, main);
+    }
+
+    private Image createStaticBackground() {
+        Image background = new Image(Assets.getInstance().getTexture("ui/background.jpg"));
+        background.setFillParent(true);
+        return background;
+    }
+
+    private AnimatedImage createAnimatedBackground() {
         Texture sheetTexture = Assets.getInstance().getTexture("ui/background-spritesheet.png");
 
-        int frameCols = 5; 
-        int frameRows = 2;  
+        int frameCols = 5;
+        int frameRows = 2;
         int totalRealFrames = 7;
 
         int frameWidth = sheetTexture.getWidth() / frameCols;
@@ -37,7 +49,7 @@ public MainMenuScreen(Main main) {
         TextureRegion[][] tmp = TextureRegion.split(sheetTexture, frameWidth, frameHeight);
         TextureRegion[] frames = new TextureRegion[totalRealFrames];
         int index = 0;
-        
+
         for (int i = 0; i < frameRows; i++) {
             for (int j = 0; j < frameCols; j++) {
                 if (index < totalRealFrames) {
@@ -46,18 +58,13 @@ public MainMenuScreen(Main main) {
             }
         }
 
-        Animation<TextureRegion> backgroundAnimation = new Animation<TextureRegion>(0.125f, frames);
+        Animation<TextureRegion> backgroundAnimation = new Animation<>(0.125f, frames);
 
         AnimatedImage animatedBackground = new AnimatedImage(backgroundAnimation);
         animatedBackground.setFillParent(true);
         animatedBackground.setScaling(Scaling.stretch);
-        stage.addActor(animatedBackground);
-    Image background = new Image(bgTexture);
-    background.setFillParent(true);
-    stage.addActor(background);
-
-    new MainMenuUIBuilder().build(stage, skin, main);
-}
+        return animatedBackground;
+    }
 
     @Override
     public void show() {

@@ -34,6 +34,7 @@ public class Assets implements Disposable {
         // assetManager.load("fonts/font.fnt", BitmapFont.class);
         assetManager.load("ui/uiskin.json", Skin.class);
         assetManager.load("ui/background-spritesheet.png", Texture.class); // CHANGE BACKGROUND HERE
+        assetManager.load("ui/background.jpg", Texture.class);
     }
 
     public void finishLoading() {
