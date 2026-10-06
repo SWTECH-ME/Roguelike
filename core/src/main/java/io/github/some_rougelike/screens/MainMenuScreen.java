@@ -9,8 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.Main;
+import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.ui.MainMenuUIBuilder;
-import com.badlogic.gdx.Screen;
 
 public class MainMenuScreen extends ScreenAdapter {
     private Stage stage;
@@ -29,6 +29,13 @@ public MainMenuScreen(Main main) {
 }
 
     @Override
+    public void show() {
+        Gdx.input.setInputProcessor(stage);
+        SoundManager.getInstance().startMenuMusic();
+        SoundManager.getInstance().play(SoundManager.SoundEvent.GAME_OPEN);
+    }
+
+    @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -45,10 +52,5 @@ public MainMenuScreen(Main main) {
     @Override
     public void dispose() {
         stage.dispose();
-    }
-
-    @Override
-    public void show() {
-        Gdx.input.setInputProcessor(stage);
     }
 }

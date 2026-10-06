@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.screens.MainMenuScreen;
 
 public class Main extends Game {
@@ -17,6 +18,7 @@ public class Main extends Game {
         // Load all game assets at startup
         Assets.getInstance().load();
         Assets.getInstance().finishLoading();
+        SoundManager.getInstance().load();
 
         // Set the initial screen (main menu)
         setScreen(new MainMenuScreen(this));
@@ -77,6 +79,8 @@ public class Main extends Game {
         super.dispose();
 
         // Dispose all loaded assets
+        Assets.getInstance().dispose();
+        SoundManager.getInstance().dispose();
         Assets.getInstance().dispose();
     }
 }
