@@ -32,9 +32,9 @@ public class Assets implements Disposable {
 
         // Example for fonts
         // assetManager.load("fonts/font.fnt", BitmapFont.class);
-        assetManager.load("ui/uiskin.json", Skin.class);
-        assetManager.load("ui/background-spritesheet.png", Texture.class); // CHANGE BACKGROUND HERE
-        assetManager.load("ui/background.jpg", Texture.class);
+        assetManager.load(GameConfig.UI_SKIN, Skin.class);
+        assetManager.load(GameConfig.MAIN_BACKGROUND, Texture.class);
+        assetManager.load(GameConfig.MAIN_STATIC_BACKGROUND, Texture.class);
     }
 
     public void finishLoading() {

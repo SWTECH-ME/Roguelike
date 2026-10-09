@@ -1,57 +1,60 @@
 package io.github.some_rougelike.screens;
+
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.some_rougelike.Assets;
+import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
+import io.github.some_rougelike.ui.AnimatedImage;
 
-/** Közös alap az egyszerű oldalakhoz: háttér, cím, BACK gomb, ESC. */
 public abstract class PageScreen extends ScreenAdapter {
 
-    private final Main main;
-    private final Stage stage;
+    protected final Main main;
+    protected final Stage stage;
 
     protected PageScreen(Main main, String title) {
         this.main = main;
         this.stage = new Stage(new ScreenViewport());
 
-        Skin skin = Assets.getInstance().getSkin("ui/uiskin.json");
+        Texture sheetTexture = Assets.getInstance().getTexture(GameConfig.MAIN_BACKGROUND);
 
-        Image background = new Image(Assets.getInstance().getTexture("ui/background.jpg"));
-        background.setFillParent(true);
-        stage.addActor(background);
+        int frameCols = GameConfig.BG_FRAME_COLS; 
+        int frameRows = GameConfig.BG_FRAME_ROWS;  
+        int totalRealFrames = GameConfig.BG_TOTAL_FRAMES; 
 
-        Label titleLabel = new Label(title, skin);
-        titleLabel.setFontScale(2.5f);
+        int frameWidth = sheetTexture.getWidth() / frameCols;
+        int frameHeight = sheetTexture.getHeight() / frameRows;
 
-        TextButton backButton = new TextButton("BACK", skin);
-        backButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                goBack();
+        TextureRegion[][] tmp = TextureRegion.split(sheetTexture, frameWidth, frameHeight);
+        TextureRegion[] frames = new TextureRegion[totalRealFrames];
+        int index = 0;
+        
+        for (int i = 0; i < frameRows; i++) {
+            for (int j = 0; j < frameCols; j++) {
+                if (index < totalRealFrames) {
+                    frames[index++] = tmp[i][j];
+                }
             }
-        });
+        }
 
-        Table table = new Table();
-        table.setFillParent(true);
-        table.center();
-        table.add(titleLabel).padBottom(50);
-        table.row();
-        table.add(backButton).size(150, 40);
-        stage.addActor(table);
+        Animation<TextureRegion> backgroundAnimation = new Animation<TextureRegion>(GameConfig.ANIMATED_BACKGROUND_SPEED, frames);
+        AnimatedImage animatedBackground = new AnimatedImage(backgroundAnimation);
+        animatedBackground.setFillParent(true);
+        animatedBackground.setScaling(Scaling.fill);
+        
+        stage.addActor(animatedBackground); 
     }
 
-    private void goBack() {
+    public void goBack() {
         main.switchScreen(new MainMenuScreen(main));
     }
 

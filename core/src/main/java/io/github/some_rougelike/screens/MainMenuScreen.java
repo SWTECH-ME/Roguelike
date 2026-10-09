@@ -11,37 +11,36 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.some_rougelike.Assets;
+import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.ui.AnimatedImage;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.ui.MainMenuUIBuilder;
 
 public class MainMenuScreen extends ScreenAdapter {
-    private static final boolean USE_ANIMATED_BACKGROUND = true; // Set to false to use a static background image instead of an animated one
-
     private Stage stage;
 
     public MainMenuScreen(Main main) {
         stage = new Stage(new ScreenViewport());
 
-        Skin skin = Assets.getInstance().getSkin("ui/uiskin.json");
-        stage.addActor(USE_ANIMATED_BACKGROUND ? createAnimatedBackground() : createStaticBackground());
+        Skin skin = Assets.getInstance().getSkin(GameConfig.UI_SKIN);
+        stage.addActor(GameConfig.USE_ANIMATED_BACKGROUND ? createAnimatedBackground() : createStaticBackground());
 
         new MainMenuUIBuilder().build(stage, skin, main);
     }
 
     private Image createStaticBackground() {
-        Image background = new Image(Assets.getInstance().getTexture("ui/background.jpg"));
+        Image background = new Image(Assets.getInstance().getTexture(GameConfig.MAIN_STATIC_BACKGROUND));
         background.setFillParent(true);
         return background;
     }
 
     private AnimatedImage createAnimatedBackground() {
-        Texture sheetTexture = Assets.getInstance().getTexture("ui/background-spritesheet.png");
+        Texture sheetTexture = Assets.getInstance().getTexture(GameConfig.MAIN_BACKGROUND);
 
-        int frameCols = 5;
-        int frameRows = 2;
-        int totalRealFrames = 7;
+        int frameCols = GameConfig.BG_FRAME_COLS;
+        int frameRows = GameConfig.BG_FRAME_ROWS;
+        int totalRealFrames = GameConfig.BG_TOTAL_FRAMES;
 
         int frameWidth = sheetTexture.getWidth() / frameCols;
         int frameHeight = sheetTexture.getHeight() / frameRows;
@@ -58,7 +57,7 @@ public class MainMenuScreen extends ScreenAdapter {
             }
         }
 
-        Animation<TextureRegion> backgroundAnimation = new Animation<>(0.125f, frames);
+        Animation<TextureRegion> backgroundAnimation = new Animation<>(GameConfig.ANIMATED_BACKGROUND_SPEED, frames);
 
         AnimatedImage animatedBackground = new AnimatedImage(backgroundAnimation);
         animatedBackground.setFillParent(true);
