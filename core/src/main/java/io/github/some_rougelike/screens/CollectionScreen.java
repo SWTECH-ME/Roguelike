@@ -52,23 +52,29 @@ public class CollectionScreen extends PageScreen {
     }
 
     private void loadSkinFiles() {
-    // Felsoroljuk a létező skin fájlokat, amiket eddig is letöltöttél a deck_skins mappába
-    String[] skinFileNames = { "fantasy.png", "scifi.png" };
-    
-    for (String fileName : skinFileNames) {
-        FileHandle file = Gdx.files.internal(SKINS_DIR + "/" + fileName);
-        if (file.exists()) {
-            skinFiles.add(file);
-            Gdx.app.log("CollectionScreen", "Skin sikeresen betöltve: " + file.name());
-        } else {
-            Gdx.app.error("CollectionScreen", "Skin fájl nem található: " + file.path());
+        String[] skinFileNames = {
+                "black_blue.png",
+                "black_red.png",
+                "black_white.png",
+                "white_black.png",
+                "white_blue.png",
+                "white_red.png"
+        };
+
+        for (String fileName : skinFileNames) {
+            FileHandle file = Gdx.files.internal(SKINS_DIR + "/" + fileName);
+            if (file.exists()) {
+                skinFiles.add(file);
+                Gdx.app.log("CollectionScreen", "Skin sikeresen betöltve: " + file.name());
+            } else {
+                Gdx.app.error("CollectionScreen", "Skin fájl nem található: " + file.path());
+            }
+        }
+
+        if (skinFiles.size == 0) {
+            Gdx.app.error("CollectionScreen", "Nincsenek érvényes kártya skinek!");
         }
     }
-    
-    if (skinFiles.size == 0) {
-        Gdx.app.error("CollectionScreen", "Nincsenek érvényes kártya skinek!");
-    }
-}
 
     private void updateCurrentSkinTexture() {
         if (skinFiles.size == 0)
@@ -84,7 +90,8 @@ public class CollectionScreen extends PageScreen {
             currentDeckTexture = new Texture(currentSkinFile);
 
             int cols = 13;
-            int rows = 4;
+            int rows = 5;
+
             int tileWidth = currentDeckTexture.getWidth() / cols;
             int tileHeight = currentDeckTexture.getHeight() / rows;
 
@@ -114,9 +121,8 @@ public class CollectionScreen extends PageScreen {
 
     private void rebuildUI() {
         rootTable.clearChildren();
-        rootTable.center(); // A teljes gyökér táblázatot középre igazítjuk
+        rootTable.center();
 
-        // --- 1. KÁRTYÁK RÉSZE (ScrollPane) ---
         Table cardsTable = new Table();
         float screenWidth = stage.getWidth();
         float screenHeight = stage.getHeight();
@@ -126,7 +132,7 @@ public class CollectionScreen extends PageScreen {
         float cardWidth, cardHeight;
         int cardsPerRow;
 
-        if (screenHeight <= screenWidth) { 
+        if (screenHeight <= screenWidth) {
             cardsPerRow = 13;
             cardHeight = screenHeight * 0.16f;
             cardWidth = cardHeight / CARD_ASPECT_RATIO;
@@ -141,7 +147,7 @@ public class CollectionScreen extends PageScreen {
             for (Card card : collection.getCards()) {
                 int suitIndex = counter / 13;
                 int rankIndex = counter % 13;
-                
+
                 if (suitIndex < cardRegions.length && rankIndex < cardRegions[suitIndex].length) {
                     TextureRegion region = cardRegions[suitIndex][rankIndex];
                     card.setTextureRegion(region);
@@ -161,27 +167,25 @@ public class CollectionScreen extends PageScreen {
 
         ScrollPane scrollPane = new ScrollPane(cardsTable, uiSkin);
         scrollPane.setFadeScrollBars(false);
-        
+
         if (screenHeight <= screenWidth) {
             scrollPane.setScrollingDisabled(false, true);
         } else {
             scrollPane.setScrollingDisabled(true, false);
         }
 
-        // Hozzáadjuk a ScrollPane-t úgy, hogy kitöltse a teret, de ne húzzon magával felesleges oszlopokat
         rootTable.add(scrollPane).expand().fill().row();
 
-        // --- 2. ALSÓ SÁV (Magasabban, nagyobb gombokkal és felirattal) ---
         Table selectorTable = new Table();
-        // Növeljük a belső margókat, hogy nagyobbak legyenek a gombok/dobozok
         selectorTable.defaults().pad(15).space(20);
 
         TextButton leftArrow = new TextButton("<", uiSkin);
         TextButton rightArrow = new TextButton(">", uiSkin);
-        
-        String currentSkinName = (skinFiles.size > 0 && currentSkinIndex < skinFiles.size) ? 
-            skinFiles.get(currentSkinIndex).nameWithoutExtension().toUpperCase() : "NO SKINS";
-        
+
+        String currentSkinName = (skinFiles.size > 0 && currentSkinIndex < skinFiles.size)
+                ? skinFiles.get(currentSkinIndex).nameWithoutExtension().toUpperCase()
+                : "NO SKINS";
+
         skinNameLabel = new Label(currentSkinName, uiSkin);
         skinNameLabel.setAlignment(com.badlogic.gdx.utils.Align.center);
 
@@ -199,18 +203,16 @@ public class CollectionScreen extends PageScreen {
             }
         });
 
-        float labelWidth = screenWidth * 0.25f; // Kicsit szélesebb címke a nagyobb szöveghez
+        float labelWidth = screenWidth * 0.25f;
 
-        // A nyilaknak és a címkének nagyobb méretet / magasságot adunk
         float buttonHeight = Math.max(60f, screenHeight * 0.09f);
-        
+
         selectorTable.add(leftArrow).size(buttonHeight * 1.2f, buttonHeight).fill();
         selectorTable.add(skinNameLabel).width(labelWidth).height(buttonHeight).center();
         selectorTable.add(rightArrow).size(buttonHeight * 1.2f, buttonHeight).fill();
 
         float selectorHeight = Math.max(70f, screenHeight * 0.1f);
 
-        // Hozzáadás a gyökér táblázathoz: a padBottom-mal (vagy a sima pad-del) tudod feljebb emelni
         rootTable.add(selectorTable).center().expandX().height(selectorHeight).padBottom(20);
     }
 
