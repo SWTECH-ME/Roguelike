@@ -4,19 +4,22 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.screens.CollectionScreen;
 import io.github.some_rougelike.screens.FriendsScreen;
-import io.github.some_rougelike.screens.GameScreen;
 import io.github.some_rougelike.screens.ProfileScreen;
+import io.github.some_rougelike.screens.RunMapScreen;
 import io.github.some_rougelike.screens.SettingsScreen;
 import io.github.some_rougelike.audio.SoundManager;
+import io.github.some_rougelike.logic.RunState;
 
 public class MainMenuUIBuilder {
 
@@ -31,6 +34,9 @@ public class MainMenuUIBuilder {
         leftMenu.row();
 
         TextButton playButton = new TextButton("PLAY", skin);
+        playButton.setTransform(true);
+        playButton.setOrigin(Align.center);
+
         TextButton collectionButton = new TextButton("COLLECTION", skin);
         TextButton exitButton = new TextButton("EXIT", skin);
 
@@ -62,7 +68,14 @@ public class MainMenuUIBuilder {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.switchScreen(new GameScreen(main));
+                playButton.addAction(Actions.sequence(
+                    Actions.scaleTo(0.85f, 0.85f, 0.1f),
+                    Actions.scaleTo(1f, 1f, 0.1f),
+                    Actions.run(() -> {
+                        RunState newRun = new RunState();
+                        main.switchScreen(new RunMapScreen(main, newRun));
+                    })
+                ));
             }
         });
 
