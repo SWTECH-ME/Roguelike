@@ -49,8 +49,8 @@ public class RunState {
         availableNormals.add(normalPool.get(1));
         
         List<Enemy> bossPool = new ArrayList<>();
-        bossPool.add(new Enemy("Triple T", 400, 3, 2, "Card colors are hidden.", GameConfig.BG_BOSS));
-        bossPool.add(new Enemy("Giga Chad", 1500, 4, 2, "No discards allowed.", GameConfig.BG_BOSS));
+        bossPool.add(new Enemy("Triple T", 500, 3, 2, "Card colors are hidden.", GameConfig.BG_BOSS));
+        bossPool.add(new Enemy("Giga Chad", 500, 4, 2, "No discards allowed.", GameConfig.BG_BOSS));
         Collections.shuffle(bossPool);
         
         bossEnemy = bossPool.get(0);

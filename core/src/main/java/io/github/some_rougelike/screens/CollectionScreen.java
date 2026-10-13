@@ -21,6 +21,9 @@ import io.github.some_rougelike.model.CardCollection;
 
 public class CollectionScreen extends PageScreen {
     private static final float CARD_ASPECT_RATIO = 1.4f;
+    private static final float REFERENCE_SCREEN_AREA = 1280f * 720f;
+    private static final float MIN_UI_SCALE = 0.65f;
+    private static final float MAX_UI_SCALE = 1.75f;
     private static final String SKINS_DIR = "deck_skins";
 
     private final Table rootTable;
@@ -126,6 +129,7 @@ public class CollectionScreen extends PageScreen {
         Table cardsTable = new Table();
         float screenWidth = stage.getWidth();
         float screenHeight = stage.getHeight();
+        float uiScale = getUiScale(screenWidth, screenHeight);
         float dynamicPadding = Math.min(screenWidth, screenHeight) * 0.006f;
         cardsTable.defaults().pad(dynamicPadding);
 
@@ -162,7 +166,9 @@ public class CollectionScreen extends PageScreen {
                 }
             }
         } else {
-            cardsTable.add(new Label("Nincsenek betölthető kártya skinek!", uiSkin)).expand().center();
+            Label noSkinsLabel = new Label("Nincsenek betölthető kártya skinek!", uiSkin);
+            noSkinsLabel.setFontScale(uiScale);
+            cardsTable.add(noSkinsLabel).expand().center();
         }
 
         ScrollPane scrollPane = new ScrollPane(cardsTable, uiSkin);
@@ -177,16 +183,19 @@ public class CollectionScreen extends PageScreen {
         rootTable.add(scrollPane).expand().fill().row();
 
         Table selectorTable = new Table();
-        selectorTable.defaults().pad(15).space(20);
+        selectorTable.defaults().pad(15f * uiScale).space(20f * uiScale);
 
         TextButton leftArrow = new TextButton("<", uiSkin);
         TextButton rightArrow = new TextButton(">", uiSkin);
+        leftArrow.getLabel().setFontScale(uiScale);
+        rightArrow.getLabel().setFontScale(uiScale);
 
         String currentSkinName = (skinFiles.size > 0 && currentSkinIndex < skinFiles.size)
                 ? skinFiles.get(currentSkinIndex).nameWithoutExtension().toUpperCase()
                 : "NO SKINS";
 
         skinNameLabel = new Label(currentSkinName, uiSkin);
+        skinNameLabel.setFontScale(uiScale);
         skinNameLabel.setAlignment(com.badlogic.gdx.utils.Align.center);
 
         leftArrow.addListener(new ClickListener() {
@@ -205,15 +214,20 @@ public class CollectionScreen extends PageScreen {
 
         float labelWidth = screenWidth * 0.25f;
 
-        float buttonHeight = Math.max(60f, screenHeight * 0.09f);
+        float buttonHeight = Math.max(60f * uiScale, screenHeight * 0.09f);
 
         selectorTable.add(leftArrow).size(buttonHeight * 1.2f, buttonHeight).fill();
         selectorTable.add(skinNameLabel).width(labelWidth).height(buttonHeight).center();
         selectorTable.add(rightArrow).size(buttonHeight * 1.2f, buttonHeight).fill();
 
-        float selectorHeight = Math.max(70f, screenHeight * 0.1f);
+        float selectorHeight = Math.max(70f * uiScale, screenHeight * 0.1f);
 
-        rootTable.add(selectorTable).center().expandX().height(selectorHeight).padBottom(20);
+        rootTable.add(selectorTable).center().expandX().height(selectorHeight).padBottom(20f * uiScale);
+    }
+
+    private float getUiScale(float screenWidth, float screenHeight) {
+        float scale = (float) Math.sqrt((screenWidth * screenHeight) / REFERENCE_SCREEN_AREA);
+        return Math.max(MIN_UI_SCALE, Math.min(MAX_UI_SCALE, scale));
     }
 
     @Override

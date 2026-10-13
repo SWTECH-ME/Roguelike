@@ -1,10 +1,12 @@
 package io.github.some_rougelike.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -18,6 +20,8 @@ import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.model.Card;
+import io.github.some_rougelike.model.Suit;
+import io.github.some_rougelike.model.Rank;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.ui.TrippyBackground;
@@ -48,6 +52,9 @@ public class CombatScreen extends PageScreen {
     private Skin skin;
     private boolean isGameOver = false;
 
+    private Texture deckTexture;
+    private TextureRegion[][] cardRegions;
+
     private boolean isScoring = false;
     private float scoringTimer = 0f;
     private int scoringCardIndex = 0;
@@ -63,6 +70,8 @@ public class CombatScreen extends PageScreen {
         this.playsLeft = enemy.getMaxPlays();
         this.discardsLeft = enemy.getMaxDiscards();
         this.skin = Assets.getInstance().getSkin(GameConfig.UI_SKIN);
+
+        loadDeckTexture();
 
         this.drawPile = new ArrayList<>(runState.getDeck());
         Collections.shuffle(this.drawPile);
@@ -81,8 +90,66 @@ public class CombatScreen extends PageScreen {
         bgImg.setTouchable(Touchable.disabled);
         stage.addActor(bgImg);
 
+        assignTextureRegionsToDeck();
         drawInitialHand();
         buildUI();
+    }
+
+    private void loadDeckTexture() {
+        try {
+            FileHandle file = Gdx.files.internal("deck_skins/black_blue.png");
+            if (file.exists()) {
+                deckTexture = new Texture(file);
+                int cols = 13;
+                int rows = 5;
+                int tileWidth = deckTexture.getWidth() / cols;
+                int tileHeight = deckTexture.getHeight() / rows;
+                cardRegions = TextureRegion.split(deckTexture, tileWidth, tileHeight);
+            }
+        } catch (Exception e) {
+            Gdx.app.error("CombatScreen", "Nem sikerült betölteni a deck skint: " + e.getMessage());
+        }
+    }
+
+    private void assignTextureRegionsToDeck() {
+        if (cardRegions == null) return;
+
+        for (Card card : runState.getDeck()) {
+            int row = getRowForSuit(card.getSuit());
+            int col = getColForRank(card.getRank());
+            if (row >= 0 && row < cardRegions.length && col >= 0 && col < cardRegions[row].length) {
+                card.setTextureRegion(cardRegions[row][col]);
+            }
+        }
+    }
+
+    private int getRowForSuit(Suit suit) {
+        switch (suit) {
+            case CLUBS: return 0;
+            case HEARTS: return 1;
+            case SPADES: return 2;
+            case DIAMONDS: return 3;
+            default: return 0;
+        }
+    }
+
+    private int getColForRank(Rank rank) {
+        switch (rank) {
+            case ACE: return 0;
+            case TWO: return 1;
+            case THREE: return 2;
+            case FOUR: return 3;
+            case FIVE: return 4;
+            case SIX: return 5;
+            case SEVEN: return 6;
+            case EIGHT: return 7;
+            case NINE: return 8;
+            case TEN: return 9;
+            case JACK: return 10;
+            case QUEEN: return 11;
+            case KING: return 12;
+            default: return 0;
+        }
     }
 
     private void drawInitialHand() {
@@ -245,20 +312,21 @@ public class CombatScreen extends PageScreen {
 
         for (Card card : hand) {
             Table cardBg = new Table();
-            cardBg.setBackground(createRoundedRect(120, 170, 0.95f, 0.95f, 0.98f, 1f, 15));
             cardBg.setTouchable(Touchable.enabled);
             
-            Label cardLbl = new Label(card.getRank().getSymbol() + "\n\n" + card.getSuit().getDisplayName(), skin);
-            cardLbl.setAlignment(Align.center);
-            cardLbl.setTouchable(Touchable.disabled);
-            
-            Color textColor;
-            if ("red".equalsIgnoreCase(card.getSuit().getColor())) {
-                textColor = Color.valueOf("DD3333");
+            Actor cardContent;
+            if (card.getTextureRegion() != null) {
+                Image cardImg = new Image(card.getTextureRegion());
+                cardImg.setTouchable(Touchable.disabled);
+                cardContent = cardImg;
             } else {
-                textColor = Color.valueOf("222233");
+                Label fallbackLbl = new Label(card.getRank().getSymbol() + "\n" + card.getSuit().name(), skin);
+                fallbackLbl.setAlignment(Align.center);
+                fallbackLbl.setTouchable(Touchable.disabled);
+                cardContent = fallbackLbl;
             }
-            cardLbl.setColor(textColor);
+            
+            cardBg.setBackground(createRoundedRect(120, 170, 0.95f, 0.95f, 0.98f, 1f, 15));
             
             cardBg.addListener(new ClickListener() {
                 @Override
@@ -294,7 +362,7 @@ public class CombatScreen extends PageScreen {
                 }
             });
             
-            cardBg.add(cardLbl).expand().fill();
+            cardBg.add(cardContent).expand().fill();
             handTable.add(cardBg).size(120, 170).pad(10).align(Align.bottom);
             scoringCardTables.add(cardBg);
         }
@@ -469,6 +537,14 @@ public class CombatScreen extends PageScreen {
             } else if (playsLeft <= 0) {
                 showFailedScreen();
             }
+        }
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        if (deckTexture != null) {
+            deckTexture.dispose();
         }
     }
 }
