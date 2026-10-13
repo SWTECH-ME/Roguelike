@@ -16,15 +16,15 @@ import java.util.Set;
 public class SoundManager implements Disposable {
     private static final SoundManager INSTANCE = new SoundManager();
     // Variables
-    private static final float DEFAULT_MUSIC_VOLUME = 1.0f;
-    private static final float DEFAULT_SFX_VOLUME = 1.0f;
-    private float masterVolume = 1.0f;
+    private static final float DEFAULT_MUSIC_VOLUME = 0.5f;
+    private static final float DEFAULT_SFX_VOLUME = 0.5f;
+    private float masterVolume = 0.5f;
 
     private final AssetManager assetManager = new AssetManager();
     private final Map<SoundEvent, String> soundPaths = new EnumMap<>(SoundEvent.class);
     private boolean loaded;
     private Music menuMusic;
-    
+
     private float menuMusicVolume = DEFAULT_MUSIC_VOLUME;
     private float sfxVolume = DEFAULT_SFX_VOLUME;
 
@@ -40,7 +40,8 @@ public class SoundManager implements Disposable {
     }
 
     public void register(SoundEvent event, String assetPath) {
-        if (loaded) throw new IllegalStateException("[ERROR] Sound events must be registered before loading.");
+        if (loaded)
+            throw new IllegalStateException("[ERROR] Sound events must be registered before loading.");
         if (event == null || assetPath == null || assetPath.trim().isEmpty()) {
             throw new IllegalArgumentException("[ERROR] An event and non-empty asset path are required.");
         }
@@ -48,7 +49,8 @@ public class SoundManager implements Disposable {
     }
 
     public void load() {
-        if (loaded) return;
+        if (loaded)
+            return;
 
         Set<String> queuedPaths = new HashSet<>();
         for (Map.Entry<SoundEvent, String> entry : soundPaths.entrySet()) {
@@ -69,7 +71,7 @@ public class SoundManager implements Disposable {
         }
 
         assetManager.finishLoading();
-        
+
         if (assetManager.isLoaded(GameConfig.MENU_MUSIC, Music.class)) {
             menuMusic = assetManager.get(GameConfig.MENU_MUSIC, Music.class);
             menuMusic.setLooping(true);
@@ -125,7 +127,8 @@ public class SoundManager implements Disposable {
     }
 
     private void ensureLoaded() {
-        if (!loaded) throw new IllegalStateException("[ERROR] Load the sound manager before using audio.");
+        if (!loaded)
+            throw new IllegalStateException("[ERROR] Load the sound manager before using audio.");
     }
 
     @Override

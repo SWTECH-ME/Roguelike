@@ -1,6 +1,5 @@
 package io.github.some_rougelike.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -17,9 +16,11 @@ import io.github.some_rougelike.Main;
 import io.github.some_rougelike.ui.AnimatedImage;
 
 public abstract class PageScreen extends ScreenAdapter {
-
     protected final Main main;
     protected final Stage stage;
+
+    private static final float REFERENCE_WIDTH = 1920f;
+    private static final float REFERENCE_HEIGHT = 1080f;
 
     protected PageScreen(Main main, String title) {
         this.main = main;
@@ -27,9 +28,9 @@ public abstract class PageScreen extends ScreenAdapter {
 
         Texture sheetTexture = Assets.getInstance().getTexture(GameConfig.MAIN_BACKGROUND);
 
-        int frameCols = GameConfig.BG_FRAME_COLS; 
-        int frameRows = GameConfig.BG_FRAME_ROWS;  
-        int totalRealFrames = GameConfig.BG_TOTAL_FRAMES; 
+        int frameCols = GameConfig.BG_FRAME_COLS;
+        int frameRows = GameConfig.BG_FRAME_ROWS;
+        int totalRealFrames = GameConfig.BG_TOTAL_FRAMES;
 
         int frameWidth = sheetTexture.getWidth() / frameCols;
         int frameHeight = sheetTexture.getHeight() / frameRows;
@@ -37,7 +38,7 @@ public abstract class PageScreen extends ScreenAdapter {
         TextureRegion[][] tmp = TextureRegion.split(sheetTexture, frameWidth, frameHeight);
         TextureRegion[] frames = new TextureRegion[totalRealFrames];
         int index = 0;
-        
+
         for (int i = 0; i < frameRows; i++) {
             for (int j = 0; j < frameCols; j++) {
                 if (index < totalRealFrames) {
@@ -46,12 +47,19 @@ public abstract class PageScreen extends ScreenAdapter {
             }
         }
 
-        Animation<TextureRegion> backgroundAnimation = new Animation<TextureRegion>(GameConfig.ANIMATED_BACKGROUND_SPEED, frames);
+        Animation<TextureRegion> backgroundAnimation = new Animation<TextureRegion>(
+                GameConfig.ANIMATED_BACKGROUND_SPEED, frames);
         AnimatedImage animatedBackground = new AnimatedImage(backgroundAnimation);
         animatedBackground.setFillParent(true);
         animatedBackground.setScaling(Scaling.fill);
-        
-        stage.addActor(animatedBackground); 
+
+        stage.addActor(animatedBackground);
+    }
+
+    public float getScaleFactor() {
+        float currentWidth = Gdx.graphics.getWidth();
+        float currentHeight = Gdx.graphics.getHeight();
+        return Math.min(currentWidth / REFERENCE_WIDTH, currentHeight / REFERENCE_HEIGHT) * 1.5f;
     }
 
     public void goBack() {

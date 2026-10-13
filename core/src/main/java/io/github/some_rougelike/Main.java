@@ -12,6 +12,15 @@ public class Main extends Game {
     // Stores the last known windowed resolution so fullscreen toggle can restore it
     private int windowedWidth = 1280;
     private int windowedHeight = 720;
+    private io.github.some_rougelike.ui.WindowModeController windowModeController;
+
+    public void setWindowModeController(io.github.some_rougelike.ui.WindowModeController controller) {
+        this.windowModeController = controller;
+    }
+
+    public io.github.some_rougelike.ui.WindowModeController getWindowModeController() {
+        return windowModeController;
+    }
 
     @Override
     public void create() {
@@ -19,6 +28,11 @@ public class Main extends Game {
         Assets.getInstance().load();
         Assets.getInstance().finishLoading();
         SoundManager.getInstance().load();
+
+        // Set default volumes to 50% (0.5f) right at startup
+        SoundManager.getInstance().setMasterVolume(0.5f);
+        SoundManager.getInstance().setMenuMusicVolume(0.5f);
+        SoundManager.getInstance().setSfxVolume(0.5f);
 
         // Set the initial screen (main menu)
         setScreen(new MainMenuScreen(this));
@@ -81,6 +95,5 @@ public class Main extends Game {
         // Dispose all loaded assets
         Assets.getInstance().dispose();
         SoundManager.getInstance().dispose();
-        Assets.getInstance().dispose();
     }
 }
