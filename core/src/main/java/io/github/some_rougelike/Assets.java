@@ -35,6 +35,7 @@ public class Assets implements Disposable {
         assetManager.load(GameConfig.UI_SKIN, Skin.class);
         assetManager.load(GameConfig.MAIN_BACKGROUND, Texture.class);
         assetManager.load(GameConfig.MAIN_STATIC_BACKGROUND, Texture.class);
+        assetManager.load("joker.jpeg", Texture.class);
     }
 
     public void finishLoading() {
