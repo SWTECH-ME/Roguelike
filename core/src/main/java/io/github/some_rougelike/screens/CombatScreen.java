@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.Align;
 import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
-import io.github.some_rougelike.logic.Card;
+import io.github.some_rougelike.model.Card;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.ui.TrippyBackground;
@@ -248,12 +248,12 @@ public class CombatScreen extends PageScreen {
             cardBg.setBackground(createRoundedRect(120, 170, 0.95f, 0.95f, 0.98f, 1f, 15));
             cardBg.setTouchable(Touchable.enabled);
             
-            Label cardLbl = new Label(card.getRank().name() + "\n\n" + card.getSuit().name(), skin);
+            Label cardLbl = new Label(card.getRank().getSymbol() + "\n\n" + card.getSuit().getDisplayName(), skin);
             cardLbl.setAlignment(Align.center);
             cardLbl.setTouchable(Touchable.disabled);
             
             Color textColor;
-            if (card.getSuit() == Card.Suit.HEARTS || card.getSuit() == Card.Suit.DIAMONDS) {
+            if ("red".equalsIgnoreCase(card.getSuit().getColor())) {
                 textColor = Color.valueOf("DD3333");
             } else {
                 textColor = Color.valueOf("222233");
@@ -407,12 +407,12 @@ public class CombatScreen extends PageScreen {
                 
                 if (scoringCardIndex < scoringCards.size()) {
                     Card c = scoringCards.get(scoringCardIndex);
-                    currentHandPoints += c.getValue();
-                    targetDisplayScore += c.getValue(); 
+                    currentHandPoints += c.getChips();
+                    targetDisplayScore += c.getChips(); 
                     
                     triggerShake(GameConfig.SCREEN_SHAKE_INTENSITY / 2f);
 
-                    Label popLabel = new Label("+" + c.getValue(), skin);
+                    Label popLabel = new Label("+" + c.getChips(), skin);
                     popLabel.setFontScale(4f);
                     popLabel.setColor(Color.valueOf("FFD700"));
                     popLabel.setAlignment(Align.center);

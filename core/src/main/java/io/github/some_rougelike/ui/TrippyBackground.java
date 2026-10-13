@@ -40,17 +40,19 @@ public class TrippyBackground extends Widget {
                 "uniform vec3 u_color1;\n" +
                 "uniform vec3 u_color2;\n" +
                 "void main() {\n" +
-                "    vec2 uv = v_texCoords * 3.0;\n" +
+                "    float pixels = 256.0;\n" +
+                "    vec2 uv = floor(v_texCoords * pixels) / pixels;\n" +
+                "    uv *= 8.0;\n" +
                 "    uv.x *= 1.77;\n" +
                 "    vec2 p = uv;\n" +
-                "    for(int i = 1; i < 5; i++) {\n" +
+                "    for(int i = 1; i < 7; i++) {\n" +
                 "        float fi = float(i);\n" +
                 "        vec2 newp = p;\n" +
-                "        newp.x += 0.8 / fi * sin(fi * p.y + u_time * 2.0 + 0.3);\n" +
-                "        newp.y += 0.8 / fi * cos(fi * p.x + u_time * 2.0 + 0.3);\n" +
+                "        newp.x += 0.6 / fi * sin(fi * p.y + u_time * 1.2 + 0.3);\n" +
+                "        newp.y += 0.6 / fi * cos(fi * p.x + u_time * 1.2 + 0.3);\n" +
                 "        p = newp;\n" +
                 "    }\n" +
-                "    float t = sin(p.x + p.y) * 0.5 + 0.5;\n" +
+                "    float t = cos(p.x + p.y + 1.0) * 0.5 + 0.5;\n" +
                 "    vec3 finalColor = mix(u_color1, u_color2, t);\n" +
                 "    gl_FragColor = vec4(finalColor, 1.0);\n" +
                 "}";
@@ -77,6 +79,8 @@ public class TrippyBackground extends Widget {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        float overscan = 150f; 
+
         if (shader != null && shader.isCompiled()) {
             batch.flush();
             ShaderProgram oldShader = batch.getShader();
@@ -88,13 +92,13 @@ public class TrippyBackground extends Widget {
             
             Color c = getColor();
             batch.setColor(c.r, c.g, c.b, c.a * parentAlpha);
-            batch.draw(whiteTexture, getX(), getY(), getWidth(), getHeight());
+            batch.draw(whiteTexture, getX() - overscan, getY() - overscan, getWidth() + (overscan * 2), getHeight() + (overscan * 2));
             
             batch.flush();
             batch.setShader(oldShader);
         } else {
             batch.setColor(color1.r, color1.g, color1.b, parentAlpha);
-            batch.draw(whiteTexture, getX(), getY(), getWidth(), getHeight());
+            batch.draw(whiteTexture, getX() - overscan, getY() - overscan, getWidth() + (overscan * 2), getHeight() + (overscan * 2));
         }
     }
 }

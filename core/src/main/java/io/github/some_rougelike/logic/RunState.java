@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import io.github.some_rougelike.GameConfig;
+import io.github.some_rougelike.model.Card;
+import io.github.some_rougelike.model.Suit;
+import io.github.some_rougelike.model.Rank;
 
 public class RunState {
     private int money;
     private int chapterIndex;
-    // 0, 1: basic enemy, 2: Boss stage
     
     private List<Card> deck;
     
@@ -25,8 +27,8 @@ public class RunState {
 
     private List<Card> generateStandardDeck() {
         List<Card> newDeck = new ArrayList<>();
-        for (Card.Suit suit : Card.Suit.values()) {
-            for (Card.Rank rank : Card.Rank.values()) {
+        for (Suit suit : Suit.values()) {
+            for (Rank rank : Rank.values()) {
                 newDeck.add(new Card(suit, rank));
             }
         }
@@ -35,8 +37,6 @@ public class RunState {
     }
 
     private void generateMockChapter() {
-        // Mock enemies
-        // These will be randomized later
         List<Enemy> normalPool = new ArrayList<>();
         normalPool.add(new Enemy("Backrooms Obama", 300, 4, 3, GameConfig.BG_ENEMY_1));
         normalPool.add(new Enemy("360 NoScope", 600, 4, 3, GameConfig.BG_ENEMY_2));
@@ -49,7 +49,7 @@ public class RunState {
         availableNormals.add(normalPool.get(1));
         
         List<Enemy> bossPool = new ArrayList<>();
-        bossPool.add(new Enemy("Triple T", 1200, 3, 2, "Card colors are hidden.", GameConfig.BG_BOSS));
+        bossPool.add(new Enemy("Triple T", 400, 3, 2, "Card colors are hidden.", GameConfig.BG_BOSS));
         bossPool.add(new Enemy("Giga Chad", 1500, 4, 2, "No discards allowed.", GameConfig.BG_BOSS));
         Collections.shuffle(bossPool);
         
