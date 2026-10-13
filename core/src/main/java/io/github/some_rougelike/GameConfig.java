@@ -1,8 +1,6 @@
 package io.github.some_rougelike;
 
 public class GameConfig {
-    // Global variables for backgrounds, etc.
-    // We'll only have to update them here swag
 
     // Backgrounds, images
     public static final String UI_SKIN = "ui/uiskin.json";
@@ -41,8 +39,9 @@ public class GameConfig {
     public static final int REWARD_MONEY = 15;
     public static final int DEFAULT_MAX_PLAYS = 4;
     public static final int DEFAULT_MAX_DISCARDS = 3;
-    
+
     public static final float SCREEN_SHAKE_DURATION = 0.2f;
     public static final float SCREEN_SHAKE_INTENSITY = 12f;
-    public static final float SCORING_STEP_DELAY = 0.4f;
+    public static final float SCORING_STEP_DELAY = 0.6f;
+    public static final String SCORING_NUMBER_COLOR = "FFD700";
 }
