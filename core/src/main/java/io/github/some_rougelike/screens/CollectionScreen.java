@@ -18,6 +18,9 @@ import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.model.Card;
 import io.github.some_rougelike.model.CardCollection;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import io.github.some_rougelike.model.RankProgress;
 
 public class CollectionScreen extends PageScreen {
     private static final float CARD_ASPECT_RATIO = 1.4f;
@@ -53,6 +56,18 @@ public class CollectionScreen extends PageScreen {
         updateCurrentSkinTexture();
         rebuildUI();
     }
+
+    private enum Mode {
+        SKINS, RANKS
+    }
+
+    private static final String[] RANK_NAMES = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
+
+    // Ha a képen az ász az első oszlop (A,2,3...K), hagyd true-n.
+    // Ha a sorrend 2,3...K,A, állítsd false-ra.
+    private static final boolean ACE_FIRST_IN_SHEET = true;
+
+    private Mode mode = Mode.SKINS;
 
     private void loadSkinFiles() {
         String[] skinFileNames = {
@@ -126,62 +141,20 @@ public class CollectionScreen extends PageScreen {
         rootTable.clearChildren();
         rootTable.center();
 
-        Table cardsTable = new Table();
         float screenWidth = stage.getWidth();
         float screenHeight = stage.getHeight();
         float uiScale = getUiScale(screenWidth, screenHeight);
-        float dynamicPadding = Math.min(screenWidth, screenHeight) * 0.006f;
-        cardsTable.defaults().pad(dynamicPadding);
 
-        float cardWidth, cardHeight;
-        int cardsPerRow;
+        // 1) felső váltósor
+        rootTable.add(buildTabBar(uiScale, screenHeight)).center().expandX().row();
 
-        if (screenHeight <= screenWidth) {
-            cardsPerRow = 13;
-            cardHeight = screenHeight * 0.16f;
-            cardWidth = cardHeight / CARD_ASPECT_RATIO;
-        } else {
-            cardsPerRow = 4;
-            cardWidth = screenWidth * 0.16f;
-            cardHeight = cardWidth * CARD_ASPECT_RATIO;
-        }
+        // 2) tartalom a kiválasztott módnak megfelelően
+        Actor content = (mode == Mode.SKINS)
+                ? buildSkinsContent(uiScale, screenWidth, screenHeight)
+                : buildRanksContent(uiScale, screenWidth, screenHeight);
+        rootTable.add(content).expand().fill().row();
 
-        if (cardRegions != null && collection != null && collection.getCards() != null) {
-            int counter = 0;
-            for (Card card : collection.getCards()) {
-                int suitIndex = counter / 13;
-                int rankIndex = counter % 13;
-
-                if (suitIndex < cardRegions.length && rankIndex < cardRegions[suitIndex].length) {
-                    TextureRegion region = cardRegions[suitIndex][rankIndex];
-                    card.setTextureRegion(region);
-
-                    Image cardImage = new Image(region);
-                    cardsTable.add(cardImage).size(cardWidth, cardHeight);
-                }
-
-                counter++;
-                if (counter % cardsPerRow == 0) {
-                    cardsTable.row();
-                }
-            }
-        } else {
-            Label noSkinsLabel = new Label("Nincsenek betölthető kártya skinek!", uiSkin);
-            noSkinsLabel.setFontScale(uiScale);
-            cardsTable.add(noSkinsLabel).expand().center();
-        }
-
-        ScrollPane scrollPane = new ScrollPane(cardsTable, uiSkin);
-        scrollPane.setFadeScrollBars(false);
-
-        if (screenHeight <= screenWidth) {
-            scrollPane.setScrollingDisabled(false, true);
-        } else {
-            scrollPane.setScrollingDisabled(true, false);
-        }
-
-        rootTable.add(scrollPane).expand().fill().row();
-
+        // 3) alsó skinválasztó (az eredeti kódod, változtatás nélkül)
         Table selectorTable = new Table();
         selectorTable.defaults().pad(15f * uiScale).space(20f * uiScale);
 
@@ -204,7 +177,6 @@ public class CollectionScreen extends PageScreen {
                 changeSkin(-1);
             }
         });
-
         rightArrow.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -213,7 +185,6 @@ public class CollectionScreen extends PageScreen {
         });
 
         float labelWidth = screenWidth * 0.25f;
-
         float buttonHeight = Math.max(60f * uiScale, screenHeight * 0.09f);
 
         selectorTable.add(leftArrow).size(buttonHeight * 1.2f, buttonHeight).fill();
@@ -221,7 +192,6 @@ public class CollectionScreen extends PageScreen {
         selectorTable.add(rightArrow).size(buttonHeight * 1.2f, buttonHeight).fill();
 
         float selectorHeight = Math.max(70f * uiScale, screenHeight * 0.1f);
-
         rootTable.add(selectorTable).center().expandX().height(selectorHeight).padBottom(20f * uiScale);
     }
 
@@ -242,5 +212,139 @@ public class CollectionScreen extends PageScreen {
         if (currentDeckTexture != null) {
             currentDeckTexture.dispose();
         }
+    }
+
+    private void setMode(Mode newMode) {
+        if (mode == newMode)
+            return;
+        mode = newMode;
+        rebuildUI();
+    }
+
+    /** 0..12 = 2..Ász -> oszlopindex a skin képen. */
+    private int rankToColumn(int rankIndex) {
+        return ACE_FIRST_IN_SHEET ? (rankIndex + 1) % 13 : rankIndex;
+    }
+
+    private Table buildTabBar(float uiScale, float screenHeight) {
+        Table tabs = new Table();
+        tabs.defaults().pad(8f * uiScale).space(10f * uiScale);
+
+        TextButton skinsTab = new TextButton("SKINS", uiSkin);
+        TextButton ranksTab = new TextButton("Card Upgrades", uiSkin);
+        skinsTab.getLabel().setFontScale(uiScale);
+        ranksTab.getLabel().setFontScale(uiScale);
+
+        // Az aktív fül le van tiltva (és szürkén látszik), a másik kattintható
+        skinsTab.setDisabled(mode == Mode.SKINS);
+        ranksTab.setDisabled(mode == Mode.RANKS);
+
+        skinsTab.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                setMode(Mode.SKINS);
+            }
+        });
+        ranksTab.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                setMode(Mode.RANKS);
+            }
+        });
+
+        float h = Math.max(45f * uiScale, screenHeight * 0.07f);
+        tabs.add(skinsTab).size(h * 3f, h);
+        tabs.add(ranksTab).size(h * 3f, h);
+        return tabs;
+    }
+
+    /** Az eredeti "összes kártya" nézet. */
+  private Actor buildSkinsContent(float uiScale, float screenWidth, float screenHeight) {
+        Table cardsTable = new Table();
+        float dynamicPadding = Math.min(screenWidth, screenHeight) * 0.006f;
+        cardsTable.defaults().pad(dynamicPadding);
+
+        float cardWidth, cardHeight;
+        int cardsPerRow;
+        if (screenHeight <= screenWidth) {
+            cardsPerRow = 13;
+            cardHeight = screenHeight * 0.16f;
+            cardWidth = cardHeight / CARD_ASPECT_RATIO;
+        } else {
+            cardsPerRow = 4;
+            cardWidth = screenWidth * 0.16f;
+            cardHeight = cardWidth * CARD_ASPECT_RATIO;
+        }
+
+        if (cardRegions != null && collection != null && collection.getCards() != null) {
+            int counter = 0;
+            for (Card card : collection.getCards()) {
+                int suitIndex = counter / 13;
+                int rankIndex = counter % 13;
+
+                if (suitIndex < cardRegions.length && rankIndex < cardRegions[suitIndex].length) {
+                    TextureRegion region = cardRegions[suitIndex][rankIndex];
+                    card.setTextureRegion(region);
+                    cardsTable.add(new Image(region)).size(cardWidth, cardHeight);
+                }
+
+                counter++;
+                if (counter % cardsPerRow == 0) {
+                    cardsTable.row();
+                }
+            }
+        } else {
+            Label noSkinsLabel = new Label("Nincsenek betölthető kártya skinek!", uiSkin);
+            noSkinsLabel.setFontScale(uiScale);
+            cardsTable.add(noSkinsLabel).expand().center();
+        }
+
+        ScrollPane scrollPane = new ScrollPane(cardsTable, uiSkin);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(screenHeight > screenWidth, screenHeight <= screenWidth);
+        return scrollPane;
+    }
+
+    /** 2-től ászig, egy színből, középen felsorolva, alattuk a fejlődési sáv. */
+    private Actor buildRanksContent(float uiScale, float screenWidth, float screenHeight) {
+        Table ranksTable = new Table();
+        float pad = Math.min(screenWidth, screenHeight) * 0.008f;
+        ranksTable.defaults().pad(pad);
+
+        if (cardRegions == null || cardRegions.length == 0) {
+            Label noSkinsLabel = new Label("Nincsenek betölthető kártya skinek!", uiSkin);
+            noSkinsLabel.setFontScale(uiScale);
+            ranksTable.add(noSkinsLabel).center();
+            return ranksTable;
+        }
+
+        boolean landscape = screenHeight <= screenWidth;
+        int perRow = landscape ? 7 : 4;
+        float cardWidth = landscape ? screenWidth * 0.09f : screenWidth * 0.18f;
+        float cardHeight = cardWidth * CARD_ASPECT_RATIO;
+
+        TextureRegion[] suitRow = cardRegions[0];
+
+        for (int i = 0; i < RANK_NAMES.length; i++) {
+            int col = rankToColumn(i);
+            if (col >= suitRow.length) continue;
+
+            Table cell = new Table();
+            cell.add(new Image(suitRow[col])).size(cardWidth, cardHeight).row();
+
+            ProgressBar bar = new ProgressBar(0f, 100f, 1f, false, uiSkin);
+            bar.setValue(RankProgress.getInstance().get(i));
+            cell.add(bar).width(cardWidth).padTop(4f * uiScale);
+
+            ranksTable.add(cell);
+            if ((i + 1) % perRow == 0) {
+                ranksTable.row();
+            }
+        }
+
+        ScrollPane scrollPane = new ScrollPane(ranksTable, uiSkin);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false);
+        return scrollPane;
     }
 }
