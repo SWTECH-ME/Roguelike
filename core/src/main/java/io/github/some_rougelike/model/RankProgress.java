@@ -9,7 +9,7 @@ public class RankProgress {
     public static final int RANK_COUNT = 13;
 
     private static final String PREFS_NAME = "rougelike_progress";
-    private static final String KEY_INITIALIZED = "initialized";
+    private static final String KEY_INITIALIZED = "initialized_v2";
     private static final String KEY_PREFIX = "rank_";
 
     private static final RankProgress INSTANCE = new RankProgress();
@@ -43,9 +43,9 @@ public class RankProgress {
                 values[i] = prefs.getFloat(KEY_PREFIX + i, 0f);
             }
         } else {
-            // Első indítás: ideiglenes véletlen kezdőértékek
+            // Első indítás (vagy nullázás után): minden sáv 0%-on
             for (int i = 0; i < RANK_COUNT; i++) {
-                values[i] = MathUtils.random(0, 100);
+                values[i] = 0f;
             }
             save();
         }

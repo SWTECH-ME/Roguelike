@@ -58,16 +58,66 @@ public class CollectionScreen extends PageScreen {
     }
 
     private enum Mode {
-        SKINS, RANKS
+        SKINS, RANKS, COMBINATIONS
     }
 
     private static final String[] RANK_NAMES = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
+    private static final String[] COMBINATIONS = {
+            "One Pair",
+            "Two Pair",
+            "Black Jack",
+            "Three of a Kind",
+            "5 Odd",
+            "5 Even",
+            "Straight",
+            "Flush",
+            "Full House",
+            "Prime 5",
+            "Royal House",
+            "Four of a Kind",
+            "Straight Flush",
+            "Royal Flush"
+    };
+
+    // Ugyanabban a sorrendben, mint a COMBINATIONS: {rang, szín}
+    private static final int[][][] EXAMPLES = {
+            // One Pair: 5 5 9 K 2
+            { { 3, 0 }, { 3, 1 }, { 7, 2 }, { 11, 3 }, { 0, 0 } },
+            // Two Pair: 4 4 9 9 K
+            { { 2, 0 }, { 2, 1 }, { 7, 2 }, { 7, 3 }, { 11, 0 } },
+            // Black Jack: 10 + Ász
+            { { 8, 0 }, { 12, 1 } },
+            // Three of a Kind: 7 7 7 K 2
+            { { 5, 0 }, { 5, 1 }, { 5, 2 }, { 11, 3 }, { 0, 0 } },
+            // 5 Odd: A 3 5 7 9
+            { { 12, 0 }, { 1, 1 }, { 3, 2 }, { 5, 3 }, { 7, 0 } },
+            // 5 Even: 2 4 6 8 10
+            { { 0, 0 }, { 2, 1 }, { 4, 2 }, { 6, 3 }, { 8, 0 } },
+            // Straight: 5 6 7 8 9, vegyes színek
+            { { 3, 0 }, { 4, 1 }, { 5, 2 }, { 6, 3 }, { 7, 0 } },
+            // Flush: 2 5 8 J K, egy szín
+            { { 0, 2 }, { 3, 2 }, { 6, 2 }, { 9, 2 }, { 11, 2 } },
+            // Full House: 8 8 8 K K
+            { { 6, 0 }, { 6, 1 }, { 6, 2 }, { 11, 0 }, { 11, 1 } },
+            // Prime 5: 2 3 5 7 7 (csak prím rangok, ismétlődhetnek)
+            { { 0, 0 }, { 1, 1 }, { 3, 2 }, { 5, 3 }, { 5, 0 } },
+            // Royal House: 5 arcos lap (J Q K Q J)
+            { { 9, 0 }, { 10, 1 }, { 11, 2 }, { 10, 3 }, { 9, 1 } },
+            // Four of a Kind: 9 9 9 9 2
+            { { 7, 0 }, { 7, 1 }, { 7, 2 }, { 7, 3 }, { 0, 0 } },
+            // Straight Flush: 5 6 7 8 9, egy szín
+            { { 3, 1 }, { 4, 1 }, { 5, 1 }, { 6, 1 }, { 7, 1 } },
+            // Royal Flush: 10 J Q K A, egy szín
+            { { 8, 0 }, { 9, 0 }, { 10, 0 }, { 11, 0 }, { 12, 0 } }
+    };
+    private static final String HIDDEN_NAME = "---Find this in a run---";
 
     // Ha a képen az ász az első oszlop (A,2,3...K), hagyd true-n.
     // Ha a sorrend 2,3...K,A, állítsd false-ra.
     private static final boolean ACE_FIRST_IN_SHEET = true;
 
     private Mode mode = Mode.SKINS;
+    private final boolean[] comboHidden = new boolean[COMBINATIONS.length];
 
     private void loadSkinFiles() {
         String[] skinFileNames = {
@@ -149,9 +199,18 @@ public class CollectionScreen extends PageScreen {
         rootTable.add(buildTabBar(uiScale, screenHeight)).center().expandX().row();
 
         // 2) tartalom a kiválasztott módnak megfelelően
-        Actor content = (mode == Mode.SKINS)
-                ? buildSkinsContent(uiScale, screenWidth, screenHeight)
-                : buildRanksContent(uiScale, screenWidth, screenHeight);
+        Actor content;
+        switch (mode) {
+            case RANKS:
+                content = buildRanksContent(uiScale, screenWidth, screenHeight);
+                break;
+            case COMBINATIONS:
+                content = buildCombinationsContent(uiScale, screenWidth, screenHeight);
+                break;
+            default:
+                content = buildSkinsContent(uiScale, screenWidth, screenHeight);
+                break;
+        }
         rootTable.add(content).expand().fill().row();
 
         // 3) alsó skinválasztó (az eredeti kódod, változtatás nélkül)
@@ -251,15 +310,25 @@ public class CollectionScreen extends PageScreen {
                 setMode(Mode.RANKS);
             }
         });
+        TextButton combosTab = new TextButton("Combinations", uiSkin);
+        combosTab.getLabel().setFontScale(uiScale);
+        combosTab.setDisabled(mode == Mode.COMBINATIONS);
+        combosTab.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                setMode(Mode.COMBINATIONS);
+            }
+        });
 
         float h = Math.max(45f * uiScale, screenHeight * 0.07f);
         tabs.add(skinsTab).size(h * 3f, h);
         tabs.add(ranksTab).size(h * 3f, h);
+        tabs.add(combosTab).size(h * 3f, h);
         return tabs;
     }
 
     /** Az eredeti "összes kártya" nézet. */
-  private Actor buildSkinsContent(float uiScale, float screenWidth, float screenHeight) {
+    private Actor buildSkinsContent(float uiScale, float screenWidth, float screenHeight) {
         Table cardsTable = new Table();
         float dynamicPadding = Math.min(screenWidth, screenHeight) * 0.006f;
         cardsTable.defaults().pad(dynamicPadding);
@@ -327,7 +396,8 @@ public class CollectionScreen extends PageScreen {
 
         for (int i = 0; i < RANK_NAMES.length; i++) {
             int col = rankToColumn(i);
-            if (col >= suitRow.length) continue;
+            if (col >= suitRow.length)
+                continue;
 
             Table cell = new Table();
             cell.add(new Image(suitRow[col])).size(cardWidth, cardHeight).row();
@@ -343,6 +413,64 @@ public class CollectionScreen extends PageScreen {
         }
 
         ScrollPane scrollPane = new ScrollPane(ranksTable, uiSkin);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false);
+        return scrollPane;
+    }
+
+    /** A kártyakombinációk középre igazított listája. */
+    /** Kombináció neve, mellette egy gomb (ki/be), és a példa lapokból kirakva. */
+    private Actor buildCombinationsContent(float uiScale, float screenWidth, float screenHeight) {
+        Table list = new Table();
+
+        float nameWidth = screenWidth * 0.22f;
+        float cardWidth = Math.min(screenWidth * 0.06f, screenHeight * 0.1f);
+        float cardHeight = cardWidth * CARD_ASPECT_RATIO;
+        float pad = Math.min(screenWidth, screenHeight) * 0.006f;
+        float buttonHeight = Math.max(40f * uiScale, screenHeight * 0.06f);
+
+        for (int i = 0; i < COMBINATIONS.length; i++) {
+            final int index = i;
+
+            final Label label = new Label(comboHidden[i] ? HIDDEN_NAME : COMBINATIONS[i], uiSkin);
+            label.setFontScale(uiScale * 1.2f);
+            label.setAlignment(com.badlogic.gdx.utils.Align.left);
+            list.add(label).width(nameWidth).left().padRight(20f * uiScale);
+
+            final Table cards = new Table();
+            if (cardRegions != null) {
+                for (int[] c : EXAMPLES[i]) {
+                    int col = rankToColumn(c[0]);
+                    int suit = c[1];
+                    if (suit < cardRegions.length && col < cardRegions[suit].length) {
+                        cards.add(new Image(cardRegions[suit][col]))
+                                .size(cardWidth, cardHeight).pad(pad);
+                    }
+                }
+            }
+            cards.setVisible(!comboHidden[i]);
+
+            final TextButton toggle = new TextButton(comboHidden[i] ? "SHOW" : "HIDE", uiSkin);
+            toggle.getLabel().setFontScale(uiScale);
+            toggle.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    comboHidden[index] = !comboHidden[index];
+                    boolean hidden = comboHidden[index];
+                    cards.setVisible(!hidden);
+                    label.setText(hidden ? HIDDEN_NAME : COMBINATIONS[index]);
+                    toggle.setText(hidden ? "SHOW" : "HIDE");
+                }
+            });
+
+            list.add(toggle).size(buttonHeight * 2f, buttonHeight).padRight(20f * uiScale);
+            list.add(cards).left().padTop(pad).padBottom(pad).row();
+        }
+
+        Table wrapper = new Table();
+        wrapper.add(list).expandX().center().top();
+
+        ScrollPane scrollPane = new ScrollPane(wrapper, uiSkin);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollingDisabled(true, false);
         return scrollPane;
