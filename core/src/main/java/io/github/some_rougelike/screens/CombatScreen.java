@@ -26,6 +26,11 @@ import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.ui.TrippyBackground;
 
+
+import com.badlogic.gdx.math.MathUtils;
+import io.github.some_rougelike.model.RankProgress;
+
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -82,7 +87,7 @@ public class CombatScreen extends PageScreen {
             c1 = new Color(0.4f, 0.1f, 0.15f, 1f);
             c2 = new Color(0.25f, 0.05f, 0.1f, 1f);
         }
-        
+
         float overscan = 150f;
         TrippyBackground bgImg = new TrippyBackground(c1, c2);
         bgImg.setSize(Gdx.graphics.getWidth() + (overscan * 2), Gdx.graphics.getHeight() + (overscan * 2));
@@ -112,7 +117,8 @@ public class CombatScreen extends PageScreen {
     }
 
     private void assignTextureRegionsToDeck() {
-        if (cardRegions == null) return;
+        if (cardRegions == null)
+            return;
 
         for (Card card : runState.getDeck()) {
             int row = getRowForSuit(card.getSuit());
@@ -125,31 +131,62 @@ public class CombatScreen extends PageScreen {
 
     private int getRowForSuit(Suit suit) {
         switch (suit) {
-            case CLUBS: return 0;
-            case HEARTS: return 1;
-            case SPADES: return 2;
-            case DIAMONDS: return 3;
-            default: return 0;
+            case CLUBS:
+                return 0;
+            case HEARTS:
+                return 1;
+            case SPADES:
+                return 2;
+            case DIAMONDS:
+                return 3;
+            default:
+                return 0;
         }
     }
 
     private int getColForRank(Rank rank) {
         switch (rank) {
-            case ACE: return 0;
-            case TWO: return 1;
-            case THREE: return 2;
-            case FOUR: return 3;
-            case FIVE: return 4;
-            case SIX: return 5;
-            case SEVEN: return 6;
-            case EIGHT: return 7;
-            case NINE: return 8;
-            case TEN: return 9;
-            case JACK: return 10;
-            case QUEEN: return 11;
-            case KING: return 12;
-            default: return 0;
+            case ACE:
+                return 0;
+            case TWO:
+                return 1;
+            case THREE:
+                return 2;
+            case FOUR:
+                return 3;
+            case FIVE:
+                return 4;
+            case SIX:
+                return 5;
+            case SEVEN:
+                return 6;
+            case EIGHT:
+                return 7;
+            case NINE:
+                return 8;
+            case TEN:
+                return 9;
+            case JACK:
+                return 10;
+            case QUEEN:
+                return 11;
+            case KING:
+                return 12;
+            default:
+                return 0;
         }
+    }
+
+    /** A rang sorszáma a RankProgress-ben: 0 = "2", ... 11 = K, 12 = Ász. */
+    private int getProgressIndex(Rank rank) {
+        // getColForRank: ACE=0, TWO=1 ... KING=12 -> TWO=0 ... KING=11, ACE=12
+        return (getColForRank(rank) + 12) % 13;
+    }
+
+    /** A sáv százaléka a duplázás esélye. */
+    private boolean rollDouble(Card card) {
+        float chance = RankProgress.getInstance().get(getProgressIndex(card.getRank()));
+        return MathUtils.random(100f) < chance;
     }
 
     private void drawInitialHand() {
@@ -160,7 +197,8 @@ public class CombatScreen extends PageScreen {
         }
     }
 
-    private TextureRegionDrawable createRoundedRect(int width, int height, float r, float g, float b, float a, int radius) {
+    private TextureRegionDrawable createRoundedRect(int width, int height, float r, float g, float b, float a,
+            int radius) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setBlending(Pixmap.Blending.None);
         pixmap.setColor(0, 0, 0, 0);
@@ -181,7 +219,7 @@ public class CombatScreen extends PageScreen {
     private void buildUI() {
         Table root = new Table();
         root.setFillParent(true);
-        
+
         Table leftScorePanel = new Table();
         leftScorePanel.setBackground(createRoundedRect(320, 160, 0.1f, 0.1f, 0.12f, 0.75f, 25));
         leftScorePanel.pad(20);
@@ -189,7 +227,7 @@ public class CombatScreen extends PageScreen {
         Label scoreTitle = new Label("ROUND SCORE", skin);
         scoreTitle.setFontScale(1.1f);
         scoreTitle.setColor(Color.valueOf("BBBBBB"));
-        
+
         scoreLabel = new Label(String.valueOf(currentScore), skin);
         scoreLabel.setFontScale(3.8f);
         scoreLabel.setColor(Color.WHITE);
@@ -209,7 +247,7 @@ public class CombatScreen extends PageScreen {
         playsLabel = new Label("Plays: " + playsLeft, skin);
         playsLabel.setFontScale(1.5f);
         playsLabel.setColor(Color.valueOf("FFD700"));
-        
+
         discardsLabel = new Label("Discards: " + discardsLeft, skin);
         discardsLabel.setFontScale(1.5f);
         discardsLabel.setColor(Color.valueOf("FF9999"));
@@ -228,14 +266,14 @@ public class CombatScreen extends PageScreen {
         Label enemyName = new Label(enemy.getName(), skin);
         enemyName.setFontScale(2.2f);
         enemyName.setColor(enemy.isBoss() ? Color.valueOf("FF5555") : Color.WHITE);
-        
+
         Label enemyType = new Label(enemy.isBoss() ? "BOSS BLIND" : "NORMAL BLIND", skin);
         enemyType.setFontScale(1.1f);
         enemyType.setColor(Color.valueOf("AAAAAA"));
-        
+
         middleTable.add(enemyType).row();
         middleTable.add(enemyName).padTop(5).row();
-        
+
         if (enemy.isBoss()) {
             Label abilityLabel = new Label(enemy.getSpecialAbility(), skin);
             abilityLabel.setColor(Color.valueOf("FF8888"));
@@ -243,47 +281,47 @@ public class CombatScreen extends PageScreen {
         }
 
         Table bottomSection = new Table();
-        
+
         handTable = new Table();
         updateHandUI();
 
         Table actionTable = new Table();
-        
+
         TextButton.TextButtonStyle originalStyle = skin.get(TextButton.TextButtonStyle.class);
-        
+
         TextButton.TextButtonStyle playStyle = new TextButton.TextButtonStyle(originalStyle);
         playStyle.up = createRoundedRect(200, 70, 0.1f, 0.4f, 0.9f, 1.0f, 25);
         playStyle.down = createRoundedRect(200, 70, 0.05f, 0.25f, 0.7f, 1.0f, 25);
         TextButton playBtn = new TextButton("PLAY HAND", playStyle);
         playBtn.getLabel().setFontScale(1.2f);
-        
+
         TextButton.TextButtonStyle discardStyle = new TextButton.TextButtonStyle(originalStyle);
         discardStyle.up = createRoundedRect(200, 70, 0.9f, 0.2f, 0.2f, 1.0f, 25);
         discardStyle.down = createRoundedRect(200, 70, 0.7f, 0.1f, 0.1f, 1.0f, 25);
         TextButton discardBtn = new TextButton("DISCARD", discardStyle);
         discardBtn.getLabel().setFontScale(1.2f);
-        
+
         playBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 playSelectedCards();
             }
         });
-        
+
         discardBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 discardSelectedCards();
             }
         });
-        
+
         actionTable.add(playBtn).size(200, 70).padRight(30);
         actionTable.add(discardBtn).size(200, 70);
 
         Table deckTable = new Table();
         deckTable.setBackground(createRoundedRect(120, 160, 0.12f, 0.12f, 0.15f, 0.85f, 20));
         deckTable.pad(15);
-        
+
         Label deckTitle = new Label("DECK", skin);
         deckTitle.setColor(Color.GRAY);
         deckCountLabel = new Label(String.valueOf(drawPile.size()), skin);
@@ -313,7 +351,7 @@ public class CombatScreen extends PageScreen {
         for (Card card : hand) {
             Table cardBg = new Table();
             cardBg.setTouchable(Touchable.enabled);
-            
+
             Actor cardContent;
             if (card.getTextureRegion() != null) {
                 Image cardImg = new Image(card.getTextureRegion());
@@ -325,27 +363,30 @@ public class CombatScreen extends PageScreen {
                 fallbackLbl.setTouchable(Touchable.disabled);
                 cardContent = fallbackLbl;
             }
-            
+
             cardBg.setBackground(createRoundedRect(120, 170, 0.95f, 0.95f, 0.98f, 1f, 15));
-            
+
             cardBg.addListener(new ClickListener() {
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                    if (isGameOver || isScoring || selectedCards.contains(card)) return;
+                    if (isGameOver || isScoring || selectedCards.contains(card))
+                        return;
                     cardBg.clearActions();
                     cardBg.addAction(Actions.moveTo(cardBg.getX(), 15, 0.15f, Interpolation.smooth));
                 }
 
                 @Override
                 public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                    if (isGameOver || isScoring || selectedCards.contains(card)) return;
+                    if (isGameOver || isScoring || selectedCards.contains(card))
+                        return;
                     cardBg.clearActions();
                     cardBg.addAction(Actions.moveTo(cardBg.getX(), 0, 0.15f, Interpolation.smooth));
                 }
 
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (isGameOver || isScoring) return;
+                    if (isGameOver || isScoring)
+                        return;
                     if (selectedCards.contains(card)) {
                         selectedCards.remove(card);
                         cardBg.clearActions();
@@ -361,7 +402,7 @@ public class CombatScreen extends PageScreen {
                     }
                 }
             });
-            
+
             cardBg.add(cardContent).expand().fill();
             handTable.add(cardBg).size(120, 170).pad(10).align(Align.bottom);
             scoringCardTables.add(cardBg);
@@ -373,21 +414,21 @@ public class CombatScreen extends PageScreen {
         stage.getRoot().setPosition(0, 0);
         float d = GameConfig.SCREEN_SHAKE_DURATION / 4f;
         stage.getRoot().addAction(Actions.sequence(
-            Actions.moveBy(intensity, intensity, d),
-            Actions.moveBy(-intensity * 2, -intensity * 2, d),
-            Actions.moveBy(intensity * 2, intensity, d),
-            Actions.moveTo(0, 0, d)
-        ));
+                Actions.moveBy(intensity, intensity, d),
+                Actions.moveBy(-intensity * 2, -intensity * 2, d),
+                Actions.moveBy(intensity * 2, intensity, d),
+                Actions.moveTo(0, 0, d)));
     }
 
     private void playSelectedCards() {
-        if (isGameOver || isScoring || selectedCards.isEmpty() || playsLeft <= 0) return;
+        if (isGameOver || isScoring || selectedCards.isEmpty() || playsLeft <= 0)
+            return;
 
         playsLeft--;
-        
+
         scoringCards.clear();
         scoringCards.addAll(selectedCards);
-        
+
         scoringCardTables.clear();
         for (Card sc : scoringCards) {
             int index = hand.indexOf(sc);
@@ -397,7 +438,7 @@ public class CombatScreen extends PageScreen {
         }
 
         hand.removeAll(selectedCards);
-        
+
         isScoring = true;
         scoringTimer = 0f;
         scoringCardIndex = 0;
@@ -408,12 +449,13 @@ public class CombatScreen extends PageScreen {
     }
 
     private void discardSelectedCards() {
-        if (isGameOver || isScoring || selectedCards.isEmpty() || discardsLeft <= 0) return;
+        if (isGameOver || isScoring || selectedCards.isEmpty() || discardsLeft <= 0)
+            return;
 
         discardsLeft--;
         hand.removeAll(selectedCards);
         drawUpToMax();
-        
+
         updateTopBar();
         updateHandUI();
     }
@@ -441,12 +483,12 @@ public class CombatScreen extends PageScreen {
         Label failedLabel = new Label("GAME OVER", skin);
         failedLabel.setFontScale(4f);
         failedLabel.setColor(Color.RED);
-        
+
         TextButton.TextButtonStyle originalStyle = skin.get(TextButton.TextButtonStyle.class);
         TextButton.TextButtonStyle menuStyle = new TextButton.TextButtonStyle(originalStyle);
         menuStyle.up = createRoundedRect(250, 60, 0.2f, 0.2f, 0.22f, 1.0f, 25);
         menuStyle.down = createRoundedRect(250, 60, 0.15f, 0.15f, 0.17f, 1.0f, 25);
-        
+
         TextButton menuBtn = new TextButton("MAIN MENU", menuStyle);
         menuBtn.addListener(new ClickListener() {
             @Override
@@ -472,45 +514,53 @@ public class CombatScreen extends PageScreen {
             scoringTimer += delta;
             if (scoringTimer >= GameConfig.SCORING_STEP_DELAY) {
                 scoringTimer = 0f;
-                
+
                 if (scoringCardIndex < scoringCards.size()) {
                     Card c = scoringCards.get(scoringCardIndex);
-                    currentHandPoints += c.getChips();
-                    targetDisplayScore += c.getChips(); 
-                    
-                    triggerShake(GameConfig.SCREEN_SHAKE_INTENSITY / 2f);
+                    boolean doubled = rollDouble(c);
+                    int chips = doubled ? c.getChips() * 2 : c.getChips();
 
-                    Label popLabel = new Label("+" + c.getChips(), skin);
+                    // A kijátszott lap rangjának sávja +5 (max 100, a RankProgress korlátozza)
+                    RankProgress.getInstance().add(getProgressIndex(c.getRank()), 5f);
+
+                    currentHandPoints += chips;
+                    targetDisplayScore += chips;
+
+                    triggerShake(doubled
+                            ? GameConfig.SCREEN_SHAKE_INTENSITY
+                            : GameConfig.SCREEN_SHAKE_INTENSITY / 2f);
+
+                    Label popLabel = new Label((doubled ? "x2! +" : "+") + chips, skin);
                     popLabel.setFontScale(4f);
-                    popLabel.setColor(Color.valueOf("FFD700"));
+                    popLabel.setColor(doubled ? Color.valueOf("FF66FF") : Color.valueOf("FFD700"));
                     popLabel.setAlignment(Align.center);
-                    
+
                     if (scoringCardIndex < scoringCardTables.size()) {
                         Table cardTable = scoringCardTables.get(scoringCardIndex);
                         popLabel.pack();
-                        
-                        com.badlogic.gdx.math.Vector2 pos = new com.badlogic.gdx.math.Vector2(cardTable.getWidth() / 2f - popLabel.getWidth() / 2f, cardTable.getHeight() + 20f);
+
+                        com.badlogic.gdx.math.Vector2 pos = new com.badlogic.gdx.math.Vector2(
+                                cardTable.getWidth() / 2f - popLabel.getWidth() / 2f, cardTable.getHeight() + 20f);
                         cardTable.localToStageCoordinates(pos);
-                        
+
                         popLabel.setPosition(pos.x, pos.y);
                         stage.addActor(popLabel);
-                        
+
                         popLabel.addAction(Actions.sequence(
-                            Actions.parallel(
-                                Actions.moveBy(0, 80, 0.7f, Interpolation.circleOut),
-                                Actions.fadeOut(0.7f, Interpolation.fade)
-                            ),
-                            Actions.removeActor()
-                        ));
+                                Actions.parallel(
+                                        Actions.moveBy(0, 80, 0.7f, Interpolation.circleOut),
+                                        Actions.fadeOut(0.7f, Interpolation.fade)),
+                                Actions.removeActor()));
                     }
 
                     scoringCardIndex++;
                 } else {
                     int finalHandScore = currentHandPoints * currentMultiplier;
                     targetDisplayScore += (finalHandScore - currentHandPoints);
-                    
+                    RankProgress.getInstance().save();
+
                     triggerShake(GameConfig.SCREEN_SHAKE_INTENSITY * 1.5f);
-                    
+
                     isScoring = false;
                     drawUpToMax();
                     updateHandUI();
@@ -520,7 +570,7 @@ public class CombatScreen extends PageScreen {
 
         if (currentScore < targetDisplayScore) {
             int diff = targetDisplayScore - currentScore;
-            int increment = Math.max(1, (int)(diff * 15 * delta));
+            int increment = Math.max(1, (int) (diff * 15 * delta));
             currentScore += increment;
             if (currentScore > targetDisplayScore) {
                 currentScore = targetDisplayScore;

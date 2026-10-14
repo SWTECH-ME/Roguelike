@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.screens.MainMenuScreen;
+import io.github.some_rougelike.model.RankProgress;
 
 public class Main extends Game {
 
@@ -70,13 +71,12 @@ public class Main extends Game {
 
     @Override
     public void dispose() {
-        // Dispose the active screen if it exists
         if (getScreen() != null) {
             getScreen().dispose();
         }
-
-        // Dispose LibGDX internals
         super.dispose();
+        RankProgress.getInstance().save();
+        Assets.getInstance().dispose();
 
         // Dispose all loaded assets
         Assets.getInstance().dispose();
