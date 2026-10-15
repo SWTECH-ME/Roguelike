@@ -12,7 +12,7 @@ public class GameConfig {
     public static final String BG_ENEMY_2 = "ui/background.jpg";
     public static final String BG_BOSS = "ui/background.jpg";
     
-    // Font
+    // Menu font
     public static final float MAIN_MENU_TITLE_SIZE = 2.2f;
     public static final float MAIN_MENU_BUTTON_SIZE = 1.3f;
 
