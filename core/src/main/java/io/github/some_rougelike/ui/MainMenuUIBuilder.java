@@ -1,14 +1,16 @@
 package io.github.some_rougelike.ui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
@@ -20,57 +22,57 @@ import io.github.some_rougelike.screens.RunMapScreen;
 import io.github.some_rougelike.screens.SettingsScreen;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.logic.RunState;
+import io.github.some_rougelike.GameConfig;;
 
 public class MainMenuUIBuilder {
 
     public void build(Stage stage, Skin skin, Main main) {
         Table leftMenu = new Table();
         leftMenu.setFillParent(true);
-        leftMenu.left().padLeft(150);
+        leftMenu.left().padLeft(120);
 
         Label titleLabel = new Label("ROUGELIKE", skin);
-        titleLabel.setFontScale(2.5f);
-        leftMenu.add(titleLabel).padBottom(50).left();
+        titleLabel.setFontScale(GameConfig.MAIN_MENU_TITLE_SIZE);
+        titleLabel.setColor(Color.WHITE);
+        leftMenu.add(titleLabel).padBottom(60).left();
         leftMenu.row();
 
-        TextButton playButton = new TextButton("PLAY", skin);
-        playButton.setTransform(true);
-        playButton.setOrigin(Align.center);
+        Label playButton = createMenuItem("PLAY", skin, GameConfig.MAIN_MENU_BUTTON_SIZE);
+        Label collectionButton = createMenuItem("COLLECTION", skin, GameConfig.MAIN_MENU_BUTTON_SIZE);
+        
+        Label profileBtn = createMenuItem("PROFILE", skin, GameConfig.MAIN_MENU_BUTTON_SIZE);
+        Label settingsBtn = createMenuItem("SETTINGS", skin, GameConfig.MAIN_MENU_BUTTON_SIZE);
+        Label friendsBtn = createMenuItem("FRIENDS", skin, GameConfig.MAIN_MENU_BUTTON_SIZE);
+        
+        Label exitButton = createMenuItem("EXIT", skin, GameConfig.MAIN_MENU_BUTTON_SIZE);
 
-        TextButton collectionButton = new TextButton("COLLECTION", skin);
-        TextButton exitButton = new TextButton("EXIT", skin);
-
-        leftMenu.add(playButton).size(250, 50).padBottom(15).left();
+        leftMenu.add(playButton).padBottom(20).left();
         leftMenu.row();
-        leftMenu.add(collectionButton).size(250, 50).padBottom(25).left();
+        leftMenu.add(collectionButton).padBottom(35).left();
         leftMenu.row();
-        leftMenu.add(exitButton).size(150, 40).left();
-
-        Table topRightMenu = new Table();
-        topRightMenu.setFillParent(true);
-        topRightMenu.top().right().padTop(30).padRight(50);
-
-        TextButton profileBtn = new TextButton("PROFILE", skin);
-        TextButton settingsBtn = new TextButton("SETTINGS", skin);
-        TextButton friendsBtn = new TextButton("FRIENDS", skin);
-
-        topRightMenu.add(profileBtn).size(100, 40).padRight(15);
-        topRightMenu.add(settingsBtn).size(100, 40).padRight(15);
-        topRightMenu.add(friendsBtn).size(100, 40);
+        
+        leftMenu.add(profileBtn).padBottom(15).left();
+        leftMenu.row();
+        leftMenu.add(settingsBtn).padBottom(15).left();
+        leftMenu.row();
+        leftMenu.add(friendsBtn).padBottom(35).left();
+        leftMenu.row();
+        
+        leftMenu.add(exitButton).left();
 
         addSoundListeners(playButton);
         addSoundListeners(collectionButton);
-        addSoundListeners(exitButton);
         addSoundListeners(profileBtn);
         addSoundListeners(settingsBtn);
         addSoundListeners(friendsBtn);
+        addSoundListeners(exitButton);
 
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 playButton.addAction(Actions.sequence(
-                    Actions.scaleTo(0.85f, 0.85f, 0.1f),
-                    Actions.scaleTo(1f, 1f, 0.1f),
+                    Actions.color(Color.GRAY, 0.05f),
+                    Actions.color(Color.WHITE, 0.05f),
                     Actions.run(() -> {
                         RunState newRun = new RunState();
                         main.switchScreen(new RunMapScreen(main, newRun));
@@ -115,14 +117,49 @@ public class MainMenuUIBuilder {
         });
 
         stage.addActor(leftMenu);
-        stage.addActor(topRightMenu);
     }
 
-    private void addSoundListeners(TextButton button) {
-        button.addListener(new ClickListener() {
+    private Label createMenuItem(String text, Skin skin, float scale) {
+        Label label = new Label(text, skin);
+        label.setFontScale(scale);
+        label.setColor(new Color(0.65f, 0.65f, 0.65f, 1f));
+        label.setTouchable(Touchable.enabled);
+        label.setOrigin(Align.left);
+
+        label.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_HOVER);
+                if (pointer == -1) {
+                    label.clearActions();
+                    label.addAction(Actions.parallel(
+                        Actions.color(Color.WHITE, 0.15f, Interpolation.fade),
+                        Actions.scaleTo(scale * 1.05f, scale * 1.05f, 0.15f, Interpolation.fade)
+                    ));
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                if (pointer == -1) {
+                    label.clearActions();
+                    label.addAction(Actions.parallel(
+                        Actions.color(new Color(0.65f, 0.65f, 0.65f, 1f), 0.15f, Interpolation.fade),
+                        Actions.scaleTo(scale, scale, 0.15f, Interpolation.fade)
+                    ));
+                }
+            }
+        });
+
+        return label;
+    }
+
+    private void addSoundListeners(Actor actor) {
+        actor.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                if (pointer == -1) {
+                    SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_HOVER);
+                }
             }
 
             @Override
