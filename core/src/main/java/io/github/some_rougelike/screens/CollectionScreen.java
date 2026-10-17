@@ -368,7 +368,7 @@ public class CollectionScreen extends PageScreen {
 
         for (int i = 0; i < COMBINATIONS.length; i++) {
             final int index = i;
-            boolean isHidden = GameConfig.ALLOW_HIDING_COMBINATIONS && comboHidden[i];
+            boolean isHidden = GameConfig.ALLOW_HIDING_COMBINATIONS;
 
             final Label label = new Label(isHidden ? HIDDEN_NAME : COMBINATIONS[i], uiSkin);
             label.setFontScale(uiScale * 1.15f);

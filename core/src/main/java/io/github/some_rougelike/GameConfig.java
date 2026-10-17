@@ -16,6 +16,9 @@ public class GameConfig {
     // Fonts:
     public static final float MAIN_MENU_TITLE_SIZE = 2.2f;
     public static final float MAIN_MENU_BUTTON_SIZE = 1.3f;
+    public static final float MAIN_MENU_SCALE = 1.5f;
+    // Collections Debug
+    public static final boolean ALLOW_HIDING_COMBINATIONS = false; 
 
     // --- SOUNDS ---
     public static final String MENU_MUSIC = "ui/uisounds/menu_theme_loopable.mp3";
@@ -39,8 +42,6 @@ public class GameConfig {
     public static final float SCREEN_SHAKE_INTENSITY = 12f;
     public static final float SCORING_STEP_DELAY = 0.6f;
     public static final String SCORING_NUMBER_COLOR = "FFD700";
-
-    public static final boolean ALLOW_HIDING_COMBINATIONS = true; // Collections Debug
 
     // --- RANDOMIZED GLOBAL BACKGROUND COLORS ---
     public static Color BG_COLOR_1;
