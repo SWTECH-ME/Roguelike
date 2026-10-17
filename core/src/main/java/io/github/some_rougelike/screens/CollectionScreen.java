@@ -195,7 +195,7 @@ public class CollectionScreen extends PageScreen {
         Label rightArrow = createHoverAction(">", uiScale * 1.5f, () -> changeSkin(1));
 
         String currentSkinName = (skinFiles.size > 0 && currentSkinIndex < skinFiles.size)
-                ? skinFiles.get(currentSkinIndex).nameWithoutExtension().toUpperCase()
+                ? GameConfig.getDeckSkinName(skinFiles.get(currentSkinIndex).name())
                 : "NO SKINS";
 
         skinNameLabel = new Label(currentSkinName, uiSkin);

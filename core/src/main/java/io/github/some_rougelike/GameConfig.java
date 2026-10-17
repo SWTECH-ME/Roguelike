@@ -65,4 +65,18 @@ public class GameConfig {
         BG_COLOR_1 = colorCombos[randomIndex][0];
         BG_COLOR_2 = colorCombos[randomIndex][1];
     }
+
+    // --- DECK NAMES ---
+    public static String getDeckSkinName(String filename) {
+        if (filename == null) return "Unknown Deck";
+        switch (filename) {
+            case "black_blue.png": return "Black & Blue";
+            case "black_red.png": return "Black & Red";
+            case "black_white.png": return "Black & White";
+            case "white_black.png": return "White & Black";
+            case "white_blue.png": return "White & Blue";
+            case "white_red.png": return "White & Red";
+            default: return filename.replace(".png", "").replace("_", " ").toUpperCase();
+        }
+    }
 }
