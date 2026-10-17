@@ -9,27 +9,31 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
+
 import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
+import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.model.Card;
 import io.github.some_rougelike.model.Suit;
 import io.github.some_rougelike.model.Rank;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.ui.TrippyBackground;
-
-
 import com.badlogic.gdx.math.MathUtils;
 import io.github.some_rougelike.model.RankProgress;
-
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +63,11 @@ public class CombatScreen extends PageScreen {
 
     private Texture deckTexture;
     private TextureRegion[][] cardRegions;
+    private Array<Texture> generatedTextures;
+    private TextureRegionDrawable whiteTintableBg;
+
+    private TextureRegionDrawable cardBgNormal;
+    private TextureRegionDrawable cardBgSelected;
 
     private boolean isScoring = false;
     private float scoringTimer = 0f;
@@ -66,7 +75,9 @@ public class CombatScreen extends PageScreen {
     private int currentHandPoints = 0;
     private int currentMultiplier = 1;
     private List<Card> scoringCards = new ArrayList<>();
-    private List<Table> scoringCardTables = new ArrayList<>();
+    private List<Group> scoringCardGroups = new ArrayList<>();
+
+    private float uiScale;
 
     public CombatScreen(Main main, RunState runState) {
         super(main, "");
@@ -75,6 +86,20 @@ public class CombatScreen extends PageScreen {
         this.playsLeft = enemy.getMaxPlays();
         this.discardsLeft = enemy.getMaxDiscards();
         this.skin = Assets.getInstance().getSkin(GameConfig.UI_SKIN);
+        this.generatedTextures = new Array<>();
+
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
+        this.uiScale = Math.min(width / 1920f, height / 1080f) * GameConfig.MAIN_MENU_SCALE;
+
+        Pixmap whitePix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        whitePix.setColor(Color.WHITE);
+        whitePix.fill();
+        Texture whiteTex = new Texture(whitePix);
+        whiteTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        whitePix.dispose();
+        generatedTextures.add(whiteTex);
+        whiteTintableBg = new TextureRegionDrawable(whiteTex);
 
         loadDeckTexture();
 
@@ -90,7 +115,7 @@ public class CombatScreen extends PageScreen {
 
         float overscan = 150f;
         TrippyBackground bgImg = new TrippyBackground(c1, c2);
-        bgImg.setSize(Gdx.graphics.getWidth() + (overscan * 2), Gdx.graphics.getHeight() + (overscan * 2));
+        bgImg.setSize(width + (overscan * 2), height + (overscan * 2));
         bgImg.setPosition(-overscan, -overscan);
         bgImg.setTouchable(Touchable.disabled);
         stage.addActor(bgImg);
@@ -117,9 +142,7 @@ public class CombatScreen extends PageScreen {
     }
 
     private void assignTextureRegionsToDeck() {
-        if (cardRegions == null)
-            return;
-
+        if (cardRegions == null) return;
         for (Card card : runState.getDeck()) {
             int row = getRowForSuit(card.getSuit());
             int col = getColForRank(card.getRank());
@@ -131,59 +154,37 @@ public class CombatScreen extends PageScreen {
 
     private int getRowForSuit(Suit suit) {
         switch (suit) {
-            case CLUBS:
-                return 0;
-            case HEARTS:
-                return 1;
-            case SPADES:
-                return 2;
-            case DIAMONDS:
-                return 3;
-            default:
-                return 0;
+            case CLUBS: return 0;
+            case HEARTS: return 1;
+            case SPADES: return 2;
+            case DIAMONDS: return 3;
+            default: return 0;
         }
     }
 
     private int getColForRank(Rank rank) {
         switch (rank) {
-            case ACE:
-                return 0;
-            case TWO:
-                return 1;
-            case THREE:
-                return 2;
-            case FOUR:
-                return 3;
-            case FIVE:
-                return 4;
-            case SIX:
-                return 5;
-            case SEVEN:
-                return 6;
-            case EIGHT:
-                return 7;
-            case NINE:
-                return 8;
-            case TEN:
-                return 9;
-            case JACK:
-                return 10;
-            case QUEEN:
-                return 11;
-            case KING:
-                return 12;
-            default:
-                return 0;
+            case ACE: return 0;
+            case TWO: return 1;
+            case THREE: return 2;
+            case FOUR: return 3;
+            case FIVE: return 4;
+            case SIX: return 5;
+            case SEVEN: return 6;
+            case EIGHT: return 7;
+            case NINE: return 8;
+            case TEN: return 9;
+            case JACK: return 10;
+            case QUEEN: return 11;
+            case KING: return 12;
+            default: return 0;
         }
     }
 
-    /** A rang sorszáma a RankProgress-ben: 0 = "2", ... 11 = K, 12 = Ász. */
     private int getProgressIndex(Rank rank) {
-        // getColForRank: ACE=0, TWO=1 ... KING=12 -> TWO=0 ... KING=11, ACE=12
         return (getColForRank(rank) + 12) % 13;
     }
 
-    /** A sáv százaléka a duplázás esélye. */
     private boolean rollDouble(Card card) {
         float chance = RankProgress.getInstance().get(getProgressIndex(card.getRank()));
         return MathUtils.random(100f) < chance;
@@ -197,8 +198,7 @@ public class CombatScreen extends PageScreen {
         }
     }
 
-    private TextureRegionDrawable createRoundedRect(int width, int height, float r, float g, float b, float a,
-            int radius) {
+    private TextureRegionDrawable createRoundedRect(int width, int height, float r, float g, float b, float a, int radius) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setBlending(Pixmap.Blending.None);
         pixmap.setColor(0, 0, 0, 0);
@@ -213,6 +213,7 @@ public class CombatScreen extends PageScreen {
         Texture tex = new Texture(pixmap);
         tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         pixmap.dispose();
+        generatedTextures.add(tex);
         return new TextureRegionDrawable(tex);
     }
 
@@ -220,64 +221,63 @@ public class CombatScreen extends PageScreen {
         Table root = new Table();
         root.setFillParent(true);
 
-        Table leftScorePanel = new Table();
-        leftScorePanel.setBackground(createRoundedRect(320, 160, 0.1f, 0.1f, 0.12f, 0.75f, 25));
-        leftScorePanel.pad(20);
+        float cardWidth = 100 * uiScale;
+        float cardHeight = 140 * uiScale;
+        int cornerRadius = (int)(10 * uiScale);
+        
+        cardBgNormal = createRoundedRect((int)cardWidth, (int)cardHeight, 0.95f, 0.95f, 0.98f, 1f, cornerRadius);
+        cardBgSelected = createRoundedRect((int)cardWidth, (int)cardHeight, 0.8f, 0.9f, 1.0f, 1f, cornerRadius);
 
+        Table leftScorePanel = new Table();
         Label scoreTitle = new Label("ROUND SCORE", skin);
-        scoreTitle.setFontScale(1.1f);
-        scoreTitle.setColor(Color.valueOf("BBBBBB"));
+        scoreTitle.setFontScale(uiScale * 0.9f);
+        scoreTitle.setColor(new Color(0.7f, 0.7f, 0.7f, 1f));
 
         scoreLabel = new Label(String.valueOf(currentScore), skin);
-        scoreLabel.setFontScale(3.8f);
+        scoreLabel.setFontScale(uiScale * 4.0f);
         scoreLabel.setColor(Color.WHITE);
 
         targetLabel = new Label("Target: " + enemy.getTargetScore(), skin);
-        targetLabel.setFontScale(1.4f);
-        targetLabel.setColor(Color.valueOf("88AAFF"));
+        targetLabel.setFontScale(uiScale * 1.3f);
+        targetLabel.setColor(new Color(0.8f, 0.8f, 0.8f, 1f));
 
-        leftScorePanel.add(scoreTitle).row();
-        leftScorePanel.add(scoreLabel).padTop(5).padBottom(5).row();
-        leftScorePanel.add(targetLabel).padTop(5);
+        leftScorePanel.add(scoreTitle).left().row();
+        leftScorePanel.add(scoreLabel).left().padTop(5 * uiScale).padBottom(5 * uiScale).row();
+        leftScorePanel.add(targetLabel).left();
 
         Table rightStatsPanel = new Table();
-        rightStatsPanel.setBackground(createRoundedRect(220, 140, 0.1f, 0.1f, 0.12f, 0.75f, 25));
-        rightStatsPanel.pad(20);
-
         playsLabel = new Label("Plays: " + playsLeft, skin);
-        playsLabel.setFontScale(1.5f);
-        playsLabel.setColor(Color.valueOf("FFD700"));
+        playsLabel.setFontScale(uiScale * 1.3f);
+        playsLabel.setColor(new Color(0.9f, 0.9f, 0.9f, 1f));
 
         discardsLabel = new Label("Discards: " + discardsLeft, skin);
-        discardsLabel.setFontScale(1.5f);
-        discardsLabel.setColor(Color.valueOf("FF9999"));
+        discardsLabel.setFontScale(uiScale * 1.3f);
+        discardsLabel.setColor(new Color(0.9f, 0.9f, 0.9f, 1f));
 
-        rightStatsPanel.add(playsLabel).padBottom(15).row();
-        rightStatsPanel.add(discardsLabel);
+        rightStatsPanel.add(playsLabel).right().padBottom(10 * uiScale).row();
+        rightStatsPanel.add(discardsLabel).right();
 
         Table topArea = new Table();
-        topArea.add(leftScorePanel).expandX().left().padLeft(40).padTop(40);
-        topArea.add(rightStatsPanel).expandX().right().padRight(40).padTop(40).top();
+        topArea.add(leftScorePanel).expandX().left().padLeft(60 * uiScale).padTop(50 * uiScale);
+        topArea.add(rightStatsPanel).expandX().right().padRight(60 * uiScale).padTop(50 * uiScale).top();
 
         Table middleTable = new Table();
-        middleTable.setBackground(createRoundedRect(450, 130, 0.05f, 0.05f, 0.08f, 0.8f, 30));
-        middleTable.pad(25);
+        Label enemyType = new Label(enemy.isBoss() ? "BOSS BLIND" : "NORMAL BLIND", skin);
+        enemyType.setFontScale(uiScale * 1.0f);
+        enemyType.setColor(enemy.isBoss() ? new Color(0.9f, 0.3f, 0.3f, 1f) : new Color(0.4f, 0.6f, 0.9f, 1f));
 
         Label enemyName = new Label(enemy.getName(), skin);
-        enemyName.setFontScale(2.2f);
-        enemyName.setColor(enemy.isBoss() ? Color.valueOf("FF5555") : Color.WHITE);
-
-        Label enemyType = new Label(enemy.isBoss() ? "BOSS BLIND" : "NORMAL BLIND", skin);
-        enemyType.setFontScale(1.1f);
-        enemyType.setColor(Color.valueOf("AAAAAA"));
+        enemyName.setFontScale(uiScale * 2.5f);
+        enemyName.setColor(Color.WHITE);
 
         middleTable.add(enemyType).row();
-        middleTable.add(enemyName).padTop(5).row();
+        middleTable.add(enemyName).padTop(10 * uiScale).row();
 
         if (enemy.isBoss()) {
             Label abilityLabel = new Label(enemy.getSpecialAbility(), skin);
-            abilityLabel.setColor(Color.valueOf("FF8888"));
-            middleTable.add(abilityLabel).padTop(5);
+            abilityLabel.setFontScale(uiScale * 1.1f);
+            abilityLabel.setColor(new Color(0.9f, 0.5f, 0.5f, 1f));
+            middleTable.add(abilityLabel).padTop(10 * uiScale);
         }
 
         Table bottomSection = new Table();
@@ -287,74 +287,119 @@ public class CombatScreen extends PageScreen {
 
         Table actionTable = new Table();
 
-        TextButton.TextButtonStyle originalStyle = skin.get(TextButton.TextButtonStyle.class);
+        Label playBtn = createHoverLabel("PLAY HAND", uiScale * 1.3f, () -> playSelectedCards());
+        Label discardBtn = createHoverLabel("DISCARD", uiScale * 1.3f, () -> discardSelectedCards());
 
-        TextButton.TextButtonStyle playStyle = new TextButton.TextButtonStyle(originalStyle);
-        playStyle.up = createRoundedRect(200, 70, 0.1f, 0.4f, 0.9f, 1.0f, 25);
-        playStyle.down = createRoundedRect(200, 70, 0.05f, 0.25f, 0.7f, 1.0f, 25);
-        TextButton playBtn = new TextButton("PLAY HAND", playStyle);
-        playBtn.getLabel().setFontScale(1.2f);
-
-        TextButton.TextButtonStyle discardStyle = new TextButton.TextButtonStyle(originalStyle);
-        discardStyle.up = createRoundedRect(200, 70, 0.9f, 0.2f, 0.2f, 1.0f, 25);
-        discardStyle.down = createRoundedRect(200, 70, 0.7f, 0.1f, 0.1f, 1.0f, 25);
-        TextButton discardBtn = new TextButton("DISCARD", discardStyle);
-        discardBtn.getLabel().setFontScale(1.2f);
-
-        playBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                playSelectedCards();
-            }
-        });
-
-        discardBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                discardSelectedCards();
-            }
-        });
-
-        actionTable.add(playBtn).size(200, 70).padRight(30);
-        actionTable.add(discardBtn).size(200, 70);
+        actionTable.add(playBtn).padRight(60 * uiScale);
+        actionTable.add(discardBtn);
 
         Table deckTable = new Table();
-        deckTable.setBackground(createRoundedRect(120, 160, 0.12f, 0.12f, 0.15f, 0.85f, 20));
-        deckTable.pad(15);
-
         Label deckTitle = new Label("DECK", skin);
-        deckTitle.setColor(Color.GRAY);
+        deckTitle.setFontScale(uiScale * 0.9f);
+        deckTitle.setColor(new Color(0.7f, 0.7f, 0.7f, 1f));
+        deckTitle.setAlignment(Align.right);
+        
         deckCountLabel = new Label(String.valueOf(drawPile.size()), skin);
-        deckCountLabel.setFontScale(2f);
-        deckTable.add(deckTitle).row();
-        deckTable.add(deckCountLabel).padTop(15).row();
+        deckCountLabel.setFontScale(uiScale * 2.0f);
+        deckCountLabel.setColor(Color.WHITE);
+        deckCountLabel.setAlignment(Align.right);
+        
+        deckTable.add(deckTitle).right().row();
+        deckTable.add(deckCountLabel).right().padTop(5 * uiScale).row();
 
         Table handAndActions = new Table();
-        handAndActions.add(handTable).padBottom(30).row();
+        handAndActions.add(handTable).padBottom(40 * uiScale).row();
         handAndActions.add(actionTable);
 
-        bottomSection.add(handAndActions).expandX().center();
-        bottomSection.add(deckTable).right().padRight(40).bottom().padBottom(30);
+        bottomSection.add().uniformX().expandX();
+        bottomSection.add(handAndActions).center();
+        
+        Table deckWrapper = new Table();
+        deckWrapper.add(deckTable).expand().right().bottom().padRight(60 * uiScale).padBottom(50 * uiScale);
+        bottomSection.add(deckWrapper).uniformX().expandX().fill();
 
         root.add(topArea).fillX().top().row();
         root.add(middleTable).expand().center().row();
-        root.add(bottomSection).fillX().padBottom(40).bottom();
+        root.add(bottomSection).fillX().padBottom(40 * uiScale).bottom();
 
         stage.addActor(root);
+    }
+
+    private Label createHoverLabel(String text, float scale, Runnable onClick) {
+        Label label = new Label(text, skin);
+        label.setFontScale(scale);
+        label.setColor(new Color(0.65f, 0.65f, 0.65f, 1f));
+        label.setTouchable(Touchable.enabled);
+        label.setOrigin(Align.center);
+        label.setAlignment(Align.center);
+
+        label.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                if (pointer == -1 && !isGameOver && !isScoring) {
+                    label.clearActions();
+                    label.addAction(Actions.parallel(
+                        Actions.color(Color.WHITE, 0.15f, Interpolation.fade),
+                        Actions.scaleTo(scale * 1.1f, scale * 1.1f, 0.15f, Interpolation.fade)
+                    ));
+                    SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_HOVER);
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                if (pointer == -1) {
+                    label.clearActions();
+                    label.addAction(Actions.parallel(
+                        Actions.color(new Color(0.65f, 0.65f, 0.65f, 1f), 0.15f, Interpolation.fade),
+                        Actions.scaleTo(scale, scale, 0.15f, Interpolation.fade)
+                    ));
+                }
+            }
+
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (!isGameOver && !isScoring) {
+                    SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
+                    
+                    label.clearActions();
+                    label.addAction(Actions.parallel(
+                        Actions.color(new Color(0.65f, 0.65f, 0.65f, 1f), 0.1f, Interpolation.fade),
+                        Actions.scaleTo(scale, scale, 0.1f, Interpolation.fade)
+                    ));
+                    
+                    if (onClick != null) onClick.run();
+                }
+            }
+        });
+
+        return label;
     }
 
     private void updateHandUI() {
         handTable.clear();
         selectedCards.clear();
-        scoringCardTables.clear();
+        scoringCardGroups.clear();
+
+        float cardWidth = 100 * uiScale;
+        float cardHeight = 140 * uiScale; 
+        float hoverOffset = 15 * uiScale;
+        float selectOffset = 30 * uiScale;
 
         for (Card card : hand) {
+            Group cardWrapper = new Group();
+            cardWrapper.setSize(cardWidth, cardHeight);
+            cardWrapper.setTouchable(Touchable.enabled);
+
             Table cardBg = new Table();
-            cardBg.setTouchable(Touchable.enabled);
+            cardBg.setSize(cardWidth, cardHeight);
+            cardBg.setBackground(cardBgNormal);
+            cardBg.setTouchable(Touchable.disabled);
 
             Actor cardContent;
             if (card.getTextureRegion() != null) {
                 Image cardImg = new Image(card.getTextureRegion());
+                cardImg.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
                 cardImg.setTouchable(Touchable.disabled);
                 cardContent = cardImg;
             } else {
@@ -364,48 +409,49 @@ public class CombatScreen extends PageScreen {
                 cardContent = fallbackLbl;
             }
 
-            cardBg.setBackground(createRoundedRect(120, 170, 0.95f, 0.95f, 0.98f, 1f, 15));
+            cardBg.add(cardContent).expand().fill();
+            cardWrapper.addActor(cardBg);
 
-            cardBg.addListener(new ClickListener() {
+            cardWrapper.addListener(new ClickListener() {
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                    if (isGameOver || isScoring || selectedCards.contains(card))
-                        return;
+                    if (isGameOver || isScoring) return;
+                    boolean isSelected = selectedCards.contains(card);
                     cardBg.clearActions();
-                    cardBg.addAction(Actions.moveTo(cardBg.getX(), 15, 0.15f, Interpolation.smooth));
+                    cardBg.addAction(Actions.moveTo(0, isSelected ? selectOffset + hoverOffset : hoverOffset, 0.15f, Interpolation.smooth));
                 }
 
                 @Override
                 public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                    if (isGameOver || isScoring || selectedCards.contains(card))
-                        return;
+                    if (isGameOver || isScoring) return;
+                    boolean isSelected = selectedCards.contains(card);
                     cardBg.clearActions();
-                    cardBg.addAction(Actions.moveTo(cardBg.getX(), 0, 0.15f, Interpolation.smooth));
+                    cardBg.addAction(Actions.moveTo(0, isSelected ? selectOffset : 0, 0.15f, Interpolation.smooth));
                 }
 
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (isGameOver || isScoring)
-                        return;
+                    if (isGameOver || isScoring) return;
+                    SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
+                    
                     if (selectedCards.contains(card)) {
                         selectedCards.remove(card);
                         cardBg.clearActions();
-                        cardBg.addAction(Actions.moveTo(cardBg.getX(), 0, 0.2f, Interpolation.exp10Out));
-                        cardBg.setBackground(createRoundedRect(120, 170, 0.95f, 0.95f, 0.98f, 1f, 15));
+                        cardBg.addAction(Actions.moveTo(0, hoverOffset, 0.2f, Interpolation.exp10Out));
+                        cardBg.setBackground(cardBgNormal);
                     } else {
                         if (selectedCards.size() < 5) {
                             selectedCards.add(card);
                             cardBg.clearActions();
-                            cardBg.addAction(Actions.moveTo(cardBg.getX(), 40, 0.2f, Interpolation.exp10Out));
-                            cardBg.setBackground(createRoundedRect(120, 170, 0.8f, 0.9f, 1.0f, 1f, 15));
+                            cardBg.addAction(Actions.moveTo(0, selectOffset + hoverOffset, 0.2f, Interpolation.exp10Out));
+                            cardBg.setBackground(cardBgSelected);
                         }
                     }
                 }
             });
 
-            cardBg.add(cardContent).expand().fill();
-            handTable.add(cardBg).size(120, 170).pad(10).align(Align.bottom);
-            scoringCardTables.add(cardBg);
+            handTable.add(cardWrapper).size(cardWidth, cardHeight).padLeft(4 * uiScale).padRight(4 * uiScale).align(Align.bottom);
+            scoringCardGroups.add(cardWrapper);
         }
     }
 
@@ -421,19 +467,18 @@ public class CombatScreen extends PageScreen {
     }
 
     private void playSelectedCards() {
-        if (isGameOver || isScoring || selectedCards.isEmpty() || playsLeft <= 0)
-            return;
+        if (isGameOver || isScoring || selectedCards.isEmpty() || playsLeft <= 0) return;
 
         playsLeft--;
 
         scoringCards.clear();
         scoringCards.addAll(selectedCards);
 
-        scoringCardTables.clear();
+        scoringCardGroups.clear();
         for (Card sc : scoringCards) {
             int index = hand.indexOf(sc);
             if (index >= 0 && index < handTable.getChildren().size) {
-                scoringCardTables.add((Table) handTable.getChildren().get(index));
+                scoringCardGroups.add((Group) handTable.getChildren().get(index));
             }
         }
 
@@ -449,8 +494,7 @@ public class CombatScreen extends PageScreen {
     }
 
     private void discardSelectedCards() {
-        if (isGameOver || isScoring || selectedCards.isEmpty() || discardsLeft <= 0)
-            return;
+        if (isGameOver || isScoring || selectedCards.isEmpty() || discardsLeft <= 0) return;
 
         discardsLeft--;
         hand.removeAll(selectedCards);
@@ -478,29 +522,22 @@ public class CombatScreen extends PageScreen {
         isGameOver = true;
         Table failedOverlay = new Table();
         failedOverlay.setFillParent(true);
-        failedOverlay.setBackground(createRoundedRect(1, 1, 0f, 0f, 0f, 0.9f, 0));
+        failedOverlay.setBackground(whiteTintableBg.tint(new Color(0f, 0f, 0f, 0.9f)));
 
         Label failedLabel = new Label("GAME OVER", skin);
-        failedLabel.setFontScale(4f);
-        failedLabel.setColor(Color.RED);
+        failedLabel.setFontScale(uiScale * 4f);
+        failedLabel.setColor(new Color(0.9f, 0.2f, 0.2f, 1f));
 
-        TextButton.TextButtonStyle originalStyle = skin.get(TextButton.TextButtonStyle.class);
-        TextButton.TextButtonStyle menuStyle = new TextButton.TextButtonStyle(originalStyle);
-        menuStyle.up = createRoundedRect(250, 60, 0.2f, 0.2f, 0.22f, 1.0f, 25);
-        menuStyle.down = createRoundedRect(250, 60, 0.15f, 0.15f, 0.17f, 1.0f, 25);
-
-        TextButton menuBtn = new TextButton("MAIN MENU", menuStyle);
-        menuBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                main.switchScreen(new MainMenuScreen(main));
-            }
+        Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, () -> {
+            main.switchScreen(new MainMenuScreen(main));
         });
 
-        failedOverlay.add(failedLabel).padBottom(60).row();
-        failedOverlay.add(menuBtn).size(250, 60);
+        failedOverlay.add(failedLabel).padBottom(80 * uiScale).row();
+        failedOverlay.add(menuBtn).center();
 
         stage.addActor(failedOverlay);
+        failedOverlay.getColor().a = 0f;
+        failedOverlay.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
     }
 
     @Override
@@ -520,35 +557,34 @@ public class CombatScreen extends PageScreen {
                     boolean doubled = rollDouble(c);
                     int chips = doubled ? c.getChips() * 2 : c.getChips();
 
-                    // A kijátszott lap rangjának sávja +5 (max 100, a RankProgress korlátozza)
                     RankProgress.getInstance().add(getProgressIndex(c.getRank()), 5f);
 
                     currentHandPoints += chips;
                     targetDisplayScore += chips;
 
                     triggerShake(doubled
-                            ? GameConfig.SCREEN_SHAKE_INTENSITY
-                            : GameConfig.SCREEN_SHAKE_INTENSITY / 2f);
+                            ? GameConfig.SCREEN_SHAKE_INTENSITY * uiScale
+                            : (GameConfig.SCREEN_SHAKE_INTENSITY / 2f) * uiScale);
 
                     Label popLabel = new Label((doubled ? "x2! +" : "+") + chips, skin);
-                    popLabel.setFontScale(4f);
+                    popLabel.setFontScale(uiScale * 3f);
                     popLabel.setColor(doubled ? Color.valueOf("FF66FF") : Color.valueOf("FFD700"));
                     popLabel.setAlignment(Align.center);
 
-                    if (scoringCardIndex < scoringCardTables.size()) {
-                        Table cardTable = scoringCardTables.get(scoringCardIndex);
+                    if (scoringCardIndex < scoringCardGroups.size()) {
+                        Group cardGroup = scoringCardGroups.get(scoringCardIndex);
                         popLabel.pack();
 
                         com.badlogic.gdx.math.Vector2 pos = new com.badlogic.gdx.math.Vector2(
-                                cardTable.getWidth() / 2f - popLabel.getWidth() / 2f, cardTable.getHeight() + 20f);
-                        cardTable.localToStageCoordinates(pos);
+                                cardGroup.getWidth() / 2f - popLabel.getWidth() / 2f, cardGroup.getHeight() + 30f * uiScale);
+                        cardGroup.localToStageCoordinates(pos);
 
                         popLabel.setPosition(pos.x, pos.y);
                         stage.addActor(popLabel);
 
                         popLabel.addAction(Actions.sequence(
                                 Actions.parallel(
-                                        Actions.moveBy(0, 80, 0.7f, Interpolation.circleOut),
+                                        Actions.moveBy(0, 100 * uiScale, 0.7f, Interpolation.circleOut),
                                         Actions.fadeOut(0.7f, Interpolation.fade)),
                                 Actions.removeActor()));
                     }
@@ -559,7 +595,7 @@ public class CombatScreen extends PageScreen {
                     targetDisplayScore += (finalHandScore - currentHandPoints);
                     RankProgress.getInstance().save();
 
-                    triggerShake(GameConfig.SCREEN_SHAKE_INTENSITY * 1.5f);
+                    triggerShake(GameConfig.SCREEN_SHAKE_INTENSITY * 1.5f * uiScale);
 
                     isScoring = false;
                     drawUpToMax();
@@ -595,6 +631,9 @@ public class CombatScreen extends PageScreen {
         super.dispose();
         if (deckTexture != null) {
             deckTexture.dispose();
+        }
+        for (Texture tex : generatedTextures) {
+            tex.dispose();
         }
     }
 }
