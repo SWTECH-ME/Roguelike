@@ -43,6 +43,32 @@ public class GameConfig {
     public static final float SCORING_STEP_DELAY = 0.6f;
     public static final String SCORING_NUMBER_COLOR = "FFD700";
 
+    // --- RUN MAP SCREEN ---
+    public static final float RUN_MAP_CARD_WIDTH = 240f;
+    public static final float RUN_MAP_CARD_HEIGHT = 360f;
+    public static final int RUN_MAP_CARD_RADIUS = 15;
+    public static final int RUN_MAP_BORDER_THICKNESS = 3;
+    
+    public static final Color RUN_MAP_NORMAL_BG = new Color(0.12f, 0.15f, 0.18f, 0.6f);
+    public static final Color RUN_MAP_BOSS_BG = new Color(0.18f, 0.10f, 0.10f, 0.6f);
+    public static final Color RUN_MAP_LOCKED_BG = new Color(0.08f, 0.08f, 0.08f, 0.4f);
+    
+    public static final Color RUN_MAP_NORMAL_PILL = new Color(0.2f, 0.4f, 0.8f, 1f);
+    public static final Color RUN_MAP_BOSS_PILL = new Color(0.8f, 0.2f, 0.2f, 1f);
+    public static final Color RUN_MAP_LOCKED_PILL = new Color(0.3f, 0.3f, 0.3f, 1f);
+
+    // --- COMBAT SCREEN ---
+    public static final float COMBAT_CARD_WIDTH = 100f;
+    public static final float COMBAT_CARD_HEIGHT = 140f;
+    public static final int COMBAT_CARD_RADIUS = 10;
+    public static final float COMBAT_CARD_HOVER_OFFSET = 15f;
+    public static final float COMBAT_CARD_SELECT_OFFSET = 30f;
+    
+    public static final Color COMBAT_CARD_BG_NORMAL = new Color(0.95f, 0.95f, 0.98f, 1f);
+    public static final Color COMBAT_CARD_BG_SELECTED = new Color(0.8f, 0.9f, 1.0f, 1f);
+    public static final Color COMBAT_BOSS_BG_1 = new Color(0.4f, 0.1f, 0.15f, 1f);
+    public static final Color COMBAT_BOSS_BG_2 = new Color(0.25f, 0.05f, 0.1f, 1f);
+
     // --- RANDOMIZED GLOBAL BACKGROUND COLORS ---
     public static Color BG_COLOR_1;
     public static Color BG_COLOR_2;

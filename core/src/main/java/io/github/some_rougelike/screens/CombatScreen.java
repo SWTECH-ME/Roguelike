@@ -109,8 +109,8 @@ public class CombatScreen extends PageScreen {
         Color c1 = Color.valueOf("4C9A7F");
         Color c2 = Color.valueOf("2D6A54");
         if (enemy.isBoss()) {
-            c1 = new Color(0.4f, 0.1f, 0.15f, 1f);
-            c2 = new Color(0.25f, 0.05f, 0.1f, 1f);
+            c1 = GameConfig.COMBAT_BOSS_BG_1;
+            c2 = GameConfig.COMBAT_BOSS_BG_2;
         }
 
         float overscan = 150f;
@@ -198,12 +198,12 @@ public class CombatScreen extends PageScreen {
         }
     }
 
-    private TextureRegionDrawable createRoundedRect(int width, int height, float r, float g, float b, float a, int radius) {
+    private TextureRegionDrawable createRoundedRect(int width, int height, Color color, int radius) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setBlending(Pixmap.Blending.None);
         pixmap.setColor(0, 0, 0, 0);
         pixmap.fill();
-        pixmap.setColor(r, g, b, a);
+        pixmap.setColor(color);
         pixmap.fillRectangle(radius, 0, width - 2 * radius, height);
         pixmap.fillRectangle(0, radius, width, height - 2 * radius);
         pixmap.fillCircle(radius, radius, radius);
@@ -221,12 +221,12 @@ public class CombatScreen extends PageScreen {
         Table root = new Table();
         root.setFillParent(true);
 
-        float cardWidth = 100 * uiScale;
-        float cardHeight = 140 * uiScale;
-        int cornerRadius = (int)(10 * uiScale);
+        float cardWidth = GameConfig.COMBAT_CARD_WIDTH * uiScale;
+        float cardHeight = GameConfig.COMBAT_CARD_HEIGHT * uiScale;
+        int cornerRadius = (int)(GameConfig.COMBAT_CARD_RADIUS * uiScale);
         
-        cardBgNormal = createRoundedRect((int)cardWidth, (int)cardHeight, 0.95f, 0.95f, 0.98f, 1f, cornerRadius);
-        cardBgSelected = createRoundedRect((int)cardWidth, (int)cardHeight, 0.8f, 0.9f, 1.0f, 1f, cornerRadius);
+        cardBgNormal = createRoundedRect((int)cardWidth, (int)cardHeight, GameConfig.COMBAT_CARD_BG_NORMAL, cornerRadius);
+        cardBgSelected = createRoundedRect((int)cardWidth, (int)cardHeight, GameConfig.COMBAT_CARD_BG_SELECTED, cornerRadius);
 
         Table leftScorePanel = new Table();
         Label scoreTitle = new Label("ROUND SCORE", skin);
@@ -381,10 +381,10 @@ public class CombatScreen extends PageScreen {
         selectedCards.clear();
         scoringCardGroups.clear();
 
-        float cardWidth = 100 * uiScale;
-        float cardHeight = 140 * uiScale; 
-        float hoverOffset = 15 * uiScale;
-        float selectOffset = 30 * uiScale;
+        float cardWidth = GameConfig.COMBAT_CARD_WIDTH * uiScale;
+        float cardHeight = GameConfig.COMBAT_CARD_HEIGHT * uiScale; 
+        float hoverOffset = GameConfig.COMBAT_CARD_HOVER_OFFSET * uiScale;
+        float selectOffset = GameConfig.COMBAT_CARD_SELECT_OFFSET * uiScale;
 
         for (Card card : hand) {
             Group cardWrapper = new Group();

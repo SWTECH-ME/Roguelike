@@ -123,26 +123,22 @@ public class RunMapScreen extends PageScreen {
 
         Table cardsTable = new Table();
         
-        int cardWidth = (int)(240 * scale);
-        int cardHeight = (int)(360 * scale);
-        int cardRadius = (int)(15 * scale);
-        int borderThickness = (int)(3 * scale);
+        int cardWidth = (int)(GameConfig.RUN_MAP_CARD_WIDTH * scale);
+        int cardHeight = (int)(GameConfig.RUN_MAP_CARD_HEIGHT * scale);
+        int cardRadius = (int)(GameConfig.RUN_MAP_CARD_RADIUS * scale);
+        int borderThickness = (int)(GameConfig.RUN_MAP_BORDER_THICKNESS * scale);
         
-        Color normalBgColor = new Color(0.12f, 0.15f, 0.18f, 0.6f);
-        Color bossBgColor = new Color(0.18f, 0.10f, 0.10f, 0.6f);
-        Color lockedBgColor = new Color(0.08f, 0.08f, 0.08f, 0.4f);
-        
-        TextureRegionDrawable normalBg = createOutlinedRoundedRect(cardWidth, cardHeight, normalBgColor, Color.WHITE, borderThickness, cardRadius);
-        TextureRegionDrawable bossBg = createOutlinedRoundedRect(cardWidth, cardHeight, bossBgColor, new Color(0.9f, 0.2f, 0.2f, 1f), borderThickness, cardRadius);
-        TextureRegionDrawable lockedBg = createOutlinedRoundedRect(cardWidth, cardHeight, lockedBgColor, new Color(0.3f, 0.3f, 0.3f, 1f), borderThickness, cardRadius);
+        TextureRegionDrawable normalBg = createOutlinedRoundedRect(cardWidth, cardHeight, GameConfig.RUN_MAP_NORMAL_BG, Color.WHITE, borderThickness, cardRadius);
+        TextureRegionDrawable bossBg = createOutlinedRoundedRect(cardWidth, cardHeight, GameConfig.RUN_MAP_BOSS_BG, new Color(0.9f, 0.2f, 0.2f, 1f), borderThickness, cardRadius);
+        TextureRegionDrawable lockedBg = createOutlinedRoundedRect(cardWidth, cardHeight, GameConfig.RUN_MAP_LOCKED_BG, new Color(0.3f, 0.3f, 0.3f, 1f), borderThickness, cardRadius);
         
         int pillWidth = (int)(cardWidth - 80 * scale);
         int pillHeight = (int)(35 * scale);
         int pillRadius = (int)(17 * scale);
         
-        TextureRegionDrawable normalPillBg = createSolidRoundedRect(pillWidth, pillHeight, new Color(0.2f, 0.4f, 0.8f, 1f), pillRadius);
-        TextureRegionDrawable bossPillBg = createSolidRoundedRect(pillWidth, pillHeight, new Color(0.8f, 0.2f, 0.2f, 1f), pillRadius);
-        TextureRegionDrawable lockedPillBg = createSolidRoundedRect(pillWidth, pillHeight, new Color(0.3f, 0.3f, 0.3f, 1f), pillRadius);
+        TextureRegionDrawable normalPillBg = createSolidRoundedRect(pillWidth, pillHeight, GameConfig.RUN_MAP_NORMAL_PILL, pillRadius);
+        TextureRegionDrawable bossPillBg = createSolidRoundedRect(pillWidth, pillHeight, GameConfig.RUN_MAP_BOSS_PILL, pillRadius);
+        TextureRegionDrawable lockedPillBg = createSolidRoundedRect(pillWidth, pillHeight, GameConfig.RUN_MAP_LOCKED_PILL, pillRadius);
 
         for (Enemy enemy : runState.getAvailableNormals()) {
             boolean isDefeated = enemy.isDefeated();
