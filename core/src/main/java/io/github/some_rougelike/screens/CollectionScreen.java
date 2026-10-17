@@ -26,7 +26,6 @@ import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
-import io.github.some_rougelike.model.Card;
 import io.github.some_rougelike.model.CardCollection;
 import io.github.some_rougelike.model.RankProgress;
 

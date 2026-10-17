@@ -28,17 +28,14 @@ public class Lwjgl3Launcher {
                 long windowHandle = window.getWindowHandle();
 
                 if (borderless) {
-                    // Switch to borderless windowed mode by removing decorations and matching screen size
                     GLFW.glfwSetWindowAttrib(windowHandle, GLFW.GLFW_DECORATED, GLFW.GLFW_FALSE);
                     Gdx.graphics.setWindowedMode(mode.width, mode.height);
                     window.setPosition(0, 0);
                 } else {
-                    // Switch back to standard windowed mode with decorations restored
                     GLFW.glfwSetWindowAttrib(windowHandle, GLFW.GLFW_DECORATED, GLFW.GLFW_TRUE);
                     int width = 1280;
                     int height = 720;
                     Gdx.graphics.setWindowedMode(width, height);
-                    // Center the window on the primary monitor
                     window.setPosition((mode.width - width) / 2, (mode.height - height) / 2);
                 }
             }
@@ -49,7 +46,6 @@ public class Lwjgl3Launcher {
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("softech");
         //// Vsync limits the frames per second to what your hardware can display, and helps eliminate
         //// screen tearing. This setting doesn't always work on Linux, so the line after is a safeguard.
         configuration.useVsync(true);
@@ -59,11 +55,6 @@ public class Lwjgl3Launcher {
         //// If you remove the above line and set Vsync to false, you can get unlimited FPS, which can be
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
-
-        // Start the application in borderless windowed mode by default using the monitor's display mode dimensions
-        Graphics.DisplayMode displayMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
-        configuration.setWindowedMode(displayMode.width, displayMode.height);
-        configuration.setDecorated(false); // Make it borderless at startup
 
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         //// They can also be loaded from the root of assets/ .
@@ -80,6 +71,7 @@ public class Lwjgl3Launcher {
         //configuration.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20, 0, 0);
 
         configuration.setTitle("Rougelike");
+        configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
 
         return configuration;
     }
