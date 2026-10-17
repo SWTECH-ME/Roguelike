@@ -26,7 +26,6 @@ import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
-import io.github.some_rougelike.ui.TrippyBackground;
 
 public class RunMapScreen extends PageScreen {
     private RunState runState;
@@ -48,13 +47,6 @@ public class RunMapScreen extends PageScreen {
         whitePix.dispose();
         generatedTextures.add(whiteTex);
         whiteTintableBg = new TextureRegionDrawable(whiteTex);
-        
-        float overscan = 150f;
-        TrippyBackground bgImg = new TrippyBackground(GameConfig.BG_COLOR_1, GameConfig.BG_COLOR_2);
-        bgImg.setSize(Gdx.graphics.getWidth() + (overscan * 2), Gdx.graphics.getHeight() + (overscan * 2));
-        bgImg.setPosition(-overscan, -overscan);
-        bgImg.setTouchable(Touchable.disabled);
-        stage.addActor(bgImg);
         
         buildUI();
     }
