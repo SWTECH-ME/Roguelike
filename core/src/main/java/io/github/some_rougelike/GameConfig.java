@@ -5,23 +5,19 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class GameConfig {
 
-    // Backgrounds, images
+    // --- BACKGROUNDS ---
     public static final String UI_SKIN = "ui/uiskin.json";
 
     public static final String BG_ENEMY_1 = "ui/background.jpg";
     public static final String BG_ENEMY_2 = "ui/background.jpg";
     public static final String BG_BOSS = "ui/background.jpg";
     
-    // Menu font
+    // --- MENU ---
+    // Fonts:
     public static final float MAIN_MENU_TITLE_SIZE = 2.2f;
     public static final float MAIN_MENU_BUTTON_SIZE = 1.3f;
 
-    // Animated background properties
-    public static final int BG_FRAME_COLS = 5;
-    public static final int BG_FRAME_ROWS = 2;
-    public static final int BG_TOTAL_FRAMES = 7;
-
-    // Sounds
+    // --- SOUNDS ---
     public static final String MENU_MUSIC = "ui/uisounds/menu_theme_loopable.mp3";
     public static final String SOUND_INTRO = "ui/uisounds/before_menu_intro_sound.mp3";
     public static final String SOUND_HOVER = "ui/uisounds/hover_sound.mp3";
@@ -32,7 +28,7 @@ public class GameConfig {
     public static final String CARD_BACK_IMAGE = "ui/cards/card_back.png"; 
     public static final String CARD_FRONT_ATLAS = "ui/cards/cards.atlas"; 
 
-    // Default gameplay values
+    // --- DEFAULT GAMEPLAY VALUES ---
     public static final int STARTING_MONEY = 10;
     public static final int STARTING_HAND_SIZE = 8;
     public static final int REWARD_MONEY = 15;
@@ -43,6 +39,8 @@ public class GameConfig {
     public static final float SCREEN_SHAKE_INTENSITY = 12f;
     public static final float SCORING_STEP_DELAY = 0.6f;
     public static final String SCORING_NUMBER_COLOR = "FFD700";
+
+    public static final boolean ALLOW_HIDING_COMBINATIONS = true; // Collections Debug
 
     // --- RANDOMIZED GLOBAL BACKGROUND COLORS ---
     public static Color BG_COLOR_1;
