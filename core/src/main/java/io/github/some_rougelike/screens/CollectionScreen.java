@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -110,7 +111,6 @@ public class CollectionScreen extends PageScreen {
             { { 3, 1 }, { 4, 1 }, { 5, 1 }, { 6, 1 }, { 7, 1 } },
             { { 8, 0 }, { 9, 0 }, { 10, 0 }, { 11, 0 }, { 12, 0 } }
     };
-    private static final String HIDDEN_NAME = "---Find this in a run---";
     private static final boolean ACE_FIRST_IN_SHEET = true;
 
     private Mode mode = Mode.SKINS;
@@ -256,10 +256,20 @@ public class CollectionScreen extends PageScreen {
         knob.setMinWidth(4 * uiScale);
         style.vScrollKnob = knob;
 
-        ScrollPane scrollPane = new ScrollPane(content, style);
+        final ScrollPane scrollPane = new ScrollPane(content, style);
         scrollPane.setFadeScrollBars(true);
         scrollPane.setOverscroll(false, false);
         scrollPane.setScrollingDisabled(true, false);
+        
+        scrollPane.addListener(new InputListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                if (scrollPane.getStage() != null) {
+                    scrollPane.getStage().setScrollFocus(scrollPane);
+                }
+            }
+        });
+        
         return scrollPane;
     }
 
@@ -370,7 +380,7 @@ public class CollectionScreen extends PageScreen {
             final int index = i;
             boolean isHidden = GameConfig.ALLOW_HIDING_COMBINATIONS;
 
-            final Label label = new Label(isHidden ? HIDDEN_NAME : COMBINATIONS[i], uiSkin);
+            final Label label = new Label(isHidden ? "---Find this in a run---" : COMBINATIONS[i], uiSkin);
             label.setFontScale(uiScale * 1.15f);
             label.setColor(Color.WHITE);
             label.setAlignment(Align.left);
@@ -426,7 +436,7 @@ public class CollectionScreen extends PageScreen {
                         comboHidden[index] = !comboHidden[index];
                         boolean hidden = comboHidden[index];
                         cards.setVisible(!hidden);
-                        label.setText(hidden ? HIDDEN_NAME : COMBINATIONS[index]);
+                        label.setText(hidden ? "---Find this in a run---" : COMBINATIONS[index]);
                         toggle.setText(hidden ? "SHOW" : "HIDE");
                     }
                 });
