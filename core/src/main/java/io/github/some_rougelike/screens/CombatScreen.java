@@ -26,10 +26,8 @@ import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.ui.TrippyBackground;
 
-
 import com.badlogic.gdx.math.MathUtils;
 import io.github.some_rougelike.model.RankProgress;
-
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +51,7 @@ public class CombatScreen extends PageScreen {
     private Label playsLabel;
     private Label discardsLabel;
     private Label deckCountLabel;
+    private TextField multiplierField;
     private Table handTable;
     private Skin skin;
     private boolean isGameOver = false;
@@ -64,7 +63,7 @@ public class CombatScreen extends PageScreen {
     private float scoringTimer = 0f;
     private int scoringCardIndex = 0;
     private int currentHandPoints = 0;
-    private int currentMultiplier = 1;
+    private float currentMultiplier = 1f;
     private List<Card> scoringCards = new ArrayList<>();
     private List<Table> scoringCardTables = new ArrayList<>();
 
@@ -318,6 +317,23 @@ public class CombatScreen extends PageScreen {
         actionTable.add(playBtn).size(200, 70).padRight(30);
         actionTable.add(discardBtn).size(200, 70);
 
+        multiplierField = new TextField("1", skin);
+        multiplierField.setTextFieldFilter((textField, c) -> {
+            // szám vagy pont
+            return Character.isDigit(c) || c == '.';
+        });
+        multiplierField.setMaxLength(4);
+        multiplierField.setAlignment(Align.center);
+
+        Label multLabel = new Label("MULT (test)", skin);
+        multLabel.setColor(Color.valueOf("FFD700"));
+
+        Table multTable = new Table();
+        multTable.add(multLabel).padBottom(4).row();
+        multTable.add(multiplierField).size(100, 45);
+
+        actionTable.add(multTable).padLeft(30);
+
         Table deckTable = new Table();
         deckTable.setBackground(createRoundedRect(120, 160, 0.12f, 0.12f, 0.15f, 0.85f, 20));
         deckTable.pad(15);
@@ -420,6 +436,14 @@ public class CombatScreen extends PageScreen {
                 Actions.moveTo(0, 0, d)));
     }
 
+    private float getTestMultiplier() {
+        try {
+            return Math.max(1f, Float.parseFloat(multiplierField.getText().trim()));
+        } catch (NumberFormatException e) {
+            return 1f;
+        }
+    }
+
     private void playSelectedCards() {
         if (isGameOver || isScoring || selectedCards.isEmpty() || playsLeft <= 0)
             return;
@@ -443,7 +467,8 @@ public class CombatScreen extends PageScreen {
         scoringTimer = 0f;
         scoringCardIndex = 0;
         currentHandPoints = 0;
-        currentMultiplier = scoringCards.size();
+        currentMultiplier = getTestMultiplier();
+        stage.setKeyboardFocus(null); // a mező elengedi a fókuszt
 
         updateTopBar();
     }
@@ -555,8 +580,9 @@ public class CombatScreen extends PageScreen {
 
                     scoringCardIndex++;
                 } else {
-                    int finalHandScore = currentHandPoints * currentMultiplier;
-                    targetDisplayScore += (finalHandScore - currentHandPoints);
+                    float finalHandScore = currentHandPoints * currentMultiplier;
+                    targetDisplayScore += (int) (finalHandScore - currentHandPoints);
+
                     RankProgress.getInstance().save();
 
                     triggerShake(GameConfig.SCREEN_SHAKE_INTENSITY * 1.5f);
