@@ -33,8 +33,6 @@ public class Assets implements Disposable {
         // Example for fonts
         // assetManager.load("fonts/font.fnt", BitmapFont.class);
         assetManager.load(GameConfig.UI_SKIN, Skin.class);
-        assetManager.load(GameConfig.MAIN_BACKGROUND, Texture.class);
-        assetManager.load(GameConfig.MAIN_STATIC_BACKGROUND, Texture.class);
         assetManager.load("joker.jpeg", Texture.class);
     }
 
