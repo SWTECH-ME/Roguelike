@@ -17,7 +17,7 @@ public class GameConfig {
     public static final float MAIN_MENU_TITLE_SIZE = 2.2f;
     public static final float MAIN_MENU_BUTTON_SIZE = 1.3f;
     public static final float MAIN_MENU_SCALE = 1.5f;
-    // Collections Debug
+    // Collections Debug:
     public static final boolean ALLOW_HIDING_COMBINATIONS = false; 
 
     // --- SOUNDS ---
@@ -68,6 +68,9 @@ public class GameConfig {
     public static final Color COMBAT_CARD_BG_SELECTED = new Color(0.8f, 0.9f, 1.0f, 1f);
     public static final Color COMBAT_BOSS_BG_1 = new Color(0.4f, 0.1f, 0.15f, 1f);
     public static final Color COMBAT_BOSS_BG_2 = new Color(0.25f, 0.05f, 0.1f, 1f);
+
+    public static final float GAMEOVER_FADE_TIME = 0.4f;
+    public static final float GAMEOVER_SCREEN_TINT = 0.4f;
 
     // --- RANDOMIZED GLOBAL BACKGROUND COLORS ---
     public static Color BG_COLOR_1;

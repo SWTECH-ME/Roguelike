@@ -58,6 +58,7 @@ public class CombatScreen extends PageScreen {
     private Label discardsLabel;
     private Label deckCountLabel;
     private Table handTable;
+    private Table uiRoot;
     private Skin skin;
     private boolean isGameOver = false;
 
@@ -218,8 +219,8 @@ public class CombatScreen extends PageScreen {
     }
 
     private void buildUI() {
-        Table root = new Table();
-        root.setFillParent(true);
+        uiRoot = new Table();
+        uiRoot.setFillParent(true);
 
         float cardWidth = GameConfig.COMBAT_CARD_WIDTH * uiScale;
         float cardHeight = GameConfig.COMBAT_CARD_HEIGHT * uiScale;
@@ -287,8 +288,8 @@ public class CombatScreen extends PageScreen {
 
         Table actionTable = new Table();
 
-        Label playBtn = createHoverLabel("PLAY HAND", uiScale * 1.3f, () -> playSelectedCards());
-        Label discardBtn = createHoverLabel("DISCARD", uiScale * 1.3f, () -> discardSelectedCards());
+        Label playBtn = createHoverLabel("PLAY HAND", uiScale * 1.3f, true, () -> playSelectedCards());
+        Label discardBtn = createHoverLabel("DISCARD", uiScale * 1.3f, true, () -> discardSelectedCards());
 
         actionTable.add(playBtn).padRight(60 * uiScale);
         actionTable.add(discardBtn);
@@ -318,14 +319,14 @@ public class CombatScreen extends PageScreen {
         deckWrapper.add(deckTable).expand().right().bottom().padRight(60 * uiScale).padBottom(50 * uiScale);
         bottomSection.add(deckWrapper).uniformX().expandX().fill();
 
-        root.add(topArea).fillX().top().row();
-        root.add(middleTable).expand().center().row();
-        root.add(bottomSection).fillX().padBottom(40 * uiScale).bottom();
+        uiRoot.add(topArea).fillX().top().row();
+        uiRoot.add(middleTable).expand().center().row();
+        uiRoot.add(bottomSection).fillX().padBottom(40 * uiScale).bottom();
 
-        stage.addActor(root);
+        stage.addActor(uiRoot);
     }
 
-    private Label createHoverLabel(String text, float scale, Runnable onClick) {
+    private Label createHoverLabel(String text, float scale, boolean checkBusy, Runnable onClick) {
         Label label = new Label(text, skin);
         label.setFontScale(scale);
         label.setColor(new Color(0.65f, 0.65f, 0.65f, 1f));
@@ -336,7 +337,7 @@ public class CombatScreen extends PageScreen {
         label.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                if (pointer == -1 && !isGameOver && !isScoring) {
+                if (pointer == -1 && (!checkBusy || (!isGameOver && !isScoring))) {
                     label.clearActions();
                     label.addAction(Actions.parallel(
                         Actions.color(Color.WHITE, 0.15f, Interpolation.fade),
@@ -359,7 +360,7 @@ public class CombatScreen extends PageScreen {
 
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (!isGameOver && !isScoring) {
+                if (!checkBusy || (!isGameOver && !isScoring)) {
                     SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
                     
                     label.clearActions();
@@ -520,15 +521,24 @@ public class CombatScreen extends PageScreen {
 
     private void showFailedScreen() {
         isGameOver = true;
+        
+        if (uiRoot != null) {
+            uiRoot.clearActions();
+            uiRoot.addAction(Actions.sequence(
+                Actions.fadeOut(GameConfig.GAMEOVER_FADE_TIME, Interpolation.fade),
+                Actions.run(() -> uiRoot.setVisible(false))
+            ));
+        }
+
         Table failedOverlay = new Table();
         failedOverlay.setFillParent(true);
-        failedOverlay.setBackground(whiteTintableBg.tint(new Color(0f, 0f, 0f, 0.9f)));
+        failedOverlay.setBackground(whiteTintableBg.tint(new Color(0f, 0f, 0f, GameConfig.GAMEOVER_SCREEN_TINT)));
 
         Label failedLabel = new Label("GAME OVER", skin);
         failedLabel.setFontScale(uiScale * 4f);
         failedLabel.setColor(new Color(0.9f, 0.2f, 0.2f, 1f));
 
-        Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, () -> {
+        Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, false, () -> {
             main.switchScreen(new MainMenuScreen(main));
         });
 
