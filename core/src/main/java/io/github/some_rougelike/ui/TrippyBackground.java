@@ -10,7 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 
 public class TrippyBackground extends Widget {
     private ShaderProgram shader;
-    private float time = 0;
+    
+    private static float globalTime = 0f;
+    private static long lastFrameId = 0;
+    
     private Texture whiteTexture;
     private Color color1;
     private Color color2;
@@ -54,7 +57,7 @@ public class TrippyBackground extends Widget {
                 "    }\n" +
                 "    float t = cos(p.x + p.y + 1.0) * 0.5 + 0.5;\n" +
                 "    vec3 finalColor = mix(u_color1, u_color2, t);\n" +
-                "    gl_FragColor = vec4(finalColor, 1.0);\n" +
+                "    gl_FragColor = vec4(finalColor, 1.0) * v_color;\n" +
                 "}";
                 
         ShaderProgram.pedantic = false;
@@ -74,7 +77,12 @@ public class TrippyBackground extends Widget {
     @Override
     public void act(float delta) {
         super.act(delta);
-        time += delta * 0.8f; 
+        
+        long currentFrame = Gdx.graphics.getFrameId();
+        if (currentFrame != lastFrameId) {
+            globalTime += delta * 0.8f; 
+            lastFrameId = currentFrame;
+        }
     }
 
     @Override
@@ -86,7 +94,7 @@ public class TrippyBackground extends Widget {
             ShaderProgram oldShader = batch.getShader();
             batch.setShader(shader);
             
-            shader.setUniformf("u_time", time);
+            shader.setUniformf("u_time", globalTime);
             shader.setUniformf("u_color1", color1.r, color1.g, color1.b);
             shader.setUniformf("u_color2", color2.r, color2.g, color2.b);
             

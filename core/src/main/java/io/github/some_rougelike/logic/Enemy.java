@@ -8,6 +8,7 @@ public class Enemy {
     private boolean isBoss;
     private String specialAbility;
     private String backgroundPath;
+    private boolean defeated;
 
     public Enemy(String name, int targetScore, int maxPlays, int maxDiscards, String backgroundPath) {
         this.name = name;
@@ -16,6 +17,7 @@ public class Enemy {
         this.maxDiscards = maxDiscards;
         this.backgroundPath = backgroundPath;
         this.isBoss = false;
+        this.defeated = false;
     }
 
     public Enemy(String name, int targetScore, int maxPlays, int maxDiscards, String specialAbility, String backgroundPath) {
@@ -31,4 +33,6 @@ public class Enemy {
     public boolean isBoss() { return isBoss; }
     public String getSpecialAbility() { return specialAbility; }
     public String getBackgroundPath() { return backgroundPath; }
+    public boolean isDefeated() { return defeated; }
+    public void setDefeated(boolean defeated) { this.defeated = defeated; }
 }

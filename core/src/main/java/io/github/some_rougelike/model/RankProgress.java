@@ -2,7 +2,6 @@ package io.github.some_rougelike.model;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.math.MathUtils;
 
 /** Rangonkénti fejlődés (0..100). Index: 0 = "2", 1 = "3", ... 12 = "A". */
 public class RankProgress {

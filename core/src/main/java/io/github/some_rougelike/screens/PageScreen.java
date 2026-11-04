@@ -4,20 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
-import io.github.some_rougelike.ui.AnimatedImage;
+import io.github.some_rougelike.ui.TrippyBackground;
 
 public abstract class PageScreen extends ScreenAdapter {
     protected final Main main;
     protected final Stage stage;
+    private TrippyBackground trippyBackground;
 
     private static final float REFERENCE_WIDTH = 1920f;
     private static final float REFERENCE_HEIGHT = 1080f;
@@ -26,34 +23,9 @@ public abstract class PageScreen extends ScreenAdapter {
         this.main = main;
         this.stage = new Stage(new ScreenViewport());
 
-        Texture sheetTexture = Assets.getInstance().getTexture(GameConfig.MAIN_BACKGROUND);
-
-        int frameCols = GameConfig.BG_FRAME_COLS;
-        int frameRows = GameConfig.BG_FRAME_ROWS;
-        int totalRealFrames = GameConfig.BG_TOTAL_FRAMES;
-
-        int frameWidth = sheetTexture.getWidth() / frameCols;
-        int frameHeight = sheetTexture.getHeight() / frameRows;
-
-        TextureRegion[][] tmp = TextureRegion.split(sheetTexture, frameWidth, frameHeight);
-        TextureRegion[] frames = new TextureRegion[totalRealFrames];
-        int index = 0;
-
-        for (int i = 0; i < frameRows; i++) {
-            for (int j = 0; j < frameCols; j++) {
-                if (index < totalRealFrames) {
-                    frames[index++] = tmp[i][j];
-                }
-            }
-        }
-
-        Animation<TextureRegion> backgroundAnimation = new Animation<TextureRegion>(
-                GameConfig.ANIMATED_BACKGROUND_SPEED, frames);
-        AnimatedImage animatedBackground = new AnimatedImage(backgroundAnimation);
-        animatedBackground.setFillParent(true);
-        animatedBackground.setScaling(Scaling.fill);
-
-        stage.addActor(animatedBackground);
+        trippyBackground = new TrippyBackground(GameConfig.BG_COLOR_1, GameConfig.BG_COLOR_2);
+        trippyBackground.setTouchable(Touchable.disabled);
+        stage.addActor(trippyBackground);
     }
 
     public float getScaleFactor() {
@@ -92,6 +64,10 @@ public abstract class PageScreen extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+        if (trippyBackground != null) {
+            trippyBackground.setSize(stage.getWidth(), stage.getHeight());
+            trippyBackground.setPosition(0, 0);
+        }
     }
 
     @Override

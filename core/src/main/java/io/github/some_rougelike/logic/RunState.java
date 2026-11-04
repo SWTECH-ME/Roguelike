@@ -70,13 +70,20 @@ public class RunState {
             chapterIndex++;
             generateMockChapter();
         } else {
-            availableNormals.remove(activeEnemy);
+            if (activeEnemy != null) {
+                activeEnemy.setDefeated(true);
+            }
         }
         activeEnemy = null;
     }
 
     public boolean isBossUnlocked() {
-        return availableNormals.isEmpty();
+        for (Enemy enemy : availableNormals) {
+            if (!enemy.isDefeated()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public List<Enemy> getAvailableNormals() { return availableNormals; }
