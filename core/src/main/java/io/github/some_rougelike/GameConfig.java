@@ -38,6 +38,11 @@ public class GameConfig {
     public static final int DEFAULT_MAX_PLAYS = 4;
     public static final int DEFAULT_MAX_DISCARDS = 3;
 
+    public static final float SCREEN_TRANSITION_DURATION = 1.7f;
+    public static final int TRANSITION_CARD_COUNT = 700;
+    public static final float TRANSITION_CARD_MIN_SCALE = 0.6f;
+    public static final float TRANSITION_CARD_SCALE_VAR = 1.1f;
+
     public static final float SCREEN_SHAKE_DURATION = 0.2f;
     public static final float SCREEN_SHAKE_INTENSITY = 12f;
     public static final float SCORING_STEP_DELAY = 0.6f;

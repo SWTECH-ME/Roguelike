@@ -128,7 +128,7 @@ public class CombatScreen extends PageScreen {
 
     private void loadDeckTexture() {
         try {
-            FileHandle file = Gdx.files.internal("deck_skins/black_blue.png");
+            FileHandle file = Gdx.files.internal("deck_skins/white_black.png");
             if (file.exists()) {
                 deckTexture = new Texture(file);
                 int cols = 13;
@@ -324,6 +324,62 @@ public class CombatScreen extends PageScreen {
         uiRoot.add(bottomSection).fillX().padBottom(40 * uiScale).bottom();
 
         stage.addActor(uiRoot);
+
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
+        
+        Actor inputBlocker = new Actor();
+        inputBlocker.setSize(width, height);
+        inputBlocker.setTouchable(Touchable.enabled);
+        inputBlocker.addAction(Actions.sequence(
+            Actions.delay(1.2f),
+            Actions.removeActor()
+        ));
+        stage.addActor(inputBlocker);
+
+        TextureRegionDrawable fallbackBg = createRoundedRect((int)(100*uiScale), (int)(140*uiScale), GameConfig.COMBAT_CARD_BG_NORMAL, (int)(10*uiScale));
+        java.util.Random rng = new java.util.Random(888);
+        int cardCount = GameConfig.TRANSITION_CARD_COUNT;
+        
+        for (int i = 0; i < cardCount; i++) {
+            int r = rng.nextInt(4);
+            int c = rng.nextInt(13);
+            float finalScale = GameConfig.TRANSITION_CARD_MIN_SCALE + rng.nextFloat() * GameConfig.TRANSITION_CARD_SCALE_VAR;
+            float startX = -250f + rng.nextFloat() * (width + 500f);
+            float startY = -250f + rng.nextFloat() * (height + 500f);
+            float startRot = rng.nextFloat() * 360f;
+            
+            Image cardImg;
+            if (cardRegions != null) {
+                cardImg = new Image(cardRegions[r][c]);
+            } else {
+                cardImg = new Image(fallbackBg);
+            }
+            
+            cardImg.setSize(GameConfig.COMBAT_CARD_WIDTH * uiScale * finalScale, GameConfig.COMBAT_CARD_HEIGHT * uiScale * finalScale);
+            cardImg.setOrigin(Align.center);
+            
+            cardImg.setPosition(startX, startY);
+            cardImg.setRotation(startRot);
+            
+            float targetX = startX + (rng.nextFloat() * 800f - 400f);
+            float targetY = -600f - rng.nextFloat() * 1000f;
+            
+            float progress = (float) i / cardCount;
+            float delay = (1f - progress) * 0.5f;
+            float duration = 0.5f;
+            
+            cardImg.addAction(Actions.sequence(
+                Actions.delay(delay),
+                Actions.parallel(
+                    Actions.moveTo(targetX, targetY, duration, Interpolation.pow2In),
+                    Actions.rotateBy(rng.nextFloat() * 360f - 180f, duration, Interpolation.pow2In)
+                ),
+                Actions.removeActor()
+            ));
+            
+            stage.addActor(cardImg);
+        }
     }
 
     private Label createHoverLabel(String text, float scale, boolean checkBusy, Runnable onClick) {
