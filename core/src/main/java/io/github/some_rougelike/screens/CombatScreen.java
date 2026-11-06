@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.FloatAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -79,6 +80,10 @@ public class CombatScreen extends PageScreen {
     private List<Group> scoringCardGroups = new ArrayList<>();
 
     private float uiScale;
+    private TrippyBackground bgImg;
+    private Color currentColor1;
+    private Color currentColor2;
+    private boolean isTransitioningOut = false;
 
     public CombatScreen(Main main, RunState runState) {
         super(main, "");
@@ -107,17 +112,16 @@ public class CombatScreen extends PageScreen {
         this.drawPile = new ArrayList<>(runState.getDeck());
         Collections.shuffle(this.drawPile);
 
-        Color c1 = Color.valueOf("4C9A7F");
-        Color c2 = Color.valueOf("2D6A54");
+        currentColor1 = Color.valueOf("4C9A7F");
+        currentColor2 = Color.valueOf("2D6A54");
         if (enemy.isBoss()) {
-            c1 = GameConfig.COMBAT_BOSS_BG_1;
-            c2 = GameConfig.COMBAT_BOSS_BG_2;
+            currentColor1.set(GameConfig.COMBAT_BOSS_BG_1);
+            currentColor2.set(GameConfig.COMBAT_BOSS_BG_2);
         }
 
-        float overscan = 150f;
-        TrippyBackground bgImg = new TrippyBackground(c1, c2);
-        bgImg.setSize(width + (overscan * 2), height + (overscan * 2));
-        bgImg.setPosition(-overscan, -overscan);
+        bgImg = new TrippyBackground(currentColor1, currentColor2);
+        bgImg.setSize(width, height);
+        bgImg.setPosition(0, 0);
         bgImg.setTouchable(Touchable.disabled);
         stage.addActor(bgImg);
 
@@ -472,7 +476,7 @@ public class CombatScreen extends PageScreen {
             cardWrapper.addListener(new ClickListener() {
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                    if (isGameOver || isScoring) return;
+                    if (isGameOver || isScoring || isTransitioningOut) return;
                     boolean isSelected = selectedCards.contains(card);
                     cardBg.clearActions();
                     cardBg.addAction(Actions.moveTo(0, isSelected ? selectOffset + hoverOffset : hoverOffset, 0.15f, Interpolation.smooth));
@@ -480,7 +484,7 @@ public class CombatScreen extends PageScreen {
 
                 @Override
                 public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                    if (isGameOver || isScoring) return;
+                    if (isGameOver || isScoring || isTransitioningOut) return;
                     boolean isSelected = selectedCards.contains(card);
                     cardBg.clearActions();
                     cardBg.addAction(Actions.moveTo(0, isSelected ? selectOffset : 0, 0.15f, Interpolation.smooth));
@@ -488,7 +492,7 @@ public class CombatScreen extends PageScreen {
 
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (isGameOver || isScoring) return;
+                    if (isGameOver || isScoring || isTransitioningOut) return;
                     SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
                     
                     if (selectedCards.contains(card)) {
@@ -524,7 +528,7 @@ public class CombatScreen extends PageScreen {
     }
 
     private void playSelectedCards() {
-        if (isGameOver || isScoring || selectedCards.isEmpty() || playsLeft <= 0) return;
+        if (isGameOver || isScoring || selectedCards.isEmpty() || playsLeft <= 0 || isTransitioningOut) return;
 
         playsLeft--;
 
@@ -551,7 +555,7 @@ public class CombatScreen extends PageScreen {
     }
 
     private void discardSelectedCards() {
-        if (isGameOver || isScoring || selectedCards.isEmpty() || discardsLeft <= 0) return;
+        if (isGameOver || isScoring || selectedCards.isEmpty() || discardsLeft <= 0 || isTransitioningOut) return;
 
         discardsLeft--;
         hand.removeAll(selectedCards);
@@ -604,6 +608,39 @@ public class CombatScreen extends PageScreen {
         stage.addActor(failedOverlay);
         failedOverlay.getColor().a = 0f;
         failedOverlay.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
+    }
+
+    private void executeVictoryTransition() {
+        isTransitioningOut = true;
+        
+        uiRoot.addAction(Actions.fadeOut(GameConfig.VICTORY_UI_FADE_DURATION, Interpolation.fade));
+        
+        final Color targetColor1 = GameConfig.BG_COLOR_1;
+        final Color targetColor2 = GameConfig.BG_COLOR_2;
+        final Color startColor1 = new Color(currentColor1);
+        final Color startColor2 = new Color(currentColor2);
+        
+        FloatAction lerpAction = new FloatAction(0f, 1f, GameConfig.VICTORY_BG_LERP_DURATION, Interpolation.smooth) {
+            @Override
+            protected void update(float percent) {
+                super.update(percent);
+                currentColor1.set(startColor1).lerp(targetColor1, percent);
+                currentColor2.set(startColor2).lerp(targetColor2, percent);
+                if (bgImg != null) {
+                    bgImg.setColors(currentColor1, currentColor2);
+                }
+            }
+        };
+        
+        stage.addAction(Actions.sequence(
+            Actions.delay(GameConfig.VICTORY_BG_LERP_DELAY),
+            lerpAction,
+            Actions.run(() -> {
+                runState.addMoney(GameConfig.REWARD_MONEY);
+                runState.registerVictory();
+                main.switchScreen(new RunMapScreen(main, runState));
+            })
+        ));
     }
 
     @Override
@@ -680,12 +717,9 @@ public class CombatScreen extends PageScreen {
             scoreLabel.setText(String.valueOf(currentScore));
         }
 
-        if (!isScoring && currentScore == targetDisplayScore && !isGameOver) {
+        if (!isScoring && currentScore == targetDisplayScore && !isGameOver && !isTransitioningOut) {
             if (currentScore >= enemy.getTargetScore()) {
-                isGameOver = true;
-                runState.addMoney(GameConfig.REWARD_MONEY);
-                runState.registerVictory();
-                main.switchScreen(new RunMapScreen(main, runState));
+                executeVictoryTransition();
             } else if (playsLeft <= 0) {
                 showFailedScreen();
             }

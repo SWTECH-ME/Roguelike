@@ -42,6 +42,9 @@ public class GameConfig {
     public static final int TRANSITION_CARD_COUNT = 700;
     public static final float TRANSITION_CARD_MIN_SCALE = 0.6f;
     public static final float TRANSITION_CARD_SCALE_VAR = 1.1f;
+    public static final float VICTORY_UI_FADE_DURATION = 0.5f;
+    public static final float VICTORY_BG_LERP_DELAY = 0.2f;
+    public static final float VICTORY_BG_LERP_DURATION = 1.2f;
 
     public static final float SCREEN_SHAKE_DURATION = 0.2f;
     public static final float SCREEN_SHAKE_INTENSITY = 12f;

@@ -28,6 +28,7 @@ import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
+import io.github.some_rougelike.ui.TrippyBackground;
 
 public class RunMapScreen extends PageScreen {
     private RunState runState;
@@ -126,6 +127,12 @@ public class RunMapScreen extends PageScreen {
         float height = Gdx.graphics.getHeight();
         float scale = Math.min(width / 1920f, height / 1080f) * GameConfig.MAIN_MENU_SCALE;
 
+        TrippyBackground bgImg = new TrippyBackground(GameConfig.BG_COLOR_1, GameConfig.BG_COLOR_2);
+        bgImg.setSize(width, height);
+        bgImg.setPosition(0, 0);
+        bgImg.setTouchable(Touchable.disabled);
+        stage.addActor(bgImg);
+
         uiRoot = new Table();
         uiRoot.setFillParent(true);
         uiRoot.center();
@@ -205,6 +212,9 @@ public class RunMapScreen extends PageScreen {
 
         uiRoot.add(shopBtn).colspan(3).center();
         stage.addActor(uiRoot);
+
+        uiRoot.getColor().a = 0f;
+        uiRoot.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
     }
 
     private Group createBlindCard(String typeText, TextureRegionDrawable pillBg, String nameText, int target, int reward, boolean locked, boolean defeated, float scale, TextureRegionDrawable bg, int width, int height, Runnable onClick) {
