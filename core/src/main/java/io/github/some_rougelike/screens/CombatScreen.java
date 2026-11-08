@@ -92,6 +92,17 @@ public class CombatScreen extends PageScreen {
     private Color currentColor2;
     private boolean isTransitioningOut = false;
 
+    private Image playStrike;
+    private Image discardStrike;
+    private Label playBtnLabel;
+    private Label discardBtnLabel;
+    private boolean playStrikeActive = false;
+    private boolean discardStrikeActive = false;
+
+    private interface Condition {
+        boolean isTrue();
+    }
+
     public CombatScreen(Main main, RunState runState) {
         super(main, "");
         this.runState = runState;
@@ -148,7 +159,7 @@ public class CombatScreen extends PageScreen {
                 cardRegions = TextureRegion.split(deckTexture, tileWidth, tileHeight);
             }
         } catch (Exception e) {
-            Gdx.app.error("CombatScreen", "Nem sikerült betölteni a deck skint: " + e.getMessage());
+            Gdx.app.error("CombatScreen", e.getMessage());
         }
     }
 
@@ -298,8 +309,9 @@ public class CombatScreen extends PageScreen {
 
         Table bottomSection = new Table();
         Table actionTable = new Table();
-        Label playBtn = createHoverLabel("PLAY HAND", uiScale * 1.3f, true, () -> playSelectedCards());
-        Label discardBtn = createHoverLabel("DISCARD", uiScale * 1.3f, true, () -> discardSelectedCards());
+
+        Group playBtn = createActionButton("PLAY HAND", uiScale * 1.3f, true, () -> playSelectedCards(), () -> playsLeft <= 0, true);
+        Group discardBtn = createActionButton("DISCARD", uiScale * 1.3f, true, () -> discardSelectedCards(), () -> discardsLeft <= 0, false);
 
         actionTable.add(playBtn).padRight(60 * uiScale);
         actionTable.add(discardBtn);
@@ -404,12 +416,130 @@ public class CombatScreen extends PageScreen {
                 updateHandUI(initialCards);
             })
         ));
+
+        updateTopBar();
+    }
+
+    private Group createActionButton(String text, float scale, boolean checkBusy, Runnable onClick, Condition isZero, boolean isPlayBtn) {
+        Group group = new Group();
+        
+        Label label = new Label(text, skin);
+        label.setFontScale(scale);
+        label.setColor(GameConfig.BUTTON_TEXT_COLOR);
+        label.setAlignment(Align.center);
+        label.pack();
+        
+        float w = label.getWidth();
+        float h = label.getHeight();
+        group.setSize(w, h);
+        group.setOrigin(Align.center);
+        
+        label.setPosition(0, 0);
+        group.addActor(label);
+        
+        float extraWidth = GameConfig.BUTTON_STRIKE_OVERHANG * uiScale;
+        float strikeThick = GameConfig.BUTTON_STRIKE_THICKNESS * uiScale;
+        
+        Image strikethrough = new Image(whiteTintableBg);
+        strikethrough.setColor(GameConfig.BUTTON_TEXT_COLOR);
+        strikethrough.setSize(0, strikeThick);
+        strikethrough.setPosition(-extraWidth / 2f, h / 2f - (strikeThick / 2f));
+        group.addActor(strikethrough);
+        
+        if (isPlayBtn) {
+            playStrike = strikethrough;
+            playBtnLabel = label;
+        } else {
+            discardStrike = strikethrough;
+            discardBtnLabel = label;
+        }
+        
+        group.setTouchable(Touchable.enabled);
+        
+        group.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                if (pointer == -1 && (!checkBusy || (!isGameOver && !isScoring))) {
+                    group.clearActions();
+                    group.addAction(Actions.scaleTo(1.1f, 1.1f, 0.15f, Interpolation.fade));
+                    
+                    label.clearActions();
+                    label.addAction(Actions.color(Color.WHITE, 0.15f, Interpolation.fade));
+                    
+                    strikethrough.clearActions();
+                    float targetW = isZero.isTrue() ? label.getWidth() + extraWidth : 0f;
+                    
+                    strikethrough.addAction(Actions.parallel(
+                        Actions.color(Color.WHITE, 0.15f, Interpolation.fade),
+                        Actions.sizeTo(targetW, strikeThick, 0.15f, Interpolation.smooth)
+                    ));
+                    
+                    SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_HOVER);
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                if (pointer == -1) {
+                    group.clearActions();
+                    group.addAction(Actions.scaleTo(1.0f, 1.0f, 0.15f, Interpolation.fade));
+                    
+                    label.clearActions();
+                    label.addAction(Actions.color(GameConfig.BUTTON_TEXT_COLOR, 0.15f, Interpolation.fade));
+                    
+                    strikethrough.clearActions();
+                    float targetW = isZero.isTrue() ? label.getWidth() + extraWidth : 0f;
+                    
+                    strikethrough.addAction(Actions.parallel(
+                        Actions.color(GameConfig.BUTTON_TEXT_COLOR, 0.15f, Interpolation.fade),
+                        Actions.sizeTo(targetW, strikeThick, 0.15f, Interpolation.smooth)
+                    ));
+                }
+            }
+
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (!checkBusy || (!isGameOver && !isScoring)) {
+                    if (isZero.isTrue()) {
+                        SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
+                        
+                        label.clearActions();
+                        label.addAction(Actions.sequence(
+                            Actions.color(GameConfig.BUTTON_ERROR_COLOR, 0.1f),
+                            Actions.color(Color.WHITE, 0.2f)
+                        ));
+                        
+                        strikethrough.clearActions();
+                        float targetW = label.getWidth() + extraWidth;
+                        strikethrough.addAction(Actions.parallel(
+                            Actions.sizeTo(targetW, strikeThick),
+                            Actions.sequence(
+                                Actions.color(GameConfig.BUTTON_ERROR_COLOR, 0.1f),
+                                Actions.color(Color.WHITE, 0.2f)
+                            )
+                        ));
+                    } else {
+                        SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
+                        
+                        group.clearActions();
+                        group.addAction(Actions.sequence(
+                            Actions.scaleTo(1.0f, 1.0f, 0.1f, Interpolation.fade),
+                            Actions.scaleTo(1.1f, 1.1f, 0.1f, Interpolation.fade)
+                        ));
+                        
+                        if (onClick != null) onClick.run();
+                    }
+                }
+            }
+        });
+
+        return group;
     }
 
     private Label createHoverLabel(String text, float scale, boolean checkBusy, Runnable onClick) {
         Label label = new Label(text, skin);
         label.setFontScale(scale);
-        label.setColor(new Color(0.65f, 0.65f, 0.65f, 1f));
+        label.setColor(GameConfig.BUTTON_TEXT_COLOR);
         label.setTouchable(Touchable.enabled);
         label.setOrigin(Align.center);
         label.setAlignment(Align.center);
@@ -432,7 +562,7 @@ public class CombatScreen extends PageScreen {
                 if (pointer == -1) {
                     label.clearActions();
                     label.addAction(Actions.parallel(
-                        Actions.color(new Color(0.65f, 0.65f, 0.65f, 1f), 0.15f, Interpolation.fade),
+                        Actions.color(GameConfig.BUTTON_TEXT_COLOR, 0.15f, Interpolation.fade),
                         Actions.scaleTo(scale, scale, 0.15f, Interpolation.fade)
                     ));
                 }
@@ -445,7 +575,7 @@ public class CombatScreen extends PageScreen {
                     
                     label.clearActions();
                     label.addAction(Actions.parallel(
-                        Actions.color(new Color(0.65f, 0.65f, 0.65f, 1f), 0.1f, Interpolation.fade),
+                        Actions.color(GameConfig.BUTTON_TEXT_COLOR, 0.1f, Interpolation.fade),
                         Actions.scaleTo(scale, scale, 0.1f, Interpolation.fade)
                     ));
                     
@@ -690,6 +820,25 @@ public class CombatScreen extends PageScreen {
     private void updateTopBar() {
         playsLabel.setText("Plays: " + playsLeft);
         discardsLabel.setText("Discards: " + discardsLeft);
+        
+        float extraWidth = GameConfig.BUTTON_STRIKE_OVERHANG * uiScale;
+        float strikeThick = GameConfig.BUTTON_STRIKE_THICKNESS * uiScale;
+
+        if (playsLeft <= 0 && !playStrikeActive && playStrike != null && playBtnLabel != null) {
+            playStrikeActive = true;
+            playStrike.addAction(Actions.sizeTo(playBtnLabel.getWidth() + extraWidth, strikeThick, 0.3f, Interpolation.smooth));
+        } else if (playsLeft > 0 && playStrikeActive && playStrike != null) {
+            playStrikeActive = false;
+            playStrike.addAction(Actions.sizeTo(0, strikeThick, 0.3f, Interpolation.smooth));
+        }
+
+        if (discardsLeft <= 0 && !discardStrikeActive && discardStrike != null && discardBtnLabel != null) {
+            discardStrikeActive = true;
+            discardStrike.addAction(Actions.sizeTo(discardBtnLabel.getWidth() + extraWidth, strikeThick, 0.3f, Interpolation.smooth));
+        } else if (discardsLeft > 0 && discardStrikeActive && discardStrike != null) {
+            discardStrikeActive = false;
+            discardStrike.addAction(Actions.sizeTo(0, strikeThick, 0.3f, Interpolation.smooth));
+        }
     }
 
     private void showFailedScreen() {
@@ -710,7 +859,7 @@ public class CombatScreen extends PageScreen {
 
         Label failedLabel = new Label("GAME OVER", skin);
         failedLabel.setFontScale(uiScale * 4f);
-        failedLabel.setColor(new Color(0.9f, 0.2f, 0.2f, 1f));
+        failedLabel.setColor(GameConfig.GAMEOVER_TEXT_COLOR);
 
         Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, false, () -> {
             main.switchScreen(new MainMenuScreen(main));

@@ -56,6 +56,12 @@ public class GameConfig {
     public static final float TRANSITION_CARD_MIN_SCALE = 0.6f;
     public static final float TRANSITION_CARD_SCALE_VAR = 1.1f;
 
+    // --- COMBAT SCREEN: BUTTONS ---
+    public static final float BUTTON_STRIKE_OVERHANG = 20f;
+    public static final float BUTTON_STRIKE_THICKNESS = 3f;
+    public static final Color BUTTON_TEXT_COLOR = new Color(0.65f, 0.65f, 0.65f, 1f);
+    public static final Color BUTTON_ERROR_COLOR = new Color(0.9f, 0.2f, 0.2f, 1f);
+
     // --- COMBAT SCREEN: CARD PROPERTIES ---
     public static final float COMBAT_CARD_WIDTH = 100f;
     public static final float COMBAT_CARD_HEIGHT = 140f;
@@ -86,6 +92,7 @@ public class GameConfig {
 
     public static final float GAMEOVER_FADE_TIME = 0.4f;
     public static final float GAMEOVER_SCREEN_TINT = 0.4f;
+    public static final Color GAMEOVER_TEXT_COLOR = new Color(0.9f, 0.2f, 0.2f, 1f);
 
     public static final float VICTORY_UI_FADE_DURATION = 0.7f;
     public static final float VICTORY_BG_LERP_DELAY = 0.2f;
