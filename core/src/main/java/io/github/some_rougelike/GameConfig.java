@@ -16,6 +16,7 @@ public class GameConfig {
     public static final float MAIN_MENU_TITLE_SIZE = 2.2f;
     public static final float MAIN_MENU_BUTTON_SIZE = 1.3f;
     public static final float MAIN_MENU_SCALE = 1.5f;
+    public static final float MAIN_MENU_FADE_DURATION = 0.5f;
     // Collections Debug:
     public static final boolean ALLOW_HIDING_COMBINATIONS = false; 
 
@@ -92,7 +93,10 @@ public class GameConfig {
 
     public static final float GAMEOVER_FADE_TIME = 0.4f;
     public static final float GAMEOVER_SCREEN_TINT = 0.4f;
+    public static final float GAMEOVER_BG_LERP_DURATION = 1.2f;
     public static final Color GAMEOVER_TEXT_COLOR = new Color(0.9f, 0.2f, 0.2f, 1f);
+    public static final Color GAMEOVER_BG_1 = new Color(0.3f, 0.0f, 0.05f, 1f);
+    public static final Color GAMEOVER_BG_2 = new Color(0.15f, 0.0f, 0.0f, 1f);
 
     public static final float VICTORY_UI_FADE_DURATION = 0.7f;
     public static final float VICTORY_BG_LERP_DELAY = 0.2f;

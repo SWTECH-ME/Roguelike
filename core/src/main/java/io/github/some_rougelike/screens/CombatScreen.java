@@ -853,7 +853,25 @@ public class CombatScreen extends PageScreen {
         }
         cardLayer.addAction(Actions.fadeOut(GameConfig.GAMEOVER_FADE_TIME, Interpolation.fade));
 
-        Table failedOverlay = new Table();
+        final Color targetColor1 = GameConfig.GAMEOVER_BG_1;
+        final Color targetColor2 = GameConfig.GAMEOVER_BG_2;
+        final Color startColor1 = new Color(currentColor1);
+        final Color startColor2 = new Color(currentColor2);
+        
+        FloatAction lerpAction = new FloatAction(0f, 1f, GameConfig.GAMEOVER_BG_LERP_DURATION, Interpolation.smooth) {
+            @Override
+            protected void update(float percent) {
+                super.update(percent);
+                currentColor1.set(startColor1).lerp(targetColor1, percent);
+                currentColor2.set(startColor2).lerp(targetColor2, percent);
+                if (bgImg != null) {
+                    bgImg.setColors(currentColor1, currentColor2);
+                }
+            }
+        };
+        stage.addAction(lerpAction);
+
+        final Table failedOverlay = new Table();
         failedOverlay.setFillParent(true);
         failedOverlay.setBackground(whiteTintableBg.tint(new Color(0f, 0f, 0f, GameConfig.GAMEOVER_SCREEN_TINT)));
 
@@ -862,7 +880,62 @@ public class CombatScreen extends PageScreen {
         failedLabel.setColor(GameConfig.GAMEOVER_TEXT_COLOR);
 
         Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, false, () -> {
-            main.switchScreen(new MainMenuScreen(main));
+            if (isTransitioningOut) return;
+            isTransitioningOut = true;
+            
+            failedOverlay.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+            
+            float w = Gdx.graphics.getWidth();
+            float h = Gdx.graphics.getHeight();
+            
+            java.util.Random rng = new java.util.Random(888);
+            int cardCount = GameConfig.TRANSITION_CARD_COUNT;
+            
+            for (int i = 0; i < cardCount; i++) {
+                int r = rng.nextInt(4);
+                int c = rng.nextInt(13);
+                float finalScale = GameConfig.TRANSITION_CARD_MIN_SCALE + rng.nextFloat() * GameConfig.TRANSITION_CARD_SCALE_VAR;
+                float targetX = -250f + rng.nextFloat() * (w + 500f);
+                float targetY = -250f + rng.nextFloat() * (h + 500f);
+                float targetRot = rng.nextFloat() * 360f;
+                
+                Image cardImg;
+                if (cardRegions != null) {
+                    cardImg = new Image(cardRegions[r][c]);
+                } else {
+                    cardImg = new Image(whiteTintableBg);
+                    cardImg.setColor(GameConfig.COMBAT_CARD_BG_NORMAL);
+                }
+                
+                cardImg.setSize(GameConfig.COMBAT_CARD_WIDTH * uiScale * finalScale, GameConfig.COMBAT_CARD_HEIGHT * uiScale * finalScale);
+                cardImg.setOrigin(Align.center);
+                
+                float startX = targetX + (rng.nextFloat() * 800f - 400f);
+                float startY = h + 400f + rng.nextFloat() * 1000f;
+                float startRot = targetRot + (rng.nextFloat() * 360f - 180f);
+                
+                cardImg.setPosition(startX, startY);
+                cardImg.setRotation(startRot);
+                
+                float progress = (float) i / cardCount;
+                float delay = (float) Math.pow(progress, 3.5) * (GameConfig.SCREEN_TRANSITION_DURATION * 0.5f);
+                float duration = GameConfig.SCREEN_TRANSITION_DURATION * 0.5f;
+                
+                cardImg.addAction(Actions.sequence(
+                    Actions.delay(delay),
+                    Actions.parallel(
+                        Actions.moveTo(targetX, targetY, duration, Interpolation.exp10Out),
+                        Actions.rotateTo(targetRot, duration, Interpolation.exp10Out)
+                    )
+                ));
+                
+                stage.addActor(cardImg);
+            }
+            
+            stage.addAction(Actions.sequence(
+                Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+                Actions.run(() -> main.switchScreen(new MainMenuScreen(main)))
+            ));
         });
 
         failedOverlay.add(failedLabel).padBottom(80 * uiScale).row();

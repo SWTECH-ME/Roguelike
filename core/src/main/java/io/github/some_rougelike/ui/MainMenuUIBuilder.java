@@ -118,6 +118,12 @@ public class MainMenuUIBuilder {
             }
         });
 
+        leftMenu.getColor().a = 0f;
+        leftMenu.addAction(Actions.sequence(
+            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION * 0.6f),
+            Actions.fadeIn(GameConfig.MAIN_MENU_FADE_DURATION, Interpolation.fade)
+        ));
+
         stage.addActor(leftMenu);
     }
 
