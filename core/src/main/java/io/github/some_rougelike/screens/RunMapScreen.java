@@ -351,8 +351,8 @@ public class RunMapScreen extends PageScreen {
             cardImg.setRotation(startRot);
             
             float progress = (float) i / cardCount;
-            float delay = (float) Math.pow(progress, 3.5) * 0.9f;
-            float duration = 0.45f;
+            float delay = (float) Math.pow(progress, 3.5) * (GameConfig.SCREEN_TRANSITION_DURATION * 0.5f);
+            float duration = GameConfig.SCREEN_TRANSITION_DURATION * 0.5f;
             
             cardImg.addAction(Actions.sequence(
                 Actions.delay(delay),
@@ -371,7 +371,7 @@ public class RunMapScreen extends PageScreen {
         ));
         
         stage.addAction(Actions.sequence(
-            Actions.delay(1.4f),
+            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
             Actions.run(() -> {
                 runState.setActiveEnemy(selectedEnemy);
                 main.switchScreen(new CombatScreen(main, runState));

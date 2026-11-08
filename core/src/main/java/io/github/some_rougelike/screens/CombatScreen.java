@@ -38,7 +38,9 @@ import io.github.some_rougelike.model.RankProgress;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CombatScreen extends PageScreen {
     private RunState runState;
@@ -52,14 +54,17 @@ public class CombatScreen extends PageScreen {
     private List<Card> drawPile;
     private List<Card> hand = new ArrayList<>();
     private List<Card> selectedCards = new ArrayList<>();
+    
+    private Map<Card, Group> cardActorMap = new HashMap<>();
 
     private Label scoreLabel;
     private Label targetLabel;
     private Label playsLabel;
     private Label discardsLabel;
     private Label deckCountLabel;
-    private Table handTable;
+    
     private Table uiRoot;
+    private Group cardLayer;
     private Skin skin;
     private boolean isGameOver = false;
 
@@ -72,7 +77,9 @@ public class CombatScreen extends PageScreen {
     private TextureRegionDrawable cardBgSelected;
 
     private boolean isScoring = false;
+    private boolean isAnimatingFlyout = false;
     private float scoringTimer = 0f;
+    private float drawingTimer = 0f;
     private int scoringCardIndex = 0;
     private int currentHandPoints = 0;
     private int currentMultiplier = 1;
@@ -126,7 +133,6 @@ public class CombatScreen extends PageScreen {
         stage.addActor(bgImg);
 
         assignTextureRegionsToDeck();
-        drawInitialHand();
         buildUI();
     }
 
@@ -195,12 +201,17 @@ public class CombatScreen extends PageScreen {
         return MathUtils.random(100f) < chance;
     }
 
-    private void drawInitialHand() {
-        for (int i = 0; i < GameConfig.STARTING_HAND_SIZE; i++) {
-            if (!drawPile.isEmpty()) {
-                hand.add(drawPile.remove(0));
-            }
+    private List<Card> drawUpToMax() {
+        List<Card> drawn = new ArrayList<>();
+        while (hand.size() < GameConfig.STARTING_HAND_SIZE && !drawPile.isEmpty()) {
+            Card c = drawPile.remove(0);
+            hand.add(c);
+            drawn.add(c);
         }
+        if (deckCountLabel != null) {
+            deckCountLabel.setText(String.valueOf(drawPile.size()));
+        }
+        return drawn;
     }
 
     private TextureRegionDrawable createRoundedRect(int width, int height, Color color, int radius) {
@@ -286,12 +297,7 @@ public class CombatScreen extends PageScreen {
         }
 
         Table bottomSection = new Table();
-
-        handTable = new Table();
-        updateHandUI();
-
         Table actionTable = new Table();
-
         Label playBtn = createHoverLabel("PLAY HAND", uiScale * 1.3f, true, () -> playSelectedCards());
         Label discardBtn = createHoverLabel("DISCARD", uiScale * 1.3f, true, () -> discardSelectedCards());
 
@@ -312,8 +318,10 @@ public class CombatScreen extends PageScreen {
         deckTable.add(deckTitle).right().row();
         deckTable.add(deckCountLabel).right().padTop(5 * uiScale).row();
 
+        Table dummyHandSpace = new Table();
+        
         Table handAndActions = new Table();
-        handAndActions.add(handTable).padBottom(40 * uiScale).row();
+        handAndActions.add(dummyHandSpace).size(0, GameConfig.COMBAT_CARD_HEIGHT * uiScale).padBottom(40 * uiScale).row();
         handAndActions.add(actionTable);
 
         bottomSection.add().uniformX().expandX();
@@ -332,11 +340,16 @@ public class CombatScreen extends PageScreen {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
         
+        cardLayer = new Group();
+        cardLayer.setSize(width, height);
+        cardLayer.setTouchable(Touchable.childrenOnly);
+        stage.addActor(cardLayer);
+
         Actor inputBlocker = new Actor();
         inputBlocker.setSize(width, height);
         inputBlocker.setTouchable(Touchable.enabled);
         inputBlocker.addAction(Actions.sequence(
-            Actions.delay(1.2f),
+            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
             Actions.removeActor()
         ));
         stage.addActor(inputBlocker);
@@ -362,7 +375,6 @@ public class CombatScreen extends PageScreen {
             
             cardImg.setSize(GameConfig.COMBAT_CARD_WIDTH * uiScale * finalScale, GameConfig.COMBAT_CARD_HEIGHT * uiScale * finalScale);
             cardImg.setOrigin(Align.center);
-            
             cardImg.setPosition(startX, startY);
             cardImg.setRotation(startRot);
             
@@ -370,8 +382,8 @@ public class CombatScreen extends PageScreen {
             float targetY = -600f - rng.nextFloat() * 1000f;
             
             float progress = (float) i / cardCount;
-            float delay = (1f - progress) * 0.5f;
-            float duration = 0.5f;
+            float delay = (1f - progress) * (GameConfig.SCREEN_TRANSITION_DURATION * 0.5f);
+            float duration = GameConfig.SCREEN_TRANSITION_DURATION * 0.5f;
             
             cardImg.addAction(Actions.sequence(
                 Actions.delay(delay),
@@ -384,6 +396,14 @@ public class CombatScreen extends PageScreen {
             
             stage.addActor(cardImg);
         }
+
+        stage.addAction(Actions.sequence(
+            Actions.delay(GameConfig.DRAW_INITIAL_DELAY),
+            Actions.run(() -> {
+                List<Card> initialCards = drawUpToMax();
+                updateHandUI(initialCards);
+            })
+        ));
     }
 
     private Label createHoverLabel(String text, float scale, boolean checkBusy, Runnable onClick) {
@@ -437,83 +457,132 @@ public class CombatScreen extends PageScreen {
         return label;
     }
 
-    private void updateHandUI() {
-        handTable.clear();
-        selectedCards.clear();
-        scoringCardGroups.clear();
-
+    private void updateHandUI(List<Card> incomingCards) {
         float cardWidth = GameConfig.COMBAT_CARD_WIDTH * uiScale;
         float cardHeight = GameConfig.COMBAT_CARD_HEIGHT * uiScale; 
         float hoverOffset = GameConfig.COMBAT_CARD_HOVER_OFFSET * uiScale;
         float selectOffset = GameConfig.COMBAT_CARD_SELECT_OFFSET * uiScale;
+        float spacing = GameConfig.HAND_SPACING * uiScale;
+        float targetY = GameConfig.HAND_Y_POS * uiScale;
+
+        float maxHandAnimTime = 0f;
+        float baseRepositionTime = 0f;
 
         for (Card card : hand) {
-            Group cardWrapper = new Group();
-            cardWrapper.setSize(cardWidth, cardHeight);
-            cardWrapper.setTouchable(Touchable.enabled);
+            if (!cardActorMap.containsKey(card)) {
+                Group cardWrapper = new Group();
+                cardWrapper.setSize(cardWidth, cardHeight);
+                cardWrapper.setTouchable(Touchable.enabled);
 
-            Table cardBg = new Table();
-            cardBg.setSize(cardWidth, cardHeight);
-            cardBg.setBackground(cardBgNormal);
-            cardBg.setTouchable(Touchable.disabled);
+                Table cardBg = new Table();
+                cardBg.setSize(cardWidth, cardHeight);
+                cardBg.setBackground(cardBgNormal);
+                cardBg.setTouchable(Touchable.disabled);
 
-            Actor cardContent;
-            if (card.getTextureRegion() != null) {
-                Image cardImg = new Image(card.getTextureRegion());
-                cardImg.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
-                cardImg.setTouchable(Touchable.disabled);
-                cardContent = cardImg;
-            } else {
-                Label fallbackLbl = new Label(card.getRank().getSymbol() + "\n" + card.getSuit().name(), skin);
-                fallbackLbl.setAlignment(Align.center);
-                fallbackLbl.setTouchable(Touchable.disabled);
-                cardContent = fallbackLbl;
-            }
-
-            cardBg.add(cardContent).expand().fill();
-            cardWrapper.addActor(cardBg);
-
-            cardWrapper.addListener(new ClickListener() {
-                @Override
-                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                    if (isGameOver || isScoring || isTransitioningOut) return;
-                    boolean isSelected = selectedCards.contains(card);
-                    cardBg.clearActions();
-                    cardBg.addAction(Actions.moveTo(0, isSelected ? selectOffset + hoverOffset : hoverOffset, 0.15f, Interpolation.smooth));
+                Actor cardContent;
+                if (card.getTextureRegion() != null) {
+                    Image cardImg = new Image(card.getTextureRegion());
+                    cardImg.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
+                    cardImg.setTouchable(Touchable.disabled);
+                    cardContent = cardImg;
+                } else {
+                    Label fallbackLbl = new Label(card.getRank().getSymbol() + "\n" + card.getSuit().name(), skin);
+                    fallbackLbl.setAlignment(Align.center);
+                    fallbackLbl.setTouchable(Touchable.disabled);
+                    cardContent = fallbackLbl;
                 }
 
-                @Override
-                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                    if (isGameOver || isScoring || isTransitioningOut) return;
-                    boolean isSelected = selectedCards.contains(card);
-                    cardBg.clearActions();
-                    cardBg.addAction(Actions.moveTo(0, isSelected ? selectOffset : 0, 0.15f, Interpolation.smooth));
+                cardBg.add(cardContent).expand().fill();
+                cardWrapper.addActor(cardBg);
+                
+                cardActorMap.put(card, cardWrapper);
+                cardLayer.addActor(cardWrapper);
+
+                if (incomingCards != null && incomingCards.contains(card)) {
+                    cardWrapper.setTouchable(Touchable.disabled);
+                    cardBg.getColor().a = 0f;
+                    cardWrapper.setPosition(Gdx.graphics.getWidth() + 100 * uiScale, -200 * uiScale);
+                } else {
+                    cardWrapper.setPosition(0, -200 * uiScale);
                 }
 
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    if (isGameOver || isScoring || isTransitioningOut) return;
-                    SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
-                    
-                    if (selectedCards.contains(card)) {
-                        selectedCards.remove(card);
+                cardWrapper.addListener(new ClickListener() {
+                    @Override
+                    public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                        if (isGameOver || isScoring || isTransitioningOut) return;
+                        if (selectedCards.contains(card)) return;
                         cardBg.clearActions();
-                        cardBg.addAction(Actions.moveTo(0, hoverOffset, 0.2f, Interpolation.exp10Out));
-                        cardBg.setBackground(cardBgNormal);
-                    } else {
-                        if (selectedCards.size() < 5) {
-                            selectedCards.add(card);
+                        cardBg.addAction(Actions.moveTo(0, hoverOffset, 0.15f, Interpolation.smooth));
+                    }
+
+                    @Override
+                    public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                        if (isGameOver || isScoring || isTransitioningOut) return;
+                        if (selectedCards.contains(card)) return;
+                        cardBg.clearActions();
+                        cardBg.addAction(Actions.moveTo(0, 0, 0.15f, Interpolation.smooth));
+                    }
+
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        if (isGameOver || isScoring || isTransitioningOut) return;
+                        SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
+                        
+                        if (selectedCards.contains(card)) {
+                            selectedCards.remove(card);
                             cardBg.clearActions();
-                            cardBg.addAction(Actions.moveTo(0, selectOffset + hoverOffset, 0.2f, Interpolation.exp10Out));
-                            cardBg.setBackground(cardBgSelected);
+                            cardBg.addAction(Actions.moveTo(0, hoverOffset, 0.2f, Interpolation.exp10Out));
+                            cardBg.setBackground(cardBgNormal);
+                        } else {
+                            if (selectedCards.size() < 5) {
+                                selectedCards.add(card);
+                                cardBg.clearActions();
+                                cardBg.addAction(Actions.moveTo(0, selectOffset, 0.2f, Interpolation.exp10Out));
+                                cardBg.setBackground(cardBgSelected);
+                            }
                         }
                     }
-                }
-            });
-
-            handTable.add(cardWrapper).size(cardWidth, cardHeight).padLeft(4 * uiScale).padRight(4 * uiScale).align(Align.bottom);
-            scoringCardGroups.add(cardWrapper);
+                });
+            } else if (incomingCards == null || !incomingCards.contains(card)) {
+                 baseRepositionTime = 0.35f;
+            }
         }
+
+        float totalWidth = hand.size() * cardWidth + (hand.size() - 1) * spacing;
+        float startX = (Gdx.graphics.getWidth() - totalWidth) / 2f;
+        
+        for (int i = 0; i < hand.size(); i++) {
+            Card card = hand.get(i);
+            Group cw = cardActorMap.get(card);
+            float currentTargetX = startX + i * (cardWidth + spacing);
+            
+            cw.clearActions();
+            Actor bg = cw.getChild(0);
+            bg.clearActions();
+            
+            if (incomingCards != null && incomingCards.contains(card)) {
+                float delay = baseRepositionTime + (incomingCards.indexOf(card) * GameConfig.DRAW_CARD_DELAY);
+                float animDur = delay + GameConfig.DRAW_CARD_DURATION;
+                maxHandAnimTime = Math.max(maxHandAnimTime, animDur);
+                
+                bg.getColor().a = 0f;
+                bg.addAction(Actions.sequence(
+                    Actions.delay(delay),
+                    Actions.fadeIn(0.3f)
+                ));
+                cw.addAction(Actions.sequence(
+                    Actions.delay(delay),
+                    Actions.moveTo(currentTargetX, targetY, GameConfig.DRAW_CARD_DURATION, Interpolation.swingOut),
+                    Actions.run(() -> cw.setTouchable(Touchable.enabled))
+                ));
+            } else {
+                maxHandAnimTime = Math.max(maxHandAnimTime, 0.35f);
+                bg.addAction(Actions.moveTo(0, selectedCards.contains(card) ? selectOffset : 0, 0.2f, Interpolation.smooth));
+                cw.addAction(Actions.moveTo(currentTargetX, targetY, 0.35f, Interpolation.smooth));
+            }
+        }
+        
+        drawingTimer = maxHandAnimTime;
     }
 
     private void triggerShake(float intensity) {
@@ -534,16 +603,28 @@ public class CombatScreen extends PageScreen {
 
         scoringCards.clear();
         scoringCards.addAll(selectedCards);
-
         scoringCardGroups.clear();
+
+        float selectOffset = GameConfig.COMBAT_CARD_SELECT_OFFSET * uiScale;
+
         for (Card sc : scoringCards) {
-            int index = hand.indexOf(sc);
-            if (index >= 0 && index < handTable.getChildren().size) {
-                scoringCardGroups.add((Group) handTable.getChildren().get(index));
-            }
+            Group cw = cardActorMap.get(sc);
+            scoringCardGroups.add(cw);
+            
+            com.badlogic.gdx.math.Vector2 pos = cw.localToStageCoordinates(new com.badlogic.gdx.math.Vector2(0, 0));
+            cw.remove(); 
+            stage.addActor(cw); 
+            cw.setPosition(pos.x, pos.y); 
+            cardActorMap.remove(sc); 
+            
+            cw.clearActions();
+            Actor bg = cw.getChild(0);
+            bg.clearActions();
+            bg.addAction(Actions.moveTo(0, selectOffset, 0.2f, Interpolation.smooth));
         }
 
         hand.removeAll(selectedCards);
+        selectedCards.clear();
 
         isScoring = true;
         scoringTimer = 0f;
@@ -558,20 +639,52 @@ public class CombatScreen extends PageScreen {
         if (isGameOver || isScoring || selectedCards.isEmpty() || discardsLeft <= 0 || isTransitioningOut) return;
 
         discardsLeft--;
+        
+        float maxAnimTime = 0f;
+        for (int i = 0; i < selectedCards.size(); i++) {
+            Card sc = selectedCards.get(i);
+            Group cw = cardActorMap.get(sc);
+            cardActorMap.remove(sc);
+            
+            cw.clearActions();
+            Actor bg = cw.getChild(0);
+            bg.clearActions();
+            bg.addAction(Actions.moveTo(0, 0, 0.2f, Interpolation.smooth));
+            
+            float animDur = i * GameConfig.FLYOUT_CARD_DELAY + GameConfig.FLYOUT_DISCARD_DURATION;
+            maxAnimTime = Math.max(maxAnimTime, animDur);
+            
+            cw.addAction(Actions.sequence(
+                Actions.delay(i * GameConfig.FLYOUT_CARD_DELAY),
+                Actions.parallel(
+                    Actions.moveBy(-1000f * uiScale, MathUtils.random(-150f, 150f), GameConfig.FLYOUT_DISCARD_DURATION, Interpolation.pow2In),
+                    Actions.rotateBy(MathUtils.random(-GameConfig.FLYOUT_DISCARD_ROTATION, GameConfig.FLYOUT_DISCARD_ROTATION), GameConfig.FLYOUT_DISCARD_DURATION),
+                    Actions.fadeOut(0.4f)
+                ),
+                Actions.removeActor()
+            ));
+        }
+        
         hand.removeAll(selectedCards);
-        drawUpToMax();
-
+        selectedCards.clear();
         updateTopBar();
-        updateHandUI();
-    }
 
-    private void drawUpToMax() {
-        while (hand.size() < GameConfig.STARTING_HAND_SIZE && !drawPile.isEmpty()) {
-            hand.add(drawPile.remove(0));
-        }
-        if (deckCountLabel != null) {
-            deckCountLabel.setText(String.valueOf(drawPile.size()));
-        }
+        Actor inputBlocker = new Actor();
+        inputBlocker.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        inputBlocker.setTouchable(Touchable.enabled);
+        inputBlocker.addAction(Actions.sequence(
+            Actions.delay(maxAnimTime),
+            Actions.removeActor()
+        ));
+        stage.addActor(inputBlocker);
+
+        stage.addAction(Actions.sequence(
+            Actions.delay(maxAnimTime),
+            Actions.run(() -> {
+                List<Card> newCards = drawUpToMax();
+                updateHandUI(newCards);
+            })
+        ));
     }
 
     private void updateTopBar() {
@@ -589,6 +702,7 @@ public class CombatScreen extends PageScreen {
                 Actions.run(() -> uiRoot.setVisible(false))
             ));
         }
+        cardLayer.addAction(Actions.fadeOut(GameConfig.GAMEOVER_FADE_TIME, Interpolation.fade));
 
         Table failedOverlay = new Table();
         failedOverlay.setFillParent(true);
@@ -614,6 +728,7 @@ public class CombatScreen extends PageScreen {
         isTransitioningOut = true;
         
         uiRoot.addAction(Actions.fadeOut(GameConfig.VICTORY_UI_FADE_DURATION, Interpolation.fade));
+        cardLayer.addAction(Actions.fadeOut(GameConfig.VICTORY_UI_FADE_DURATION, Interpolation.fade));
         
         final Color targetColor1 = GameConfig.BG_COLOR_1;
         final Color targetColor2 = GameConfig.BG_COLOR_2;
@@ -650,6 +765,10 @@ public class CombatScreen extends PageScreen {
         stage.act(delta);
         stage.draw();
 
+        if (drawingTimer > 0) {
+            drawingTimer -= delta;
+        }
+
         if (isScoring) {
             scoringTimer += delta;
             if (scoringTimer >= GameConfig.SCORING_STEP_DELAY) {
@@ -671,7 +790,7 @@ public class CombatScreen extends PageScreen {
 
                     Label popLabel = new Label((doubled ? "x2! +" : "+") + chips, skin);
                     popLabel.setFontScale(uiScale * 3f);
-                    popLabel.setColor(doubled ? Color.valueOf("FF66FF") : Color.valueOf("FFD700"));
+                    popLabel.setColor(doubled ? Color.valueOf(GameConfig.DOUBLE_SCORING_NUMBER_COLOR) : Color.valueOf(GameConfig.SCORING_NUMBER_COLOR));
                     popLabel.setAlignment(Align.center);
 
                     if (scoringCardIndex < scoringCardGroups.size()) {
@@ -693,16 +812,42 @@ public class CombatScreen extends PageScreen {
                     }
 
                     scoringCardIndex++;
-                } else {
+                } else if (!isAnimatingFlyout) {
+                    isAnimatingFlyout = true;
+                    
                     int finalHandScore = currentHandPoints * currentMultiplier;
                     targetDisplayScore += (finalHandScore - currentHandPoints);
                     RankProgress.getInstance().save();
 
                     triggerShake(GameConfig.SCREEN_SHAKE_INTENSITY * 1.5f * uiScale);
 
-                    isScoring = false;
-                    drawUpToMax();
-                    updateHandUI();
+                    float maxAnimTime = 0f;
+                    for (int i = 0; i < scoringCardGroups.size(); i++) {
+                        Group cardGroup = scoringCardGroups.get(i);
+                        cardGroup.clearActions();
+                        float animDur = i * GameConfig.FLYOUT_CARD_DELAY + GameConfig.FLYOUT_PLAY_DURATION;
+                        maxAnimTime = Math.max(maxAnimTime, animDur);
+                        cardGroup.addAction(Actions.sequence(
+                            Actions.delay(i * GameConfig.FLYOUT_CARD_DELAY),
+                            Actions.parallel(
+                                Actions.moveBy(-800f * uiScale, 400f * uiScale, GameConfig.FLYOUT_PLAY_DURATION, Interpolation.pow2In),
+                                Actions.rotateBy(MathUtils.random(-GameConfig.FLYOUT_PLAY_ROTATION, GameConfig.FLYOUT_PLAY_ROTATION), GameConfig.FLYOUT_PLAY_DURATION),
+                                Actions.fadeOut(0.5f)
+                            ),
+                            Actions.removeActor()
+                        ));
+                    }
+                    scoringCardGroups.clear();
+
+                    stage.addAction(Actions.sequence(
+                        Actions.delay(maxAnimTime),
+                        Actions.run(() -> {
+                            isAnimatingFlyout = false;
+                            isScoring = false;
+                            List<Card> newCards = drawUpToMax();
+                            updateHandUI(newCards);
+                        })
+                    ));
                 }
             }
         }
@@ -717,7 +862,8 @@ public class CombatScreen extends PageScreen {
             scoreLabel.setText(String.valueOf(currentScore));
         }
 
-        if (!isScoring && currentScore == targetDisplayScore && !isGameOver && !isTransitioningOut) {
+        boolean isDrawing = drawingTimer > 0;
+        if (!isScoring && !isDrawing && currentScore == targetDisplayScore && !isGameOver && !isTransitioningOut) {
             if (currentScore >= enemy.getTargetScore()) {
                 executeVictoryTransition();
             } else if (playsLeft <= 0) {
