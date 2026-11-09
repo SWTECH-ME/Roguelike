@@ -60,9 +60,9 @@ public class GameConfig {
     public static final Color RUN_MAP_LOCKED_PILL = new Color(0.3f, 0.3f, 0.3f, 1f);
 
     public static final float SCREEN_TRANSITION_DURATION = 1.0f;
-    public static final int TRANSITION_CARD_COUNT = 700;
     public static final float TRANSITION_CARD_MIN_SCALE = 0.6f;
     public static final float TRANSITION_CARD_SCALE_VAR = 1.1f;
+    public static final float TRANSITION_CARD_SCALE_MULTIPLIER = 1.2f;
 
     // --- COMBAT SCREEN: BUTTONS ---
     public static final float BUTTON_STRIKE_OVERHANG = 20f;

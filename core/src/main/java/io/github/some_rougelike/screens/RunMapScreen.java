@@ -28,6 +28,7 @@ import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
+import io.github.some_rougelike.ui.CardTransition;
 import io.github.some_rougelike.ui.TrippyBackground;
 
 public class RunMapScreen extends PageScreen {
@@ -316,54 +317,7 @@ public class RunMapScreen extends PageScreen {
         if (isTransitioning) return;
         isTransitioning = true;
         
-        float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight();
-        float scale = Math.min(width / 1920f, height / 1080f) * GameConfig.MAIN_MENU_SCALE;
-        
-        TextureRegionDrawable fallbackBg = createSolidRoundedRect((int)(100*scale), (int)(140*scale), GameConfig.RUN_MAP_NORMAL_PILL, (int)(10*scale));
-        
-        java.util.Random rng = new java.util.Random(888);
-        int cardCount = GameConfig.TRANSITION_CARD_COUNT;
-        
-        for (int i = 0; i < cardCount; i++) {
-            int r = rng.nextInt(4);
-            int c = rng.nextInt(13);
-            float finalScale = GameConfig.TRANSITION_CARD_MIN_SCALE + rng.nextFloat() * GameConfig.TRANSITION_CARD_SCALE_VAR;
-            float targetX = -250f + rng.nextFloat() * (width + 500f);
-            float targetY = -250f + rng.nextFloat() * (height + 500f);
-            float targetRot = rng.nextFloat() * 360f;
-            
-            Image cardImg;
-            if (cardRegions != null) {
-                cardImg = new Image(cardRegions[r][c]);
-            } else {
-                cardImg = new Image(fallbackBg);
-            }
-            
-            cardImg.setSize(GameConfig.COMBAT_CARD_WIDTH * scale * finalScale, GameConfig.COMBAT_CARD_HEIGHT * scale * finalScale);
-            cardImg.setOrigin(Align.center);
-            
-            float startX = targetX + (rng.nextFloat() * 800f - 400f);
-            float startY = height + 400f + rng.nextFloat() * 1000f;
-            float startRot = targetRot + (rng.nextFloat() * 360f - 180f);
-            
-            cardImg.setPosition(startX, startY);
-            cardImg.setRotation(startRot);
-            
-            float progress = (float) i / cardCount;
-            float delay = (float) Math.pow(progress, 3.5) * (GameConfig.SCREEN_TRANSITION_DURATION * 0.5f);
-            float duration = GameConfig.SCREEN_TRANSITION_DURATION * 0.5f;
-            
-            cardImg.addAction(Actions.sequence(
-                Actions.delay(delay),
-                Actions.parallel(
-                    Actions.moveTo(targetX, targetY, duration, Interpolation.exp10Out),
-                    Actions.rotateTo(targetRot, duration, Interpolation.exp10Out)
-                )
-            ));
-            
-            stage.addActor(cardImg);
-        }
+        CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
         
         uiRoot.addAction(Actions.parallel(
             Actions.moveBy(0, -80f, 0.6f, Interpolation.pow2In),

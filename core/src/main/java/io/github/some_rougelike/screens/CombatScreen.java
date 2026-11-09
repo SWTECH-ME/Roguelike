@@ -32,6 +32,7 @@ import io.github.some_rougelike.model.Suit;
 import io.github.some_rougelike.model.Rank;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
+import io.github.some_rougelike.ui.CardTransition;
 import io.github.some_rougelike.ui.TrippyBackground;
 import com.badlogic.gdx.math.MathUtils;
 import io.github.some_rougelike.model.RankProgress;
@@ -349,65 +350,21 @@ public class CombatScreen extends PageScreen {
 
         stage.addActor(uiRoot);
 
-        float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight();
-        
-        cardLayer = new Group();
-        cardLayer.setSize(width, height);
-        cardLayer.setTouchable(Touchable.childrenOnly);
-        stage.addActor(cardLayer);
-
         Actor inputBlocker = new Actor();
-        inputBlocker.setSize(width, height);
+        inputBlocker.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         inputBlocker.setTouchable(Touchable.enabled);
         inputBlocker.addAction(Actions.sequence(
             Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
             Actions.removeActor()
         ));
         stage.addActor(inputBlocker);
-
-        TextureRegionDrawable fallbackBg = createRoundedRect((int)(100*uiScale), (int)(140*uiScale), GameConfig.COMBAT_CARD_BG_NORMAL, (int)(10*uiScale));
-        java.util.Random rng = new java.util.Random(888);
-        int cardCount = GameConfig.TRANSITION_CARD_COUNT;
         
-        for (int i = 0; i < cardCount; i++) {
-            int r = rng.nextInt(4);
-            int c = rng.nextInt(13);
-            float finalScale = GameConfig.TRANSITION_CARD_MIN_SCALE + rng.nextFloat() * GameConfig.TRANSITION_CARD_SCALE_VAR;
-            float startX = -250f + rng.nextFloat() * (width + 500f);
-            float startY = -250f + rng.nextFloat() * (height + 500f);
-            float startRot = rng.nextFloat() * 360f;
-            
-            Image cardImg;
-            if (cardRegions != null) {
-                cardImg = new Image(cardRegions[r][c]);
-            } else {
-                cardImg = new Image(fallbackBg);
-            }
-            
-            cardImg.setSize(GameConfig.COMBAT_CARD_WIDTH * uiScale * finalScale, GameConfig.COMBAT_CARD_HEIGHT * uiScale * finalScale);
-            cardImg.setOrigin(Align.center);
-            cardImg.setPosition(startX, startY);
-            cardImg.setRotation(startRot);
-            
-            float targetX = startX + (rng.nextFloat() * 800f - 400f);
-            float targetY = -600f - rng.nextFloat() * 1000f;
-            
-            float progress = (float) i / cardCount;
-            float delay = (1f - progress) * (GameConfig.SCREEN_TRANSITION_DURATION * 0.5f);
-            float duration = GameConfig.SCREEN_TRANSITION_DURATION * 0.5f;
-            
-            cardImg.addAction(Actions.sequence(
-                Actions.delay(delay),
-                Actions.parallel(
-                    Actions.moveTo(targetX, targetY, duration, Interpolation.pow2In),
-                    Actions.rotateBy(rng.nextFloat() * 360f - 180f, duration, Interpolation.pow2In)
-                ),
-                Actions.removeActor()
-            ));
-            
-            stage.addActor(cardImg);
-        }
+        cardLayer = new Group();
+        cardLayer.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cardLayer.setTouchable(Touchable.childrenOnly);
+        stage.addActor(cardLayer);
+
+        CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, true);
 
         stage.addAction(Actions.sequence(
             Actions.delay(GameConfig.DRAW_INITIAL_DELAY),
@@ -903,52 +860,7 @@ public class CombatScreen extends PageScreen {
             };
             stage.addAction(backLerp);
             
-            float w = Gdx.graphics.getWidth();
-            float h = Gdx.graphics.getHeight();
-            
-            java.util.Random rng = new java.util.Random(888);
-            int cardCount = GameConfig.TRANSITION_CARD_COUNT;
-            
-            for (int i = 0; i < cardCount; i++) {
-                int r = rng.nextInt(4);
-                int c = rng.nextInt(13);
-                float finalScale = GameConfig.TRANSITION_CARD_MIN_SCALE + rng.nextFloat() * GameConfig.TRANSITION_CARD_SCALE_VAR;
-                float targetX = -250f + rng.nextFloat() * (w + 500f);
-                float targetY = -250f + rng.nextFloat() * (h + 500f);
-                float targetRot = rng.nextFloat() * 360f;
-                
-                Image cardImg;
-                if (cardRegions != null) {
-                    cardImg = new Image(cardRegions[r][c]);
-                } else {
-                    cardImg = new Image(whiteTintableBg);
-                    cardImg.setColor(GameConfig.COMBAT_CARD_BG_NORMAL);
-                }
-                
-                cardImg.setSize(GameConfig.COMBAT_CARD_WIDTH * uiScale * finalScale, GameConfig.COMBAT_CARD_HEIGHT * uiScale * finalScale);
-                cardImg.setOrigin(Align.center);
-                
-                float startX = targetX + (rng.nextFloat() * 800f - 400f);
-                float startY = h + 400f + rng.nextFloat() * 1000f;
-                float startRot = targetRot + (rng.nextFloat() * 360f - 180f);
-                
-                cardImg.setPosition(startX, startY);
-                cardImg.setRotation(startRot);
-                
-                float progress = (float) i / cardCount;
-                float delay = (float) Math.pow(progress, 3.5) * (GameConfig.SCREEN_TRANSITION_DURATION * 0.5f);
-                float duration = GameConfig.SCREEN_TRANSITION_DURATION * 0.5f;
-                
-                cardImg.addAction(Actions.sequence(
-                    Actions.delay(delay),
-                    Actions.parallel(
-                        Actions.moveTo(targetX, targetY, duration, Interpolation.exp10Out),
-                        Actions.rotateTo(targetRot, duration, Interpolation.exp10Out)
-                    )
-                ));
-                
-                stage.addActor(cardImg);
-            }
+            CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
             
             stage.addAction(Actions.sequence(
                 Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
