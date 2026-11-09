@@ -26,7 +26,7 @@ import io.github.some_rougelike.GameConfig;
 
 public class MainMenuUIBuilder {
 
-    public void build(Stage stage, Skin skin, Main main) {
+    public void build(Stage stage, Skin skin, Main main, boolean animateUI) {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
         float scale = Math.min(width / 1920f, height / 1080f) * GameConfig.MAIN_MENU_SCALE;
@@ -118,11 +118,13 @@ public class MainMenuUIBuilder {
             }
         });
 
-        leftMenu.getColor().a = 0f;
-        leftMenu.addAction(Actions.sequence(
-            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION * 0.6f),
-            Actions.fadeIn(GameConfig.MAIN_MENU_FADE_DURATION, Interpolation.fade)
-        ));
+        if (animateUI) {
+            leftMenu.getColor().a = 0f;
+            leftMenu.addAction(Actions.sequence(
+                Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION * 0.6f),
+                Actions.fadeIn(GameConfig.MAIN_MENU_FADE_DURATION, Interpolation.fade)
+            ));
+        }
 
         stage.addActor(leftMenu);
     }

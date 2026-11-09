@@ -5,6 +5,13 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class GameConfig {
 
+    // --- SPLASH SCREEN ---
+    public static final String SPLASH_LOGO_PATH = "ui/logo.jpg";
+    public static final float SPLASH_LOGO_SCALE = 0.12f;
+    public static final float SPLASH_FADE_IN_DURATION = 1.0f;
+    public static final float SPLASH_HOLD_DURATION = 1.5f;
+    public static final float SPLASH_FADE_OUT_DURATION = 1.0f;
+
     // --- BACKGROUNDS ---
     public static final String UI_SKIN = "ui/uiskin.json";
     public static final String BG_ENEMY_1 = "ui/background.jpg";

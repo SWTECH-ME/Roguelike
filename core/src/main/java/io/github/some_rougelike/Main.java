@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import io.github.some_rougelike.audio.SoundManager;
-import io.github.some_rougelike.screens.MainMenuScreen;
+import io.github.some_rougelike.screens.SplashScreen;
 import io.github.some_rougelike.model.RankProgress;
 
 public class Main extends Game {
@@ -36,7 +36,7 @@ public class Main extends Game {
         SoundManager.getInstance().setSfxVolume(0.5f);
 
         // Set the initial screen (main menu)
-        setScreen(new MainMenuScreen(this));
+        setScreen(new SplashScreen(this));
     }
 
     /**
