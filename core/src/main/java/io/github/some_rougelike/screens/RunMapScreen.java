@@ -1,10 +1,12 @@
 package io.github.some_rougelike.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -26,12 +28,18 @@ import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
+import io.github.some_rougelike.ui.CardTransition;
+import io.github.some_rougelike.ui.TrippyBackground;
 
 public class RunMapScreen extends PageScreen {
     private RunState runState;
     private Skin uiSkin;
     private Array<Texture> generatedTextures;
     private TextureRegionDrawable whiteTintableBg;
+    private Table uiRoot;
+    private boolean isTransitioning = false;
+    private Texture deckTexture;
+    private TextureRegion[][] cardRegions;
 
     public RunMapScreen(Main main, RunState runState) {
         super(main, "");
@@ -47,6 +55,17 @@ public class RunMapScreen extends PageScreen {
         whitePix.dispose();
         generatedTextures.add(whiteTex);
         whiteTintableBg = new TextureRegionDrawable(whiteTex);
+
+        try {
+            FileHandle file = Gdx.files.internal("deck_skins/white_black.png");
+            if (file.exists()) {
+                deckTexture = new Texture(file);
+                int cols = 13;
+                int rows = 5;
+                cardRegions = TextureRegion.split(deckTexture, deckTexture.getWidth() / cols, deckTexture.getHeight() / rows);
+                generatedTextures.add(deckTexture);
+            }
+        } catch (Exception e) {}
         
         buildUI();
     }
@@ -109,9 +128,15 @@ public class RunMapScreen extends PageScreen {
         float height = Gdx.graphics.getHeight();
         float scale = Math.min(width / 1920f, height / 1080f) * GameConfig.MAIN_MENU_SCALE;
 
-        Table root = new Table();
-        root.setFillParent(true);
-        root.center();
+        TrippyBackground bgImg = new TrippyBackground(GameConfig.BG_COLOR_1, GameConfig.BG_COLOR_2);
+        bgImg.setSize(width, height);
+        bgImg.setPosition(0, 0);
+        bgImg.setTouchable(Touchable.disabled);
+        stage.addActor(bgImg);
+
+        uiRoot = new Table();
+        uiRoot.setFillParent(true);
+        uiRoot.center();
 
         Table cardsTable = new Table();
         
@@ -134,10 +159,7 @@ public class RunMapScreen extends PageScreen {
 
         for (Enemy enemy : runState.getAvailableNormals()) {
             boolean isDefeated = enemy.isDefeated();
-            Group blindItem = createBlindCard("NORMAL BLIND", normalPillBg, enemy.getName(), enemy.getTargetScore(), GameConfig.REWARD_MONEY, false, isDefeated, scale, normalBg, cardWidth, cardHeight, () -> {
-                runState.setActiveEnemy(enemy);
-                main.switchScreen(new CombatScreen(main, runState));
-            });
+            Group blindItem = createBlindCard("NORMAL BLIND", normalPillBg, enemy.getName(), enemy.getTargetScore(), GameConfig.REWARD_MONEY, false, isDefeated, scale, normalBg, cardWidth, cardHeight, () -> transitionToCombat(enemy));
             cardsTable.add(blindItem).size(cardWidth, cardHeight).pad(20 * scale);
         }
 
@@ -145,13 +167,10 @@ public class RunMapScreen extends PageScreen {
         boolean isBossUnlocked = runState.isBossUnlocked();
         boolean isBossDefeated = boss.isDefeated();
         
-        Group bossItem = createBlindCard("BOSS BLIND", isBossUnlocked ? bossPillBg : lockedPillBg, boss.getName(), boss.getTargetScore(), GameConfig.REWARD_MONEY * 2, !isBossUnlocked, isBossDefeated, scale, isBossUnlocked ? bossBg : lockedBg, cardWidth, cardHeight, () -> {
-            runState.setActiveEnemy(boss);
-            main.switchScreen(new CombatScreen(main, runState));
-        });
+        Group bossItem = createBlindCard("BOSS BLIND", isBossUnlocked ? bossPillBg : lockedPillBg, boss.getName(), boss.getTargetScore(), GameConfig.REWARD_MONEY * 2, !isBossUnlocked, isBossDefeated, scale, isBossUnlocked ? bossBg : lockedBg, cardWidth, cardHeight, () -> transitionToCombat(boss));
         cardsTable.add(bossItem).size(cardWidth, cardHeight).pad(20 * scale);
 
-        root.add(cardsTable).padBottom(50 * scale).colspan(3).row();
+        uiRoot.add(cardsTable).padBottom(50 * scale).colspan(3).row();
 
         Label shopBtn = new Label("ENTER SHOP", uiSkin);
         shopBtn.setFontScale(scale * 1.3f);
@@ -163,7 +182,7 @@ public class RunMapScreen extends PageScreen {
         shopBtn.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                if (pointer == -1) {
+                if (pointer == -1 && !isTransitioning) {
                     shopBtn.clearActions();
                     shopBtn.addAction(Actions.parallel(
                         Actions.color(Color.WHITE, 0.15f, Interpolation.fade),
@@ -175,7 +194,7 @@ public class RunMapScreen extends PageScreen {
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                if (pointer == -1) {
+                if (pointer == -1 && !isTransitioning) {
                     shopBtn.clearActions();
                     shopBtn.addAction(Actions.parallel(
                         Actions.color(new Color(0.7f, 0.7f, 0.7f, 1f), 0.15f, Interpolation.fade),
@@ -186,13 +205,17 @@ public class RunMapScreen extends PageScreen {
 
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
-                System.out.println("Shop opened!");
+                if (!isTransitioning) {
+                    SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
+                }
             }
         });
 
-        root.add(shopBtn).colspan(3).center();
-        stage.addActor(root);
+        uiRoot.add(shopBtn).colspan(3).center();
+        stage.addActor(uiRoot);
+
+        uiRoot.getColor().a = 0f;
+        uiRoot.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
     }
 
     private Group createBlindCard(String typeText, TextureRegionDrawable pillBg, String nameText, int target, int reward, boolean locked, boolean defeated, float scale, TextureRegionDrawable bg, int width, int height, Runnable onClick) {
@@ -262,7 +285,7 @@ public class RunMapScreen extends PageScreen {
             wrapper.addListener(new ClickListener() {
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                    if (pointer == -1) {
+                    if (pointer == -1 && !isTransitioning) {
                         table.clearActions();
                         table.addAction(Actions.moveTo(0, 15 * scale, 0.15f, Interpolation.smooth));
                         SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_HOVER);
@@ -271,7 +294,7 @@ public class RunMapScreen extends PageScreen {
 
                 @Override
                 public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                    if (pointer == -1) {
+                    if (pointer == -1 && !isTransitioning) {
                         table.clearActions();
                         table.addAction(Actions.moveTo(0, 0, 0.15f, Interpolation.smooth));
                     }
@@ -279,13 +302,35 @@ public class RunMapScreen extends PageScreen {
 
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
-                    if (onClick != null) onClick.run();
+                    if (!isTransitioning) {
+                        SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
+                        if (onClick != null) onClick.run();
+                    }
                 }
             });
         }
 
         return wrapper;
+    }
+
+    private void transitionToCombat(Enemy selectedEnemy) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        
+        CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+        
+        uiRoot.addAction(Actions.parallel(
+            Actions.moveBy(0, -80f, 0.6f, Interpolation.pow2In),
+            Actions.fadeOut(0.6f, Interpolation.fade)
+        ));
+        
+        stage.addAction(Actions.sequence(
+            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+            Actions.run(() -> {
+                runState.setActiveEnemy(selectedEnemy);
+                main.switchScreen(new CombatScreen(main, runState));
+            })
+        ));
     }
 
     @Override

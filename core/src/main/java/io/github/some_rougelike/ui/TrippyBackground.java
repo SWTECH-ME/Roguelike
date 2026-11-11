@@ -19,8 +19,8 @@ public class TrippyBackground extends Widget {
     private Color color2;
 
     public TrippyBackground(Color c1, Color c2) {
-        this.color1 = c1;
-        this.color2 = c2;
+        this.color1 = new Color(c1);
+        this.color2 = new Color(c2);
         
         String vertexShader = "attribute vec4 a_position;\n" +
                 "attribute vec4 a_color;\n" +
@@ -72,6 +72,11 @@ public class TrippyBackground extends Widget {
         whiteTexture = new Texture(pixmap);
         whiteTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         pixmap.dispose();
+    }
+
+    public void setColors(Color c1, Color c2) {
+        this.color1.set(c1);
+        this.color2.set(c2);
     }
 
     @Override

@@ -5,9 +5,15 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class GameConfig {
 
+    // --- SPLASH SCREEN ---
+    public static final String SPLASH_LOGO_PATH = "ui/logo.jpg";
+    public static final float SPLASH_LOGO_SCALE = 0.12f;
+    public static final float SPLASH_FADE_IN_DURATION = 1.0f;
+    public static final float SPLASH_HOLD_DURATION = 1.5f;
+    public static final float SPLASH_FADE_OUT_DURATION = 1.0f;
+
     // --- BACKGROUNDS ---
     public static final String UI_SKIN = "ui/uiskin.json";
-
     public static final String BG_ENEMY_1 = "ui/background.jpg";
     public static final String BG_ENEMY_2 = "ui/background.jpg";
     public static final String BG_BOSS = "ui/background.jpg";
@@ -17,6 +23,7 @@ public class GameConfig {
     public static final float MAIN_MENU_TITLE_SIZE = 2.2f;
     public static final float MAIN_MENU_BUTTON_SIZE = 1.3f;
     public static final float MAIN_MENU_SCALE = 1.5f;
+    public static final float MAIN_MENU_FADE_DURATION = 0.5f;
     // Collections Debug:
     public static final boolean ALLOW_HIDING_COMBINATIONS = false; 
 
@@ -38,11 +45,6 @@ public class GameConfig {
     public static final int DEFAULT_MAX_PLAYS = 4;
     public static final int DEFAULT_MAX_DISCARDS = 3;
 
-    public static final float SCREEN_SHAKE_DURATION = 0.2f;
-    public static final float SCREEN_SHAKE_INTENSITY = 12f;
-    public static final float SCORING_STEP_DELAY = 0.6f;
-    public static final String SCORING_NUMBER_COLOR = "FFD700";
-
     // --- RUN MAP SCREEN ---
     public static final float RUN_MAP_CARD_WIDTH = 240f;
     public static final float RUN_MAP_CARD_HEIGHT = 360f;
@@ -57,20 +59,64 @@ public class GameConfig {
     public static final Color RUN_MAP_BOSS_PILL = new Color(0.8f, 0.2f, 0.2f, 1f);
     public static final Color RUN_MAP_LOCKED_PILL = new Color(0.3f, 0.3f, 0.3f, 1f);
 
-    // --- COMBAT SCREEN ---
+    public static final float SCREEN_TRANSITION_DURATION = 1.0f;
+    public static final float TRANSITION_CARD_MIN_SCALE = 0.6f;
+    public static final float TRANSITION_CARD_SCALE_VAR = 1.1f;
+    public static final float TRANSITION_CARD_SCALE_MULTIPLIER = 1.2f;
+
+    // --- COMBAT SCREEN: BUTTONS ---
+    public static final float BUTTON_STRIKE_OVERHANG = 20f;
+    public static final float BUTTON_STRIKE_THICKNESS = 3f;
+    public static final Color BUTTON_TEXT_COLOR = new Color(0.65f, 0.65f, 0.65f, 1f);
+    public static final Color BUTTON_ERROR_COLOR = new Color(0.9f, 0.2f, 0.2f, 1f);
+
+    // --- COMBAT SCREEN: CARD PROPERTIES ---
     public static final float COMBAT_CARD_WIDTH = 100f;
     public static final float COMBAT_CARD_HEIGHT = 140f;
     public static final int COMBAT_CARD_RADIUS = 10;
     public static final float COMBAT_CARD_HOVER_OFFSET = 15f;
     public static final float COMBAT_CARD_SELECT_OFFSET = 30f;
     
+    // --- COMBAT SCREEN: LAYOUT & SPACING ---
+    public static final float HAND_Y_POS = 100f;
+    public static final float HAND_SPACING = 8f;
+    public static final float PLAYED_Y_POS = HAND_Y_POS + 20;
+    public static final float PLAYED_SPACING = 20f;
+    
+    // --- COMBAT SCREEN: ANIMATION TIMINGS ---
+    public static final float DRAW_INITIAL_DELAY = SCREEN_TRANSITION_DURATION + 0.1f;
+    public static final float DRAW_CARD_DELAY = 0.1f;
+    public static final float DRAW_CARD_DURATION = 0.5f;
+    
+    public static final float FLYOUT_CARD_DELAY = 0.1f;
+    public static final float FLYOUT_PLAY_DURATION = 0.5f;
+    public static final float FLYOUT_DISCARD_DURATION = 0.6f;
+    public static final float FLYOUT_DISCARD_ROTATION = 180f;
+    public static final float FLYOUT_PLAY_ROTATION = 120f;
+
+    public static final float SCREEN_SHAKE_DURATION = 0.2f;
+    public static final float SCREEN_SHAKE_INTENSITY = 12f;
+    public static final float SCORING_STEP_DELAY = 0.6f;
+
+    public static final float GAMEOVER_FADE_TIME = 0.4f;
+    public static final float GAMEOVER_SCREEN_TINT = 0.4f;
+    public static final float GAMEOVER_BG_LERP_DURATION = 1.2f;
+    public static final Color GAMEOVER_TEXT_COLOR = new Color(0.9f, 0.2f, 0.2f, 1f);
+    public static final Color GAMEOVER_BG_1 = new Color(0.3f, 0.0f, 0.05f, 1f);
+    public static final Color GAMEOVER_BG_2 = new Color(0.15f, 0.0f, 0.0f, 1f);
+
+    public static final float VICTORY_UI_FADE_DURATION = 0.7f;
+    public static final float VICTORY_BG_LERP_DELAY = 0.2f;
+    public static final float VICTORY_BG_LERP_DURATION = 1.2f;
+    
+    // --- COMBAT SCREEN: COLORS ---
     public static final Color COMBAT_CARD_BG_NORMAL = new Color(0.95f, 0.95f, 0.98f, 1f);
     public static final Color COMBAT_CARD_BG_SELECTED = new Color(0.8f, 0.9f, 1.0f, 1f);
     public static final Color COMBAT_BOSS_BG_1 = new Color(0.4f, 0.1f, 0.15f, 1f);
     public static final Color COMBAT_BOSS_BG_2 = new Color(0.25f, 0.05f, 0.1f, 1f);
 
-    public static final float GAMEOVER_FADE_TIME = 0.4f;
-    public static final float GAMEOVER_SCREEN_TINT = 0.4f;
+    public static final String SCORING_NUMBER_COLOR = "FFD700";
+    public static final String DOUBLE_SCORING_NUMBER_COLOR = "FF66FF";
 
     // --- RANDOMIZED GLOBAL BACKGROUND COLORS ---
     public static Color BG_COLOR_1;
