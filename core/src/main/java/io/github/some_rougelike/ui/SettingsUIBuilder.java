@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.Align;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.screens.MainMenuScreen;
 import io.github.some_rougelike.audio.SoundManager;
+import io.github.some_rougelike.save.SaveManager;
+import io.github.some_rougelike.save.UserSettingsData;
 import io.github.some_rougelike.GameConfig;
 
 public class SettingsUIBuilder {
@@ -41,11 +43,14 @@ public class SettingsUIBuilder {
     }
 
     public void build(Stage stage, Skin skin, Main main, float scale, WindowModeController windowModeController) {
-        build(stage, skin, main, scale, windowModeController, false);
+        UserSettingsData settings = SaveManager.getInstance().getSettings();
+        boolean isBorderless = "Borderless Windowed".equals(settings.getDisplayMode());
+        build(stage, skin, main, scale, windowModeController, isBorderless);
     }
 
     public void build(Stage stage, Skin skin, Main main, float scale, WindowModeController windowModeController, boolean isBorderless) {
         initTextures();
+        final UserSettingsData settings = SaveManager.getInstance().getSettings();
 
         Table mainContainer = new Table();
         mainContainer.setFillParent(true);
@@ -84,12 +89,14 @@ public class SettingsUIBuilder {
         }
 
         String[] windowModes = {"Fullscreen", "Borderless Windowed", "Windowed"};
-        String defaultWindowMode = "Windowed";
-        
+        String defaultWindowMode = settings.getDisplayMode() != null ? settings.getDisplayMode() : "Windowed";
+
         if (Gdx.graphics.isFullscreen()) {
             defaultWindowMode = "Fullscreen";
         } else if (isBorderless) {
             defaultWindowMode = "Borderless Windowed";
+        } else {
+            defaultWindowMode = "Windowed";
         }
 
         Table displayTable = createArrowSelector("Display mode:", windowModes, defaultWindowMode, skin, scale, new SelectorListener() {
@@ -97,6 +104,9 @@ public class SettingsUIBuilder {
             public void onSelectionChanged(String selection) {
                 boolean fullscreen = selection.equals("Fullscreen");
                 boolean borderless = selection.equals("Borderless Windowed");
+
+                settings.setDisplayMode(selection);
+                SaveManager.getInstance().save();
 
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
@@ -111,7 +121,9 @@ public class SettingsUIBuilder {
                             Gdx.graphics.setWindowedMode(mode.width, mode.height);
                         } else {
                             Gdx.graphics.setUndecorated(false);
-                            Gdx.graphics.setWindowedMode(1280, 720);
+                            int targetW = settings.getResolutionWidth() > 0 ? settings.getResolutionWidth() : GameConfig.DEFAULT_WINDOW_WIDTH;
+                            int targetH = settings.getResolutionHeight() > 0 ? settings.getResolutionHeight() : GameConfig.DEFAULT_WINDOW_HEIGHT;
+                            Gdx.graphics.setWindowedMode(targetW, targetH);
                         }
 
                         if (windowModeController != null) {
@@ -142,6 +154,10 @@ public class SettingsUIBuilder {
                 String[] dims = selection.split("x");
                 int width = Integer.parseInt(dims[0]);
                 int height = Integer.parseInt(dims[1]);
+                settings.setResolutionWidth(width);
+                settings.setResolutionHeight(height);
+                SaveManager.getInstance().save();
+
                 if (!Gdx.graphics.isFullscreen()) {
                     Gdx.app.postRunnable(new Runnable() {
                         @Override
@@ -165,32 +181,36 @@ public class SettingsUIBuilder {
         });
 
         rootTable.add(displayTable).left().padBottom(paddingBetweenRows).row();
-        
+
         if (isBorderless || Gdx.graphics.isFullscreen()) {
             Table disabledResTable = new Table();
             Label nameLabel = new Label("Resolution:", skin);
             nameLabel.setFontScale(scale * 1.1f);
             nameLabel.setColor(new Color(0.8f, 0.8f, 0.8f, 1f));
-            
+
             Label valueLabel = new Label(nativeMode.width + "x" + nativeMode.height, skin);
             valueLabel.setAlignment(Align.center);
             valueLabel.setFontScale(scale * 1.1f);
             valueLabel.setColor(new Color(0.5f, 0.5f, 0.5f, 1f));
-            
+
             disabledResTable.add(nameLabel).width(250 * scale).left();
             disabledResTable.add().size(40 * scale, 40 * scale).padRight(10 * scale);
             disabledResTable.add(valueLabel).width(220 * scale).center();
             disabledResTable.add().size(40 * scale, 40 * scale).padLeft(10 * scale);
-            
+
             rootTable.add(disabledResTable).left().padBottom(paddingBetweenRows).row();
         } else {
             rootTable.add(resolutionTable).left().padBottom(paddingBetweenRows).row();
         }
 
-        Table vSyncTable = createArrowSelector("V-Sync:", new String[]{"OFF", "ON"}, Gdx.graphics.getBufferFormat().coverageSampling ? "ON" : "ON", skin, scale, new SelectorListener() {
+        String defaultVsync = settings.isVsync() ? "ON" : "OFF";
+        Table vSyncTable = createArrowSelector("V-Sync:", new String[]{"OFF", "ON"}, defaultVsync, skin, scale, new SelectorListener() {
             @Override
             public void onSelectionChanged(String selection) {
-                Gdx.graphics.setVSync(selection.equals("ON"));
+                boolean vsyncEnabled = selection.equals("ON");
+                Gdx.graphics.setVSync(vsyncEnabled);
+                settings.setVsync(vsyncEnabled);
+                SaveManager.getInstance().save();
             }
         });
         rootTable.add(vSyncTable).left().padBottom(paddingBetweenRows).row();
@@ -198,7 +218,10 @@ public class SettingsUIBuilder {
         Table masterSliderTable = createSliderRow("Master volume:", SoundManager.getInstance().getMasterVolume(), scale, new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                SoundManager.getInstance().setMasterVolume(((Slider)actor).getValue());
+                float val = ((Slider)actor).getValue();
+                SoundManager.getInstance().setMasterVolume(val);
+                settings.setMasterVolume(val);
+                SaveManager.getInstance().save();
             }
         });
         rootTable.add(masterSliderTable).left().padBottom(paddingBetweenRows).row();
@@ -206,7 +229,10 @@ public class SettingsUIBuilder {
         Table musicSliderTable = createSliderRow("Music volume:", SoundManager.getInstance().getMenuMusicVolume(), scale, new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                SoundManager.getInstance().setMenuMusicVolume(((Slider)actor).getValue());
+                float val = ((Slider)actor).getValue();
+                SoundManager.getInstance().setMenuMusicVolume(val);
+                settings.setMusicVolume(val);
+                SaveManager.getInstance().save();
             }
         });
         rootTable.add(musicSliderTable).left().padBottom(paddingBetweenRows).row();
@@ -214,7 +240,10 @@ public class SettingsUIBuilder {
         Table sfxSliderTable = createSliderRow("Effects volume:", SoundManager.getInstance().getSfxVolume(), scale, new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                SoundManager.getInstance().setSfxVolume(((Slider)actor).getValue());
+                float val = ((Slider)actor).getValue();
+                SoundManager.getInstance().setSfxVolume(val);
+                settings.setSfxVolume(val);
+                SaveManager.getInstance().save();
             }
         });
         rootTable.add(sfxSliderTable).left().padBottom(titleBottomPadding).row();
@@ -223,6 +252,7 @@ public class SettingsUIBuilder {
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                SaveManager.getInstance().save();
                 main.switchScreen(new MainMenuScreen(main));
             }
         });
@@ -290,7 +320,7 @@ public class SettingsUIBuilder {
 
     private Table createSliderRow(String labelText, float initialValue, float scale, ChangeListener listener) {
         Table table = new Table();
-        
+
         Label nameLabel = new Label(labelText, new Label.LabelStyle(new com.badlogic.gdx.graphics.g2d.BitmapFont(), Color.WHITE));
         nameLabel.setFontScale(scale * 1.1f);
         nameLabel.setColor(new Color(0.8f, 0.8f, 0.8f, 1f));
@@ -316,7 +346,7 @@ public class SettingsUIBuilder {
 
         table.add(nameLabel).width(250 * scale).left();
         table.add(slider).width(320 * scale).center();
-        
+
         return table;
     }
 
