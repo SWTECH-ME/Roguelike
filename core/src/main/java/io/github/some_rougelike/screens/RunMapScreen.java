@@ -1,6 +1,7 @@
 package io.github.some_rougelike.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -28,6 +29,7 @@ import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
+import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
 import io.github.some_rougelike.ui.TrippyBackground;
 
@@ -42,11 +44,18 @@ public class RunMapScreen extends PageScreen {
     private TextureRegion[][] cardRegions;
 
     public RunMapScreen(Main main, RunState runState) {
+        this(main, runState, false);
+    }
+
+    public RunMapScreen(Main main, RunState runState, boolean withCardRain) {
         super(main, "");
         this.runState = runState;
+        this.runState.setActiveEnemy(null);
+        SaveManager.getInstance().saveRunMapState(this.runState);
+
         this.uiSkin = Assets.getInstance().getSkin(GameConfig.UI_SKIN);
         this.generatedTextures = new Array<>();
-        
+
         Pixmap whitePix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         whitePix.setColor(Color.WHITE);
         whitePix.fill();
@@ -57,17 +66,24 @@ public class RunMapScreen extends PageScreen {
         whiteTintableBg = new TextureRegionDrawable(whiteTex);
 
         try {
-            FileHandle file = Gdx.files.internal("deck_skins/white_black.png");
+            FileHandle file = Gdx.files.internal(SaveManager.getInstance().getSelectedDeckSkinPath());
+            if (!file.exists()) {
+                file = Gdx.files.internal(GameConfig.DECK_SKINS_DIR + "/" + GameConfig.DEFAULT_DECK_SKIN);
+            }
             if (file.exists()) {
                 deckTexture = new Texture(file);
-                int cols = 13;
-                int rows = 5;
+                int cols = GameConfig.DECK_SHEET_COLS;
+                int rows = GameConfig.DECK_SHEET_ROWS;
                 cardRegions = TextureRegion.split(deckTexture, deckTexture.getWidth() / cols, deckTexture.getHeight() / rows);
                 generatedTextures.add(deckTexture);
             }
         } catch (Exception e) {}
-        
+
         buildUI();
+
+        if (withCardRain) {
+            CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, true);
+        }
     }
 
     private TextureRegionDrawable createOutlinedRoundedRect(int width, int height, Color bgColor, Color borderColor, int borderThickness, int radius) {
@@ -99,14 +115,14 @@ public class RunMapScreen extends PageScreen {
         tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         pixmap.dispose();
         generatedTextures.add(tex);
-        
+
         return new TextureRegionDrawable(tex);
     }
 
     private TextureRegionDrawable createSolidRoundedRect(int width, int height, Color color, int radius) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setBlending(Pixmap.Blending.None);
-        
+
         pixmap.setColor(color);
         pixmap.fillRectangle(radius, 0, width - 2 * radius, height);
         pixmap.fillRectangle(0, radius, width, height - 2 * radius);
@@ -114,12 +130,12 @@ public class RunMapScreen extends PageScreen {
         pixmap.fillCircle(width - radius, radius, radius);
         pixmap.fillCircle(radius, height - radius, radius);
         pixmap.fillCircle(width - radius, height - radius, radius);
-        
+
         Texture tex = new Texture(pixmap);
         tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         pixmap.dispose();
         generatedTextures.add(tex);
-        
+
         return new TextureRegionDrawable(tex);
     }
 
@@ -139,20 +155,20 @@ public class RunMapScreen extends PageScreen {
         uiRoot.center();
 
         Table cardsTable = new Table();
-        
+
         int cardWidth = (int)(GameConfig.RUN_MAP_CARD_WIDTH * scale);
         int cardHeight = (int)(GameConfig.RUN_MAP_CARD_HEIGHT * scale);
         int cardRadius = (int)(GameConfig.RUN_MAP_CARD_RADIUS * scale);
         int borderThickness = (int)(GameConfig.RUN_MAP_BORDER_THICKNESS * scale);
-        
+
         TextureRegionDrawable normalBg = createOutlinedRoundedRect(cardWidth, cardHeight, GameConfig.RUN_MAP_NORMAL_BG, Color.WHITE, borderThickness, cardRadius);
         TextureRegionDrawable bossBg = createOutlinedRoundedRect(cardWidth, cardHeight, GameConfig.RUN_MAP_BOSS_BG, new Color(0.9f, 0.2f, 0.2f, 1f), borderThickness, cardRadius);
         TextureRegionDrawable lockedBg = createOutlinedRoundedRect(cardWidth, cardHeight, GameConfig.RUN_MAP_LOCKED_BG, new Color(0.3f, 0.3f, 0.3f, 1f), borderThickness, cardRadius);
-        
+
         int pillWidth = (int)(cardWidth - 80 * scale);
         int pillHeight = (int)(35 * scale);
         int pillRadius = (int)(17 * scale);
-        
+
         TextureRegionDrawable normalPillBg = createSolidRoundedRect(pillWidth, pillHeight, GameConfig.RUN_MAP_NORMAL_PILL, pillRadius);
         TextureRegionDrawable bossPillBg = createSolidRoundedRect(pillWidth, pillHeight, GameConfig.RUN_MAP_BOSS_PILL, pillRadius);
         TextureRegionDrawable lockedPillBg = createSolidRoundedRect(pillWidth, pillHeight, GameConfig.RUN_MAP_LOCKED_PILL, pillRadius);
@@ -166,7 +182,7 @@ public class RunMapScreen extends PageScreen {
         Enemy boss = runState.getBossEnemy();
         boolean isBossUnlocked = runState.isBossUnlocked();
         boolean isBossDefeated = boss.isDefeated();
-        
+
         Group bossItem = createBlindCard("BOSS BLIND", isBossUnlocked ? bossPillBg : lockedPillBg, boss.getName(), boss.getTargetScore(), GameConfig.REWARD_MONEY * 2, !isBossUnlocked, isBossDefeated, scale, isBossUnlocked ? bossBg : lockedBg, cardWidth, cardHeight, () -> transitionToCombat(boss));
         cardsTable.add(bossItem).size(cardWidth, cardHeight).pad(20 * scale);
 
@@ -178,11 +194,11 @@ public class RunMapScreen extends PageScreen {
         shopBtn.setOrigin(Align.center);
         shopBtn.setAlignment(Align.center);
         shopBtn.setTouchable(Touchable.enabled);
-        
+
         shopBtn.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                if (pointer == -1 && !isTransitioning) {
+                if (pointer == -1 && !isTransitioning && !isPaused) {
                     shopBtn.clearActions();
                     shopBtn.addAction(Actions.parallel(
                         Actions.color(Color.WHITE, 0.15f, Interpolation.fade),
@@ -194,7 +210,7 @@ public class RunMapScreen extends PageScreen {
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                if (pointer == -1 && !isTransitioning) {
+                if (pointer == -1 && !isTransitioning && !isPaused) {
                     shopBtn.clearActions();
                     shopBtn.addAction(Actions.parallel(
                         Actions.color(new Color(0.7f, 0.7f, 0.7f, 1f), 0.15f, Interpolation.fade),
@@ -205,7 +221,7 @@ public class RunMapScreen extends PageScreen {
 
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (!isTransitioning) {
+                if (!isTransitioning && !isPaused) {
                     SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
                 }
             }
@@ -221,7 +237,7 @@ public class RunMapScreen extends PageScreen {
     private Group createBlindCard(String typeText, TextureRegionDrawable pillBg, String nameText, int target, int reward, boolean locked, boolean defeated, float scale, TextureRegionDrawable bg, int width, int height, Runnable onClick) {
         Group wrapper = new Group();
         wrapper.setSize(width, height);
-        
+
         Table table = new Table();
         table.setSize(width, height);
         table.setBackground(bg);
@@ -231,7 +247,7 @@ public class RunMapScreen extends PageScreen {
         typeLbl.setFontScale(scale * 0.9f);
         typeLbl.setColor(Color.WHITE);
         typeLbl.setAlignment(Align.center);
-        
+
         Table typeBg = new Table();
         typeBg.setBackground(pillBg);
         typeBg.add(typeLbl).center();
@@ -260,22 +276,22 @@ public class RunMapScreen extends PageScreen {
         targetLbl.setAlignment(Align.center);
 
         table.add(targetLbl).center();
-        
+
         wrapper.addActor(table);
 
         if (defeated) {
             table.getColor().a = 0.4f;
-            
+
             float diagLength = (float) Math.hypot(width, height) - (40 * scale);
             float angle = (float) Math.toDegrees(Math.atan2(height, width));
-            
+
             Image strikeThrough = new Image(whiteTintableBg);
             strikeThrough.setColor(new Color(1f, 1f, 1f, 0.85f));
             strikeThrough.setSize(diagLength, 4 * scale);
             strikeThrough.setOrigin(diagLength / 2f, 2 * scale);
             strikeThrough.setPosition((width - diagLength) / 2f, (height - 4 * scale) / 2f);
             strikeThrough.setRotation(angle);
-            
+
             wrapper.addActor(strikeThrough);
             wrapper.setTouchable(Touchable.disabled);
         } else if (locked) {
@@ -285,7 +301,7 @@ public class RunMapScreen extends PageScreen {
             wrapper.addListener(new ClickListener() {
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                    if (pointer == -1 && !isTransitioning) {
+                    if (pointer == -1 && !isTransitioning && !isPaused) {
                         table.clearActions();
                         table.addAction(Actions.moveTo(0, 15 * scale, 0.15f, Interpolation.smooth));
                         SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_HOVER);
@@ -294,7 +310,7 @@ public class RunMapScreen extends PageScreen {
 
                 @Override
                 public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                    if (pointer == -1 && !isTransitioning) {
+                    if (pointer == -1 && !isTransitioning && !isPaused) {
                         table.clearActions();
                         table.addAction(Actions.moveTo(0, 0, 0.15f, Interpolation.smooth));
                     }
@@ -302,7 +318,7 @@ public class RunMapScreen extends PageScreen {
 
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (!isTransitioning) {
+                    if (!isTransitioning && !isPaused) {
                         SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
                         if (onClick != null) onClick.run();
                     }
@@ -314,16 +330,16 @@ public class RunMapScreen extends PageScreen {
     }
 
     private void transitionToCombat(Enemy selectedEnemy) {
-        if (isTransitioning) return;
+        if (isTransitioning || isPaused) return;
         isTransitioning = true;
-        
+
         CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
-        
+
         uiRoot.addAction(Actions.parallel(
             Actions.moveBy(0, -80f, 0.6f, Interpolation.pow2In),
             Actions.fadeOut(0.6f, Interpolation.fade)
         ));
-        
+
         stage.addAction(Actions.sequence(
             Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
             Actions.run(() -> {
@@ -334,7 +350,34 @@ public class RunMapScreen extends PageScreen {
     }
 
     @Override
+    public void setPaused(boolean paused) {
+        super.setPaused(paused);
+        if (uiRoot != null) {
+            uiRoot.setTouchable(paused ? Touchable.disabled : Touchable.childrenOnly);
+        }
+    }
+
+    public void exitToMainMenu() {
+        SaveManager.getInstance().saveRunMapState(runState);
+        goBack();
+    }
+
+    @Override
+    protected void onEscapePressed() {
+        SaveManager.getInstance().saveRunMapState(runState);
+        if (isPaused) {
+            setPaused(false);
+        } else {
+            exitToMainMenu();
+        }
+    }
+
+    @Override
     public void render(float delta) {
+        if (!isTransitioning && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            onEscapePressed();
+            return;
+        }
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
