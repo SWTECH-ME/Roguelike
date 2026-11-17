@@ -44,6 +44,7 @@ import io.github.some_rougelike.model.RankProgress;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class CombatScreen extends PageScreen {
     private List<Card> hand = new ArrayList<>();
     private List<Card> selectedCards = new ArrayList<>();
 
-    private Map<Card, Group> cardActorMap = new HashMap<>();
+    private final Map<Card, Group> cardActorMap = new HashMap<>();
 
     private Label scoreLabel;
     private Label targetLabel;
@@ -89,11 +90,11 @@ public class CombatScreen extends PageScreen {
     private int scoringCardIndex = 0;
     private int currentHandPoints = 0;
     private int currentMultiplier = 1;
-    private List<Card> scoringCards = new ArrayList<>();
-    private List<Group> scoringCardGroups = new ArrayList<>();
-    private List<Boolean> preRolledDoubles = new ArrayList<>();
-    private List<Integer> preRolledChips = new ArrayList<>();
-    private List<Card> pendingDrawnCards = new ArrayList<>();
+    private final List<Card> scoringCards = new ArrayList<>();
+    private final List<Group> scoringCardGroups = new ArrayList<>();
+    private final List<Boolean> preRolledDoubles = new ArrayList<>();
+    private final List<Integer> preRolledChips = new ArrayList<>();
+    private final List<Card> pendingDrawnCards = new ArrayList<>();
 
     private float uiScale;
     private TrippyBackground bgImg;
@@ -265,33 +266,38 @@ public class CombatScreen extends PageScreen {
         SaveManager.getInstance().saveCombatState(runState, combatSaveData);
     }
 
+    // Sor a kártya skin sheeten: CLUBS, HEARTS, SPADES, DIAMONDS
+    private static final Map<Suit, Integer> SUIT_ROWS = new EnumMap<>(Suit.class);
+    // Oszlop a kártya skin sheeten: ACE, 2..10, JACK, QUEEN, KING
+    private static final Map<Rank, Integer> RANK_COLS = new EnumMap<>(Rank.class);
+
+    static {
+        SUIT_ROWS.put(Suit.CLUBS, 0);
+        SUIT_ROWS.put(Suit.HEARTS, 1);
+        SUIT_ROWS.put(Suit.SPADES, 2);
+        SUIT_ROWS.put(Suit.DIAMONDS, 3);
+
+        RANK_COLS.put(Rank.ACE, 0);
+        RANK_COLS.put(Rank.TWO, 1);
+        RANK_COLS.put(Rank.THREE, 2);
+        RANK_COLS.put(Rank.FOUR, 3);
+        RANK_COLS.put(Rank.FIVE, 4);
+        RANK_COLS.put(Rank.SIX, 5);
+        RANK_COLS.put(Rank.SEVEN, 6);
+        RANK_COLS.put(Rank.EIGHT, 7);
+        RANK_COLS.put(Rank.NINE, 8);
+        RANK_COLS.put(Rank.TEN, 9);
+        RANK_COLS.put(Rank.JACK, 10);
+        RANK_COLS.put(Rank.QUEEN, 11);
+        RANK_COLS.put(Rank.KING, 12);
+    }
+
     private int getRowForSuit(Suit suit) {
-        switch (suit) {
-            case CLUBS: return 0;
-            case HEARTS: return 1;
-            case SPADES: return 2;
-            case DIAMONDS: return 3;
-            default: return 0;
-        }
+        return SUIT_ROWS.getOrDefault(suit, 0);
     }
 
     private int getColForRank(Rank rank) {
-        switch (rank) {
-            case ACE: return 0;
-            case TWO: return 1;
-            case THREE: return 2;
-            case FOUR: return 3;
-            case FIVE: return 4;
-            case SIX: return 5;
-            case SEVEN: return 6;
-            case EIGHT: return 7;
-            case NINE: return 8;
-            case TEN: return 9;
-            case JACK: return 10;
-            case QUEEN: return 11;
-            case KING: return 12;
-            default: return 0;
-        }
+        return RANK_COLS.getOrDefault(rank, 0);
     }
 
     private int getProgressIndex(Rank rank) {
@@ -1104,9 +1110,13 @@ public class CombatScreen extends PageScreen {
                 scoringTimer = 0f;
 
                 if (scoringCardIndex < scoringCards.size()) {
-                    boolean doubled = scoringCardIndex < preRolledDoubles.size() && preRolledDoubles.get(scoringCardIndex);
-                    int chips = scoringCardIndex < preRolledChips.size()
+                    boolean doubled = scoringCardIndex < preRolledDoubles.size()
+                        && Boolean.TRUE.equals(preRolledDoubles.get(scoringCardIndex));
+                    Integer rolledChips = scoringCardIndex < preRolledChips.size()
                         ? preRolledChips.get(scoringCardIndex)
+                        : null;
+                    int chips = rolledChips != null
+                        ? rolledChips
                         : scoringCards.get(scoringCardIndex).getChips();
 
                     currentHandPoints += chips;
