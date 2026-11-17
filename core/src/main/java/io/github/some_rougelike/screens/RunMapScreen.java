@@ -31,8 +31,8 @@ import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
-import io.github.some_rougelike.ui.TrippyBackground;
 import io.github.some_rougelike.ui.PauseMenu;
+import io.github.some_rougelike.ui.TrippyBackground;
 
 public class RunMapScreen extends PageScreen {
     private RunState runState;
@@ -392,7 +392,7 @@ public class RunMapScreen extends PageScreen {
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (!isPaused) {
-            stage.act(delta); // pause alatt a játék stage-e áll, így minden animáció megáll
+            stage.act(delta);
         }
         stage.draw();
         pauseMenu.render(delta);

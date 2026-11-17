@@ -21,16 +21,10 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.audio.SoundManager;
 
-/**
- * Egyszerű pause menü: sötétítő overlay + RESUME / MAIN MENU gombok.
- * A képernyő felelős a játéklogika megállításáért (setPaused), ez az osztal csak a UI-t kezeli.
- */
 public class PauseMenu {
     private static final float FADE = 0.2f;
 
-    /** A játék fő stage-e: pause alatt nem kap act()-ot, ezért minden animációja megáll. */
     private final Stage stage;
-    /** Külön stage a pause menünek, ez a menü saját animációit futtatja. */
     private final Stage pauseStage;
     private final Skin skin;
     private final float scale;
@@ -87,7 +81,6 @@ public class PauseMenu {
         saveRef[0] = createButton("SAVE", GameConfig.MAIN_MENU_BUTTON_SIZE * scale, () -> {
             if (onSave != null) onSave.run();
             saveRef[0].setText("SAVED!");
-            // az overlay-en futtatjuk, mert a gomb hover-akciói törlik a saját akcióit
             currentOverlay.addAction(Actions.sequence(
                 Actions.delay(1.2f),
                 Actions.run(() -> saveRef[0].setText("SAVE"))));
@@ -106,14 +99,12 @@ public class PauseMenu {
         overlay.addAction(Actions.fadeIn(FADE, Interpolation.fade));
     }
 
-    /** Bezárja a menüt és meghívja az onResume callbacket. */
     public void resume() {
         if (!visible || closing) return;
         hide();
         if (onResume != null) onResume.run();
     }
 
-    /** Csak a UI-t zárja be (callback nélkül). */
     public void hide() {
         if (!visible || overlay == null) return;
         closing = true;
@@ -127,7 +118,6 @@ public class PauseMenu {
         o.addAction(Actions.sequence(Actions.fadeOut(FADE, Interpolation.fade), Actions.removeActor()));
     }
 
-    /** Minden frame-ben meg kell hívni (pause közben és után is, a fade-out miatt). */
     public void render(float delta) {
         if (pauseStage.getActors().size == 0) return;
         pauseStage.act(delta);

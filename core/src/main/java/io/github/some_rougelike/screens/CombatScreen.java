@@ -1,5 +1,12 @@
 package io.github.some_rougelike.screens;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
@@ -9,6 +16,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -28,26 +36,18 @@ import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
-import io.github.some_rougelike.model.Card;
-import io.github.some_rougelike.model.Suit;
-import io.github.some_rougelike.model.Rank;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
+import io.github.some_rougelike.model.Card;
+import io.github.some_rougelike.model.Rank;
+import io.github.some_rougelike.model.RankProgress;
+import io.github.some_rougelike.model.Suit;
 import io.github.some_rougelike.save.CardSaveData;
 import io.github.some_rougelike.save.CombatSaveData;
 import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
-import io.github.some_rougelike.ui.TrippyBackground;
 import io.github.some_rougelike.ui.PauseMenu;
-import com.badlogic.gdx.math.MathUtils;
-import io.github.some_rougelike.model.RankProgress;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import io.github.some_rougelike.ui.TrippyBackground;
 
 public class CombatScreen extends PageScreen {
     private RunState runState;
@@ -266,9 +266,7 @@ public class CombatScreen extends PageScreen {
         SaveManager.getInstance().saveCombatState(runState, combatSaveData);
     }
 
-    // Sor a kártya skin sheeten: CLUBS, HEARTS, SPADES, DIAMONDS
     private static final Map<Suit, Integer> SUIT_ROWS = new EnumMap<>(Suit.class);
-    // Oszlop a kártya skin sheeten: ACE, 2..10, JACK, QUEEN, KING
     private static final Map<Rank, Integer> RANK_COLS = new EnumMap<>(Rank.class);
 
     static {
@@ -1094,7 +1092,7 @@ public class CombatScreen extends PageScreen {
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (!isPaused) {
-            stage.act(delta); // pause alatt a játék stage-e áll, így minden animáció megáll
+            stage.act(delta);
         }
         stage.draw();
         pauseMenu.render(delta);
