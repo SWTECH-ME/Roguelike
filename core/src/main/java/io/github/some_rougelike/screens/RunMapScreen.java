@@ -164,6 +164,28 @@ public class RunMapScreen extends PageScreen {
         uiRoot.setFillParent(true);
         uiRoot.center();
 
+        Table headerTable = new Table();
+
+        Label chapterLbl = new Label("CHAPTER " + runState.getChapterIndex() + " / " + runState.getMaxChapters(), uiSkin);
+        chapterLbl.setFontScale(scale * GameConfig.RUN_MAP_CHAPTER_TITLE_SCALE);
+        chapterLbl.setColor(GameConfig.RUN_MAP_CHAPTER_COLOR);
+        chapterLbl.setAlignment(Align.center);
+        headerTable.add(chapterLbl).padBottom(8 * scale).row();
+
+        Label statsLbl = new Label("RUN SCORE: " + runState.getTotalRunScore() + "   |   $" + runState.getMoney(), uiSkin);
+        statsLbl.setFontScale(scale * GameConfig.RUN_MAP_SUBHEADER_SCALE);
+        statsLbl.setColor(GameConfig.RUN_MAP_SUBHEADER_COLOR);
+        statsLbl.setAlignment(Align.center);
+        headerTable.add(statsLbl).padBottom(6 * scale).row();
+
+        Label highScoreLbl = new Label("HIGH SCORE: " + SaveManager.getInstance().getHighScore(), uiSkin);
+        highScoreLbl.setFontScale(scale * (GameConfig.RUN_MAP_SUBHEADER_SCALE * 0.92f));
+        highScoreLbl.setColor(GameConfig.RUN_MAP_HIGH_SCORE_COLOR);
+        highScoreLbl.setAlignment(Align.center);
+        headerTable.add(highScoreLbl).row();
+
+        uiRoot.add(headerTable).padBottom(25 * scale).colspan(3).row();
+
         Table cardsTable = new Table();
 
         int cardWidth = (int)(GameConfig.RUN_MAP_CARD_WIDTH * scale);
@@ -196,7 +218,7 @@ public class RunMapScreen extends PageScreen {
         Group bossItem = createBlindCard("BOSS BLIND", isBossUnlocked ? bossPillBg : lockedPillBg, boss.getName(), boss.getTargetScore(), GameConfig.REWARD_MONEY * 2, !isBossUnlocked, isBossDefeated, scale, isBossUnlocked ? bossBg : lockedBg, cardWidth, cardHeight, () -> transitionToCombat(boss));
         cardsTable.add(bossItem).size(cardWidth, cardHeight).pad(20 * scale);
 
-        uiRoot.add(cardsTable).padBottom(50 * scale).colspan(3).row();
+        uiRoot.add(cardsTable).padBottom(35 * scale).colspan(3).row();
 
         Label shopBtn = new Label("ENTER SHOP", uiSkin);
         shopBtn.setFontScale(scale * 1.3f);

@@ -834,6 +834,9 @@ public class CombatScreen extends PageScreen {
         int projectedHandScore = sumChips * currentMultiplier;
         int projectedTotalScore = targetDisplayScore + projectedHandScore;
 
+        runState.addRunScore(projectedHandScore);
+        SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
+
         pendingDrawnCards.clear();
         int needed = GameConfig.STARTING_HAND_SIZE - hand.size();
         while (pendingDrawnCards.size() < needed && !drawPile.isEmpty()) {
@@ -943,6 +946,7 @@ public class CombatScreen extends PageScreen {
 
     private void showFailedScreen() {
         isGameOver = true;
+        SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
         SaveManager.getInstance().clearActiveRun();
 
         if (uiRoot != null) {
@@ -980,6 +984,14 @@ public class CombatScreen extends PageScreen {
         failedLabel.setFontScale(uiScale * 4f);
         failedLabel.setColor(GameConfig.GAMEOVER_TEXT_COLOR);
 
+        Label runScoreLabel = new Label("RUN SCORE: " + runState.getTotalRunScore(), skin);
+        runScoreLabel.setFontScale(uiScale * 1.4f);
+        runScoreLabel.setColor(Color.WHITE);
+
+        Label highScoreLabel = new Label("HIGH SCORE: " + SaveManager.getInstance().getHighScore(), skin);
+        highScoreLabel.setFontScale(uiScale * 1.2f);
+        highScoreLabel.setColor(GameConfig.RUN_MAP_HIGH_SCORE_COLOR);
+
         Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, false, () -> {
             if (isTransitioningOut) return;
             isTransitioningOut = true;
@@ -1012,7 +1024,9 @@ public class CombatScreen extends PageScreen {
             ));
         });
 
-        failedOverlay.add(failedLabel).padBottom(80 * uiScale).row();
+        failedOverlay.add(failedLabel).padBottom(24 * uiScale).row();
+        failedOverlay.add(runScoreLabel).padBottom(10 * uiScale).row();
+        failedOverlay.add(highScoreLabel).padBottom(55 * uiScale).row();
         failedOverlay.add(menuBtn).center();
 
         stage.addActor(failedOverlay);
@@ -1020,7 +1034,109 @@ public class CombatScreen extends PageScreen {
         failedOverlay.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
     }
 
+    private void showRunVictoryScreen() {
+        isGameOver = true;
+        runState.addMoney(GameConfig.REWARD_MONEY * 2);
+        runState.registerVictory();
+        SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
+        SaveManager.getInstance().clearActiveRun();
+
+        if (uiRoot != null) {
+            uiRoot.clearActions();
+            uiRoot.addAction(Actions.sequence(
+                Actions.fadeOut(GameConfig.GAMEOVER_FADE_TIME, Interpolation.fade),
+                Actions.run(() -> uiRoot.setVisible(false))
+            ));
+        }
+        cardLayer.addAction(Actions.fadeOut(GameConfig.GAMEOVER_FADE_TIME, Interpolation.fade));
+
+        final Color targetColor1 = GameConfig.RUN_VICTORY_BG_1;
+        final Color targetColor2 = GameConfig.RUN_VICTORY_BG_2;
+        final Color startColor1 = new Color(currentColor1);
+        final Color startColor2 = new Color(currentColor2);
+
+        FloatAction lerpAction = new FloatAction(0f, 1f, GameConfig.GAMEOVER_BG_LERP_DURATION, Interpolation.smooth) {
+            @Override
+            protected void update(float percent) {
+                super.update(percent);
+                currentColor1.set(startColor1).lerp(targetColor1, percent);
+                currentColor2.set(startColor2).lerp(targetColor2, percent);
+                if (bgImg != null) {
+                    bgImg.setColors(currentColor1, currentColor2);
+                }
+            }
+        };
+        stage.addAction(lerpAction);
+
+        final Table victoryOverlay = new Table();
+        victoryOverlay.setFillParent(true);
+        victoryOverlay.setBackground(whiteTintableBg.tint(new Color(0f, 0f, 0f, GameConfig.GAMEOVER_SCREEN_TINT)));
+
+        Label victoryLabel = new Label("VICTORY", skin);
+        victoryLabel.setFontScale(uiScale * 4f);
+        victoryLabel.setColor(GameConfig.RUN_VICTORY_TEXT_COLOR);
+
+        Label chapterClearedLabel = new Label("ALL " + GameConfig.MAX_CHAPTERS + " CHAPTERS COMPLETED", skin);
+        chapterClearedLabel.setFontScale(uiScale * 1.3f);
+        chapterClearedLabel.setColor(GameConfig.RUN_MAP_SUBHEADER_COLOR);
+
+        Label runScoreLabel = new Label("FINAL RUN SCORE: " + runState.getTotalRunScore(), skin);
+        runScoreLabel.setFontScale(uiScale * 1.5f);
+        runScoreLabel.setColor(Color.WHITE);
+
+        Label highScoreLabel = new Label("HIGH SCORE: " + SaveManager.getInstance().getHighScore(), skin);
+        highScoreLabel.setFontScale(uiScale * 1.25f);
+        highScoreLabel.setColor(GameConfig.RUN_MAP_HIGH_SCORE_COLOR);
+
+        Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, false, () -> {
+            if (isTransitioningOut) return;
+            isTransitioningOut = true;
+
+            victoryOverlay.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+
+            final Color targetMenuC1 = GameConfig.BG_COLOR_1;
+            final Color targetMenuC2 = GameConfig.BG_COLOR_2;
+            final Color currentC1 = new Color(currentColor1);
+            final Color currentC2 = new Color(currentColor2);
+
+            FloatAction backLerp = new FloatAction(0f, 1f, GameConfig.SCREEN_TRANSITION_DURATION, Interpolation.smooth) {
+                @Override
+                protected void update(float percent) {
+                    super.update(percent);
+                    currentColor1.set(currentC1).lerp(targetMenuC1, percent);
+                    currentColor2.set(currentC2).lerp(targetMenuC2, percent);
+                    if (bgImg != null) {
+                        bgImg.setColors(currentColor1, currentColor2);
+                    }
+                }
+            };
+            stage.addAction(backLerp);
+
+            CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+
+            stage.addAction(Actions.sequence(
+                Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+                Actions.run(() -> main.switchScreen(new MainMenuScreen(main, true, true)))
+            ));
+        });
+
+        victoryOverlay.add(victoryLabel).padBottom(16 * uiScale).row();
+        victoryOverlay.add(chapterClearedLabel).padBottom(20 * uiScale).row();
+        victoryOverlay.add(runScoreLabel).padBottom(10 * uiScale).row();
+        victoryOverlay.add(highScoreLabel).padBottom(55 * uiScale).row();
+        victoryOverlay.add(menuBtn).center();
+
+        stage.addActor(victoryOverlay);
+        victoryOverlay.getColor().a = 0f;
+        victoryOverlay.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
+    }
+
     private void executeVictoryTransition() {
+        if (enemy.isBoss() && runState.getChapterIndex() >= runState.getMaxChapters()) {
+            showRunVictoryScreen();
+            return;
+        }
+
         isTransitioningOut = true;
 
         uiRoot.addAction(Actions.fadeOut(GameConfig.VICTORY_UI_FADE_DURATION, Interpolation.fade));
@@ -1047,7 +1163,7 @@ public class CombatScreen extends PageScreen {
             Actions.delay(GameConfig.VICTORY_BG_LERP_DELAY),
             lerpAction,
             Actions.run(() -> {
-                runState.addMoney(GameConfig.REWARD_MONEY);
+                runState.addMoney(enemy.isBoss() ? GameConfig.REWARD_MONEY * 2 : GameConfig.REWARD_MONEY);
                 runState.registerVictory();
                 SaveManager.getInstance().saveRunMapState(runState);
                 main.switchScreen(new RunMapScreen(main, runState));
