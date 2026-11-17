@@ -38,6 +38,7 @@ import io.github.some_rougelike.save.CombatSaveData;
 import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
 import io.github.some_rougelike.ui.TrippyBackground;
+import io.github.some_rougelike.ui.PauseMenu;
 import com.badlogic.gdx.math.MathUtils;
 import io.github.some_rougelike.model.RankProgress;
 
@@ -104,6 +105,7 @@ public class CombatScreen extends PageScreen {
     private Image discardStrike;
     private Label playBtnLabel;
     private Label discardBtnLabel;
+    private PauseMenu pauseMenu;
     private boolean playStrikeActive = false;
     private boolean discardStrikeActive = false;
 
@@ -186,6 +188,10 @@ public class CombatScreen extends PageScreen {
 
         assignTextureRegionsToAllCards();
         buildUI(savedCombat != null);
+
+        pauseMenu = new PauseMenu(stage, skin, uiScale,
+            () -> setPaused(false),
+            this::exitToMainMenu);
     }
 
     private void loadDeckTexture() {
@@ -1058,11 +1064,12 @@ public class CombatScreen extends PageScreen {
 
     @Override
     protected void onEscapePressed() {
-        saveCurrentCombatState();
         if (isPaused) {
-            setPaused(false);
+            pauseMenu.resume();
         } else {
-            exitToMainMenu();
+            saveCurrentCombatState();
+            setPaused(true);
+            pauseMenu.show();
         }
     }
 
@@ -1196,6 +1203,9 @@ public class CombatScreen extends PageScreen {
     @Override
     public void dispose() {
         super.dispose();
+        if (pauseMenu != null) {
+            pauseMenu.dispose();
+        }
         if (deckTexture != null) {
             deckTexture.dispose();
         }

@@ -32,6 +32,7 @@ import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
 import io.github.some_rougelike.ui.TrippyBackground;
+import io.github.some_rougelike.ui.PauseMenu;
 
 public class RunMapScreen extends PageScreen {
     private RunState runState;
@@ -40,6 +41,7 @@ public class RunMapScreen extends PageScreen {
     private TextureRegionDrawable whiteTintableBg;
     private Table uiRoot;
     private boolean isTransitioning = false;
+    private PauseMenu pauseMenu;
     private Texture deckTexture;
     private TextureRegion[][] cardRegions;
 
@@ -80,6 +82,13 @@ public class RunMapScreen extends PageScreen {
         } catch (Exception e) {}
 
         buildUI();
+
+        float pw = Gdx.graphics.getWidth();
+        float ph = Gdx.graphics.getHeight();
+        float pauseScale = Math.min(pw / 1920f, ph / 1080f) * GameConfig.MAIN_MENU_SCALE;
+        pauseMenu = new PauseMenu(stage, uiSkin, pauseScale,
+            () -> setPaused(false),
+            this::exitToMainMenu);
 
         if (withCardRain) {
             CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, true);
@@ -364,11 +373,12 @@ public class RunMapScreen extends PageScreen {
 
     @Override
     protected void onEscapePressed() {
-        SaveManager.getInstance().saveRunMapState(runState);
         if (isPaused) {
-            setPaused(false);
+            pauseMenu.resume();
         } else {
-            exitToMainMenu();
+            SaveManager.getInstance().saveRunMapState(runState);
+            setPaused(true);
+            pauseMenu.show();
         }
     }
 
@@ -387,6 +397,9 @@ public class RunMapScreen extends PageScreen {
     @Override
     public void dispose() {
         super.dispose();
+        if (pauseMenu != null) {
+            pauseMenu.dispose();
+        }
         for (Texture tex : generatedTextures) {
             tex.dispose();
         }
