@@ -61,6 +61,7 @@ public class PauseMenu {
         if (visible) return;
         visible = true;
         closing = false;
+        TrippyBackground.setFrozen(true);
 
         overlay = new Table();
         overlay.setFillParent(true);
@@ -109,6 +110,7 @@ public class PauseMenu {
         if (!visible || overlay == null) return;
         closing = true;
         visible = false;
+        TrippyBackground.setFrozen(false);
         final Table o = overlay;
         overlay = null;
         o.setTouchable(Touchable.disabled);
@@ -117,6 +119,7 @@ public class PauseMenu {
     }
 
     public void dispose() {
+        TrippyBackground.setFrozen(false);
         whiteTex.dispose();
     }
 

@@ -13,6 +13,12 @@ public class TrippyBackground extends Widget {
     
     private static float globalTime = 0f;
     private static long lastFrameId = 0;
+    private static boolean frozen = false;
+
+    /** Ha true, a háttér animációja megáll (pl. pause alatt). */
+    public static void setFrozen(boolean frozen) {
+        TrippyBackground.frozen = frozen;
+    }
     
     private Texture whiteTexture;
     private Color color1;
@@ -85,7 +91,9 @@ public class TrippyBackground extends Widget {
         
         long currentFrame = Gdx.graphics.getFrameId();
         if (currentFrame != lastFrameId) {
-            globalTime += delta * 0.8f; 
+            if (!frozen) {
+                globalTime += delta * 0.8f;
+            }
             lastFrameId = currentFrame;
         }
     }
