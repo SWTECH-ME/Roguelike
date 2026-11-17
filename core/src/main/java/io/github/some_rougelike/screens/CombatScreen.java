@@ -1,12 +1,5 @@
 package io.github.some_rougelike.screens;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
@@ -16,7 +9,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -36,18 +28,24 @@ import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
+import io.github.some_rougelike.model.Card;
+import io.github.some_rougelike.model.Suit;
+import io.github.some_rougelike.model.Rank;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
-import io.github.some_rougelike.model.Card;
-import io.github.some_rougelike.model.Rank;
-import io.github.some_rougelike.model.RankProgress;
-import io.github.some_rougelike.model.Suit;
 import io.github.some_rougelike.save.CardSaveData;
 import io.github.some_rougelike.save.CombatSaveData;
 import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
-import io.github.some_rougelike.ui.PauseMenu;
 import io.github.some_rougelike.ui.TrippyBackground;
+import com.badlogic.gdx.math.MathUtils;
+import io.github.some_rougelike.model.RankProgress;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CombatScreen extends PageScreen {
     private RunState runState;
@@ -62,7 +60,7 @@ public class CombatScreen extends PageScreen {
     private List<Card> hand = new ArrayList<>();
     private List<Card> selectedCards = new ArrayList<>();
 
-    private final Map<Card, Group> cardActorMap = new HashMap<>();
+    private Map<Card, Group> cardActorMap = new HashMap<>();
 
     private Label scoreLabel;
     private Label targetLabel;
@@ -90,11 +88,11 @@ public class CombatScreen extends PageScreen {
     private int scoringCardIndex = 0;
     private int currentHandPoints = 0;
     private int currentMultiplier = 1;
-    private final List<Card> scoringCards = new ArrayList<>();
-    private final List<Group> scoringCardGroups = new ArrayList<>();
-    private final List<Boolean> preRolledDoubles = new ArrayList<>();
-    private final List<Integer> preRolledChips = new ArrayList<>();
-    private final List<Card> pendingDrawnCards = new ArrayList<>();
+    private List<Card> scoringCards = new ArrayList<>();
+    private List<Group> scoringCardGroups = new ArrayList<>();
+    private List<Boolean> preRolledDoubles = new ArrayList<>();
+    private List<Integer> preRolledChips = new ArrayList<>();
+    private List<Card> pendingDrawnCards = new ArrayList<>();
 
     private float uiScale;
     private TrippyBackground bgImg;
@@ -106,7 +104,6 @@ public class CombatScreen extends PageScreen {
     private Image discardStrike;
     private Label playBtnLabel;
     private Label discardBtnLabel;
-    private PauseMenu pauseMenu;
     private boolean playStrikeActive = false;
     private boolean discardStrikeActive = false;
 
@@ -189,15 +186,6 @@ public class CombatScreen extends PageScreen {
 
         assignTextureRegionsToAllCards();
         buildUI(savedCombat != null);
-
-        pauseMenu = new PauseMenu(stage, skin, uiScale,
-            () -> setPaused(false),
-            () -> {
-                saveCurrentCombatState();
-                RankProgress.getInstance().save();
-                SaveManager.getInstance().save();
-            },
-            this::exitToMainMenu);
     }
 
     private void loadDeckTexture() {
@@ -266,36 +254,33 @@ public class CombatScreen extends PageScreen {
         SaveManager.getInstance().saveCombatState(runState, combatSaveData);
     }
 
-    private static final Map<Suit, Integer> SUIT_ROWS = new EnumMap<>(Suit.class);
-    private static final Map<Rank, Integer> RANK_COLS = new EnumMap<>(Rank.class);
-
-    static {
-        SUIT_ROWS.put(Suit.CLUBS, 0);
-        SUIT_ROWS.put(Suit.HEARTS, 1);
-        SUIT_ROWS.put(Suit.SPADES, 2);
-        SUIT_ROWS.put(Suit.DIAMONDS, 3);
-
-        RANK_COLS.put(Rank.ACE, 0);
-        RANK_COLS.put(Rank.TWO, 1);
-        RANK_COLS.put(Rank.THREE, 2);
-        RANK_COLS.put(Rank.FOUR, 3);
-        RANK_COLS.put(Rank.FIVE, 4);
-        RANK_COLS.put(Rank.SIX, 5);
-        RANK_COLS.put(Rank.SEVEN, 6);
-        RANK_COLS.put(Rank.EIGHT, 7);
-        RANK_COLS.put(Rank.NINE, 8);
-        RANK_COLS.put(Rank.TEN, 9);
-        RANK_COLS.put(Rank.JACK, 10);
-        RANK_COLS.put(Rank.QUEEN, 11);
-        RANK_COLS.put(Rank.KING, 12);
-    }
-
     private int getRowForSuit(Suit suit) {
-        return SUIT_ROWS.getOrDefault(suit, 0);
+        switch (suit) {
+            case CLUBS: return 0;
+            case HEARTS: return 1;
+            case SPADES: return 2;
+            case DIAMONDS: return 3;
+            default: return 0;
+        }
     }
 
     private int getColForRank(Rank rank) {
-        return RANK_COLS.getOrDefault(rank, 0);
+        switch (rank) {
+            case ACE: return 0;
+            case TWO: return 1;
+            case THREE: return 2;
+            case FOUR: return 3;
+            case FIVE: return 4;
+            case SIX: return 5;
+            case SEVEN: return 6;
+            case EIGHT: return 7;
+            case NINE: return 8;
+            case TEN: return 9;
+            case JACK: return 10;
+            case QUEEN: return 11;
+            case KING: return 12;
+            default: return 0;
+        }
     }
 
     private int getProgressIndex(Rank rank) {
@@ -1073,12 +1058,11 @@ public class CombatScreen extends PageScreen {
 
     @Override
     protected void onEscapePressed() {
+        saveCurrentCombatState();
         if (isPaused) {
-            pauseMenu.resume();
+            setPaused(false);
         } else {
-            saveCurrentCombatState();
-            setPaused(true);
-            pauseMenu.show();
+            exitToMainMenu();
         }
     }
 
@@ -1091,11 +1075,8 @@ public class CombatScreen extends PageScreen {
 
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (!isPaused) {
-            stage.act(delta);
-        }
+        stage.act(delta);
         stage.draw();
-        pauseMenu.render(delta);
 
         if (isPaused) {
             return;
@@ -1111,13 +1092,9 @@ public class CombatScreen extends PageScreen {
                 scoringTimer = 0f;
 
                 if (scoringCardIndex < scoringCards.size()) {
-                    boolean doubled = scoringCardIndex < preRolledDoubles.size()
-                        && Boolean.TRUE.equals(preRolledDoubles.get(scoringCardIndex));
-                    Integer rolledChips = scoringCardIndex < preRolledChips.size()
+                    boolean doubled = scoringCardIndex < preRolledDoubles.size() && preRolledDoubles.get(scoringCardIndex);
+                    int chips = scoringCardIndex < preRolledChips.size()
                         ? preRolledChips.get(scoringCardIndex)
-                        : null;
-                    int chips = rolledChips != null
-                        ? rolledChips
                         : scoringCards.get(scoringCardIndex).getChips();
 
                     currentHandPoints += chips;
@@ -1217,19 +1194,8 @@ public class CombatScreen extends PageScreen {
     }
 
     @Override
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        if (pauseMenu != null) {
-            pauseMenu.resize(width, height);
-        }
-    }
-
-    @Override
     public void dispose() {
         super.dispose();
-        if (pauseMenu != null) {
-            pauseMenu.dispose();
-        }
         if (deckTexture != null) {
             deckTexture.dispose();
         }
