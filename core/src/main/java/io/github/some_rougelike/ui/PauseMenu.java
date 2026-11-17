@@ -1,5 +1,6 @@
 package io.github.some_rougelike.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.audio.SoundManager;
@@ -26,7 +28,10 @@ import io.github.some_rougelike.audio.SoundManager;
 public class PauseMenu {
     private static final float FADE = 0.2f;
 
+    /** A játék fő stage-e: pause alatt nem kap act()-ot, ezért minden animációja megáll. */
     private final Stage stage;
+    /** Külön stage a pause menünek, ez a menü saját animációit futtatja. */
+    private final Stage pauseStage;
     private final Skin skin;
     private final float scale;
     private final Runnable onResume;
@@ -40,6 +45,8 @@ public class PauseMenu {
 
     public PauseMenu(Stage stage, Skin skin, float scale, Runnable onResume, Runnable onSave, Runnable onMainMenu) {
         this.stage = stage;
+        this.pauseStage = new Stage(new ScreenViewport());
+        this.pauseStage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         this.skin = skin;
         this.scale = scale;
         this.onResume = onResume;
@@ -93,7 +100,8 @@ public class PauseMenu {
         overlay.add(saveRef[0]).padBottom(25 * scale).row();
         overlay.add(menuBtn);
 
-        stage.addActor(overlay);
+        pauseStage.addActor(overlay);
+        Gdx.input.setInputProcessor(pauseStage);
         overlay.getColor().a = 0f;
         overlay.addAction(Actions.fadeIn(FADE, Interpolation.fade));
     }
@@ -111,6 +119,7 @@ public class PauseMenu {
         closing = true;
         visible = false;
         TrippyBackground.setFrozen(false);
+        Gdx.input.setInputProcessor(stage);
         final Table o = overlay;
         overlay = null;
         o.setTouchable(Touchable.disabled);
@@ -118,8 +127,20 @@ public class PauseMenu {
         o.addAction(Actions.sequence(Actions.fadeOut(FADE, Interpolation.fade), Actions.removeActor()));
     }
 
+    /** Minden frame-ben meg kell hívni (pause közben és után is, a fade-out miatt). */
+    public void render(float delta) {
+        if (pauseStage.getActors().size == 0) return;
+        pauseStage.act(delta);
+        pauseStage.draw();
+    }
+
+    public void resize(int width, int height) {
+        pauseStage.getViewport().update(width, height, true);
+    }
+
     public void dispose() {
         TrippyBackground.setFrozen(false);
+        pauseStage.dispose();
         whiteTex.dispose();
     }
 

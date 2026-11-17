@@ -1093,8 +1093,11 @@ public class CombatScreen extends PageScreen {
 
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act(delta);
+        if (!isPaused) {
+            stage.act(delta); // pause alatt a játék stage-e áll, így minden animáció megáll
+        }
         stage.draw();
+        pauseMenu.render(delta);
 
         if (isPaused) {
             return;
@@ -1212,6 +1215,14 @@ public class CombatScreen extends PageScreen {
             } else if (playsLeft <= 0) {
                 showFailedScreen();
             }
+        }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
+        if (pauseMenu != null) {
+            pauseMenu.resize(width, height);
         }
     }
 

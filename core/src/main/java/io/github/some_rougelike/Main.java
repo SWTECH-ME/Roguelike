@@ -56,22 +56,23 @@ public class Main extends Game {
         Gdx.graphics.setVSync(settings.isVsync());
 
         String mode = settings.getDisplayMode();
-        if ("Windowed".equals(mode)) {
-            if (windowModeController != null) {
-                windowModeController.setBorderless(false);
-            }
-            Gdx.graphics.setUndecorated(false);
-            Gdx.graphics.setWindowedMode(windowedWidth, windowedHeight);
-        } else if ("Borderless Windowed".equals(mode)) {
-            Gdx.graphics.setUndecorated(true);
+        // ismeretlen vagy null érték esetén Fullscreen
+        boolean windowed = "Windowed".equals(mode);
+        boolean borderless = "Borderless Windowed".equals(mode);
+
+        Gdx.graphics.setUndecorated(borderless);
+
+        if (borderless) {
             Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode();
             Gdx.graphics.setWindowedMode(displayMode.width, displayMode.height);
-            if (windowModeController != null) {
-                windowModeController.setBorderless(true);
-            }
+        } else if (windowed) {
+            Gdx.graphics.setWindowedMode(windowedWidth, windowedHeight);
         } else {
-            Gdx.graphics.setUndecorated(false);
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        }
+
+        if (windowModeController != null && (windowed || borderless)) {
+            windowModeController.setBorderless(borderless);
         }
     }
 
