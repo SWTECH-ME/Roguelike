@@ -13,6 +13,7 @@ public class RunState {
     private int chapterIndex;
     private int totalRunScore;
     private boolean runCompleted;
+    private boolean bossDebugMode;
 
     private List<Card> deck;
     private List<String> usedBossNames;
@@ -26,9 +27,19 @@ public class RunState {
         this.chapterIndex = 1;
         this.totalRunScore = 0;
         this.runCompleted = false;
+        this.bossDebugMode = false;
         this.usedBossNames = new ArrayList<>();
         this.deck = generateStandardDeck();
         generateMockChapter();
+    }
+
+    public static RunState createBossDebugRun() {
+        RunState debugState = new RunState();
+        debugState.bossDebugMode = true;
+        debugState.availableNormals = ChapterGenerator.createAllBosses();
+        debugState.bossEnemy = debugState.availableNormals.get(debugState.availableNormals.size() - 1);
+        debugState.activeEnemy = null;
+        return debugState;
     }
 
     public RunState(int money, int chapterIndex, int totalRunScore, List<Card> deck, List<Enemy> availableNormals, Enemy bossEnemy, Enemy activeEnemy) {
@@ -40,6 +51,7 @@ public class RunState {
         this.chapterIndex = Math.max(1, Math.min(chapterIndex, GameConfig.MAX_CHAPTERS));
         this.totalRunScore = Math.max(0, totalRunScore);
         this.runCompleted = false;
+        this.bossDebugMode = false;
         this.usedBossNames = usedBossNames != null ? new ArrayList<>(usedBossNames) : new ArrayList<>();
         this.deck = (deck != null && !deck.isEmpty()) ? new ArrayList<>(deck) : generateStandardDeck();
         if (availableNormals != null && !availableNormals.isEmpty() && bossEnemy != null) {
@@ -80,6 +92,21 @@ public class RunState {
     }
 
     public void registerVictory() {
+        if (bossDebugMode) {
+            if (activeEnemy != null) {
+                activeEnemy.setDefeated(true);
+            }
+            boolean allDefeated = true;
+            for (Enemy e : availableNormals) {
+                if (!e.isDefeated()) {
+                    allDefeated = false;
+                    break;
+                }
+            }
+            runCompleted = allDefeated;
+            activeEnemy = null;
+            return;
+        }
         if (activeEnemy == bossEnemy) {
             if (chapterIndex < GameConfig.MAX_CHAPTERS) {
                 chapterIndex++;
@@ -99,6 +126,9 @@ public class RunState {
     }
 
     public boolean isBossUnlocked() {
+        if (bossDebugMode) {
+            return true;
+        }
         for (Enemy enemy : availableNormals) {
             if (!enemy.isDefeated()) {
                 return false;
@@ -121,6 +151,7 @@ public class RunState {
         }
     }
     public boolean isRunCompleted() { return runCompleted; }
+    public boolean isBossDebugMode() { return bossDebugMode; }
     public List<String> getUsedBossNames() { return usedBossNames; }
     public List<Card> getDeck() { return deck; }
 }

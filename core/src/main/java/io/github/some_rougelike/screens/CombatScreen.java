@@ -250,7 +250,7 @@ public class CombatScreen extends PageScreen {
     }
 
     public void saveCurrentCombatState() {
-        if (isGameOver) return;
+        if (isGameOver || runState.isBossDebugMode()) return;
         CombatSaveData combatSaveData = CombatSaveData.create(
             targetDisplayScore,
             playsLeft,
@@ -263,6 +263,9 @@ public class CombatScreen extends PageScreen {
     }
 
     private void saveProjectedCombatState(int projectedScore, int projectedPlaysLeft, int projectedDiscardsLeft, List<Card> projectedDrawPile, List<Card> projectedHand, List<Card> projectedSelected) {
+        if (runState.isBossDebugMode()) {
+            return;
+        }
         if (projectedScore < enemy.getTargetScore() && projectedPlaysLeft <= 0) {
             SaveManager.getInstance().clearActiveRun();
             return;
@@ -882,7 +885,9 @@ public class CombatScreen extends PageScreen {
         int projectedTotalScore = targetDisplayScore + projectedHandScore;
 
         runState.addRunScore(projectedHandScore);
-        SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
+        if (!runState.isBossDebugMode()) {
+            SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
+        }
 
         pendingDrawnCards.clear();
         int needed = getEffectiveHandSize() - hand.size();
@@ -993,8 +998,10 @@ public class CombatScreen extends PageScreen {
 
     private void showFailedScreen() {
         isGameOver = true;
-        SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
-        SaveManager.getInstance().clearActiveRun();
+        if (!runState.isBossDebugMode()) {
+            SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
+            SaveManager.getInstance().clearActiveRun();
+        }
 
         if (uiRoot != null) {
             uiRoot.clearActions();
@@ -1073,7 +1080,22 @@ public class CombatScreen extends PageScreen {
 
         failedOverlay.add(failedLabel).padBottom(24 * uiScale).row();
         failedOverlay.add(runScoreLabel).padBottom(10 * uiScale).row();
-        failedOverlay.add(highScoreLabel).padBottom(55 * uiScale).row();
+        failedOverlay.add(highScoreLabel).padBottom(45 * uiScale).row();
+
+        if (runState.isBossDebugMode()) {
+            Label debugArenaBtn = createHoverLabel("DEBUG ARENA", uiScale * 1.5f, false, () -> {
+                if (isTransitioningOut) return;
+                isTransitioningOut = true;
+                failedOverlay.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+                CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+                stage.addAction(Actions.sequence(
+                    Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+                    Actions.run(() -> main.switchScreen(new RunMapScreen(main, runState, true)))
+                ));
+            });
+            failedOverlay.add(debugArenaBtn).padBottom(20 * uiScale).center().row();
+        }
+
         failedOverlay.add(menuBtn).center();
 
         stage.addActor(failedOverlay);
@@ -1085,8 +1107,10 @@ public class CombatScreen extends PageScreen {
         isGameOver = true;
         runState.addMoney(GameConfig.REWARD_MONEY * 2);
         runState.registerVictory();
-        SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
-        SaveManager.getInstance().clearActiveRun();
+        if (!runState.isBossDebugMode()) {
+            SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
+            SaveManager.getInstance().clearActiveRun();
+        }
 
         if (uiRoot != null) {
             uiRoot.clearActions();
@@ -1179,7 +1203,7 @@ public class CombatScreen extends PageScreen {
     }
 
     private void executeVictoryTransition() {
-        if (enemy.isBoss() && runState.getChapterIndex() >= runState.getMaxChapters()) {
+        if (!runState.isBossDebugMode() && enemy.isBoss() && runState.getChapterIndex() >= runState.getMaxChapters()) {
             showRunVictoryScreen();
             return;
         }

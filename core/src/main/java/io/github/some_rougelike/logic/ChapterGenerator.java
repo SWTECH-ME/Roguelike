@@ -67,7 +67,7 @@ public class ChapterGenerator {
         return chosen;
     }
 
-    private static List<Enemy> createAllBosses() {
+    public static List<Enemy> createAllBosses() {
         List<Enemy> bosses = new ArrayList<>();
         int count = Math.min(GameConfig.BOSS_NAMES.length, BOSS_ABILITIES.length);
         for (int i = 0; i < count; i++) {

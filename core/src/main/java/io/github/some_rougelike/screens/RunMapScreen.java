@@ -164,6 +164,14 @@ public class RunMapScreen extends PageScreen {
         uiRoot.setFillParent(true);
         uiRoot.center();
 
+        if (runState.isBossDebugMode()) {
+            buildBossDebugUI(scale);
+            stage.addActor(uiRoot);
+            uiRoot.getColor().a = 0f;
+            uiRoot.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
+            return;
+        }
+
         Table headerTable = new Table();
 
         Label chapterLbl = new Label("CHAPTER " + runState.getChapterIndex() + " / " + runState.getMaxChapters(), uiSkin);
@@ -264,6 +272,52 @@ public class RunMapScreen extends PageScreen {
 
         uiRoot.getColor().a = 0f;
         uiRoot.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
+    }
+
+    private void buildBossDebugUI(float scale) {
+        Label debugTitle = new Label("BOSS DEBUG ARENA (ALL 12 BOSSES)", uiSkin);
+        debugTitle.setFontScale(scale * 1.4f);
+        debugTitle.setColor(GameConfig.RUN_MAP_HIGH_SCORE_COLOR);
+        debugTitle.setAlignment(Align.center);
+        uiRoot.add(debugTitle).padBottom(12 * scale).row();
+
+        float cardScale = scale * GameConfig.DEBUG_BOSS_CARD_SCALE;
+        int cardWidth = Math.max(100, (int)(GameConfig.RUN_MAP_CARD_WIDTH * cardScale));
+        int cardHeight = Math.max(150, (int)(GameConfig.RUN_MAP_CARD_HEIGHT * cardScale));
+        int cardRadius = Math.max(4, (int)(GameConfig.RUN_MAP_CARD_RADIUS * cardScale));
+        int borderThickness = Math.max(2, (int)(GameConfig.RUN_MAP_BORDER_THICKNESS * cardScale));
+
+        TextureRegionDrawable bossBg = createOutlinedRoundedRect(cardWidth, cardHeight, GameConfig.RUN_MAP_BOSS_BG, new Color(0.9f, 0.2f, 0.2f, 1f), borderThickness, cardRadius);
+        int pillWidth = Math.max(60, (int)(cardWidth - 40 * cardScale));
+        int pillHeight = Math.max(18, (int)(32 * cardScale));
+        int pillRadius = Math.max(6, (int)(16 * cardScale));
+        TextureRegionDrawable bossPillBg = createSolidRoundedRect(pillWidth, pillHeight, GameConfig.RUN_MAP_BOSS_PILL, pillRadius);
+
+        Table gridTable = new Table();
+        int col = 0;
+        for (Enemy boss : runState.getAvailableNormals()) {
+            Group bossCard = createBlindCard(
+                "BOSS BLIND",
+                bossPillBg,
+                boss.getName(),
+                boss.getSpecialAbility(),
+                boss.getTargetScore(),
+                GameConfig.REWARD_MONEY * 2,
+                false,
+                boss.isDefeated(),
+                cardScale,
+                bossBg,
+                cardWidth,
+                cardHeight,
+                () -> transitionToCombat(boss)
+            );
+            gridTable.add(bossCard).size(cardWidth, cardHeight).pad(8 * scale);
+            col++;
+            if (col % GameConfig.DEBUG_BOSS_GRID_COLS == 0) {
+                gridTable.row();
+            }
+        }
+        uiRoot.add(gridTable).center().row();
     }
 
     private Group createBlindCard(String typeText, TextureRegionDrawable pillBg, String nameText, String specialAbilityText, int target, int reward, boolean locked, boolean defeated, float scale, TextureRegionDrawable bg, int width, int height, Runnable onClick) {

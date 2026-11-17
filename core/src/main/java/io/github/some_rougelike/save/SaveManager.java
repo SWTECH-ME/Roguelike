@@ -132,6 +132,9 @@ public class SaveManager {
     }
 
     public void saveRunMapState(RunState runState) {
+        if (runState != null && runState.isBossDebugMode()) {
+            return;
+        }
         ensureLoaded();
         if (runState.getTotalRunScore() > currentSave.getHighScore()) {
             currentSave.setHighScore(runState.getTotalRunScore());
@@ -143,6 +146,9 @@ public class SaveManager {
     }
 
     public void saveCombatState(RunState runState, CombatSaveData combatSaveData) {
+        if (runState != null && runState.isBossDebugMode()) {
+            return;
+        }
         ensureLoaded();
         if (runState.getTotalRunScore() > currentSave.getHighScore()) {
             currentSave.setHighScore(runState.getTotalRunScore());
