@@ -108,6 +108,19 @@ public class SaveManager {
         save();
     }
 
+    public int getHighScore() {
+        ensureLoaded();
+        return currentSave.getHighScore();
+    }
+
+    public void updateHighScore(int candidateScore) {
+        ensureLoaded();
+        if (candidateScore > currentSave.getHighScore()) {
+            currentSave.setHighScore(candidateScore);
+            save();
+        }
+    }
+
     public boolean hasActiveRun() {
         ensureLoaded();
         return currentSave.isHasActiveRun();
@@ -120,6 +133,9 @@ public class SaveManager {
 
     public void saveRunMapState(RunState runState) {
         ensureLoaded();
+        if (runState.getTotalRunScore() > currentSave.getHighScore()) {
+            currentSave.setHighScore(runState.getTotalRunScore());
+        }
         RunSaveData runData = RunSaveData.fromRunState(runState, null);
         currentSave.setActiveRun(runData);
         currentSave.setHasActiveRun(true);
@@ -128,6 +144,9 @@ public class SaveManager {
 
     public void saveCombatState(RunState runState, CombatSaveData combatSaveData) {
         ensureLoaded();
+        if (runState.getTotalRunScore() > currentSave.getHighScore()) {
+            currentSave.setHighScore(runState.getTotalRunScore());
+        }
         RunSaveData runData = RunSaveData.fromRunState(runState, combatSaveData);
         currentSave.setActiveRun(runData);
         currentSave.setHasActiveRun(true);

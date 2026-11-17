@@ -44,12 +44,21 @@ public class GameConfig {
     public static final int REWARD_MONEY = 15;
     public static final int DEFAULT_MAX_PLAYS = 4;
     public static final int DEFAULT_MAX_DISCARDS = 3;
+    // Maximum number of chapters in a finite run and number of normal enemies per chapter (+1 boss)
+    public static final int MAX_CHAPTERS = 12;
+    public static final int NORMALS_PER_CHAPTER = 2;
 
     // --- RUN MAP SCREEN ---
     public static final float RUN_MAP_CARD_WIDTH = 240f;
     public static final float RUN_MAP_CARD_HEIGHT = 360f;
     public static final int RUN_MAP_CARD_RADIUS = 15;
     public static final int RUN_MAP_BORDER_THICKNESS = 3;
+    // Header scales and colors for displaying current chapter, run score, and high score on the Run Map
+    public static final float RUN_MAP_CHAPTER_TITLE_SCALE = 1.9f;
+    public static final float RUN_MAP_SUBHEADER_SCALE = 1.05f;
+    public static final Color RUN_MAP_CHAPTER_COLOR = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+    public static final Color RUN_MAP_SUBHEADER_COLOR = new Color(0.75f, 0.85f, 0.95f, 1.0f);
+    public static final Color RUN_MAP_HIGH_SCORE_COLOR = new Color(1.0f, 0.84f, 0.28f, 1.0f);
 
     public static final Color RUN_MAP_NORMAL_BG = new Color(0.12f, 0.15f, 0.18f, 0.6f);
     public static final Color RUN_MAP_BOSS_BG = new Color(0.18f, 0.10f, 0.10f, 0.6f);
@@ -104,6 +113,11 @@ public class GameConfig {
     public static final Color GAMEOVER_TEXT_COLOR = new Color(0.9f, 0.2f, 0.2f, 1f);
     public static final Color GAMEOVER_BG_1 = new Color(0.3f, 0.0f, 0.05f, 1f);
     public static final Color GAMEOVER_BG_2 = new Color(0.15f, 0.0f, 0.0f, 1f);
+
+    // Run Victory overlay colors when all 12 chapters are beaten
+    public static final Color RUN_VICTORY_TEXT_COLOR = new Color(1.0f, 0.84f, 0.25f, 1f);
+    public static final Color RUN_VICTORY_BG_1 = new Color(0.08f, 0.32f, 0.18f, 1f);
+    public static final Color RUN_VICTORY_BG_2 = new Color(0.04f, 0.16f, 0.10f, 1f);
 
     public static final float VICTORY_UI_FADE_DURATION = 0.7f;
     public static final float VICTORY_BG_LERP_DELAY = 0.2f;

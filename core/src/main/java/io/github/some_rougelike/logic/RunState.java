@@ -11,6 +11,8 @@ import io.github.some_rougelike.model.Rank;
 public class RunState {
     private int money;
     private int chapterIndex;
+    private int totalRunScore;
+    private boolean runCompleted;
 
     private List<Card> deck;
 
@@ -21,13 +23,17 @@ public class RunState {
     public RunState() {
         this.money = GameConfig.STARTING_MONEY;
         this.chapterIndex = 1;
+        this.totalRunScore = 0;
+        this.runCompleted = false;
         this.deck = generateStandardDeck();
         generateMockChapter();
     }
 
-    public RunState(int money, int chapterIndex, List<Card> deck, List<Enemy> availableNormals, Enemy bossEnemy, Enemy activeEnemy) {
+    public RunState(int money, int chapterIndex, int totalRunScore, List<Card> deck, List<Enemy> availableNormals, Enemy bossEnemy, Enemy activeEnemy) {
         this.money = money;
-        this.chapterIndex = chapterIndex;
+        this.chapterIndex = Math.max(1, Math.min(chapterIndex, GameConfig.MAX_CHAPTERS));
+        this.totalRunScore = Math.max(0, totalRunScore);
+        this.runCompleted = false;
         this.deck = (deck != null && !deck.isEmpty()) ? new ArrayList<>(deck) : generateStandardDeck();
         if (availableNormals != null && !availableNormals.isEmpty() && bossEnemy != null) {
             this.availableNormals = new ArrayList<>(availableNormals);
@@ -58,8 +64,10 @@ public class RunState {
         Collections.shuffle(normalPool);
 
         availableNormals = new ArrayList<>();
-        availableNormals.add(normalPool.get(0));
-        availableNormals.add(normalPool.get(1));
+        int count = Math.min(GameConfig.NORMALS_PER_CHAPTER, normalPool.size());
+        for (int i = 0; i < count; i++) {
+            availableNormals.add(normalPool.get(i));
+        }
 
         List<Enemy> bossPool = new ArrayList<>();
         bossPool.add(new Enemy("Triple T", 500, 3, 2, "Card colors are hidden.", GameConfig.BG_BOSS));
@@ -80,8 +88,15 @@ public class RunState {
 
     public void registerVictory() {
         if (activeEnemy == bossEnemy) {
-            chapterIndex++;
-            generateMockChapter();
+            if (chapterIndex < GameConfig.MAX_CHAPTERS) {
+                chapterIndex++;
+                generateMockChapter();
+            } else {
+                if (bossEnemy != null) {
+                    bossEnemy.setDefeated(true);
+                }
+                runCompleted = true;
+            }
         } else {
             if (activeEnemy != null) {
                 activeEnemy.setDefeated(true);
@@ -102,7 +117,16 @@ public class RunState {
     public List<Enemy> getAvailableNormals() { return availableNormals; }
     public Enemy getBossEnemy() { return bossEnemy; }
     public int getChapterIndex() { return chapterIndex; }
+    public int getMaxChapters() { return GameConfig.MAX_CHAPTERS; }
     public int getMoney() { return money; }
     public void addMoney(int amount) { this.money += amount; }
+    public int getTotalRunScore() { return totalRunScore; }
+    public void setTotalRunScore(int totalRunScore) { this.totalRunScore = Math.max(0, totalRunScore); }
+    public void addRunScore(int points) {
+        if (points > 0) {
+            this.totalRunScore += points;
+        }
+    }
+    public boolean isRunCompleted() { return runCompleted; }
     public List<Card> getDeck() { return deck; }
 }

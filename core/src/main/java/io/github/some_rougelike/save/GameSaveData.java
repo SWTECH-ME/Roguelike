@@ -5,6 +5,7 @@ import io.github.some_rougelike.model.RankProgress;
 public class GameSaveData {
     private float[] rankProgress = new float[RankProgress.RANK_COUNT];
     private UserSettingsData settings = new UserSettingsData();
+    private int highScore = 0;
     private boolean hasActiveRun = false;
     private RunSaveData activeRun = null;
 
@@ -28,6 +29,14 @@ public class GameSaveData {
 
     public void setSettings(UserSettingsData settings) {
         this.settings = settings;
+    }
+
+    public int getHighScore() {
+        return Math.max(0, highScore);
+    }
+
+    public void setHighScore(int highScore) {
+        this.highScore = Math.max(0, highScore);
     }
 
     public boolean isHasActiveRun() {
