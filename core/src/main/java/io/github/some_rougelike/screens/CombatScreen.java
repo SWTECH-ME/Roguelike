@@ -1183,8 +1183,46 @@ public class CombatScreen extends PageScreen {
     }
 
     public void exitToMainMenu() {
+        if (isTransitioningOut) return;
+        isTransitioningOut = true;
         saveCurrentCombatState();
-        goBack();
+        setPaused(false);
+
+        if (uiRoot != null) {
+            uiRoot.setTouchable(Touchable.disabled);
+            uiRoot.clearActions();
+            uiRoot.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+        }
+        if (cardLayer != null) {
+            cardLayer.setTouchable(Touchable.disabled);
+            cardLayer.clearActions();
+            cardLayer.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+        }
+
+        final Color targetMenuC1 = GameConfig.BG_COLOR_1;
+        final Color targetMenuC2 = GameConfig.BG_COLOR_2;
+        final Color currentC1 = new Color(currentColor1);
+        final Color currentC2 = new Color(currentColor2);
+
+        FloatAction backLerp = new FloatAction(0f, 1f, GameConfig.SCREEN_TRANSITION_DURATION, Interpolation.smooth) {
+            @Override
+            protected void update(float percent) {
+                super.update(percent);
+                currentColor1.set(currentC1).lerp(targetMenuC1, percent);
+                currentColor2.set(currentC2).lerp(targetMenuC2, percent);
+                if (bgImg != null) {
+                    bgImg.setColors(currentColor1, currentColor2);
+                }
+            }
+        };
+        stage.addAction(backLerp);
+
+        CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+
+        stage.addAction(Actions.sequence(
+            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+            Actions.run(() -> main.switchScreen(new MainMenuScreen(main, true, true)))
+        ));
     }
 
     @Override

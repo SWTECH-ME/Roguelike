@@ -390,8 +390,23 @@ public class RunMapScreen extends PageScreen {
     }
 
     public void exitToMainMenu() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        setPaused(false);
         SaveManager.getInstance().saveRunMapState(runState);
-        goBack();
+
+        if (uiRoot != null) {
+            uiRoot.setTouchable(Touchable.disabled);
+            uiRoot.clearActions();
+            uiRoot.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+        }
+
+        CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+
+        stage.addAction(Actions.sequence(
+            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+            Actions.run(() -> main.switchScreen(new MainMenuScreen(main, true, true)))
+        ));
     }
 
     @Override
