@@ -9,59 +9,66 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 
 public class TrippyBackground extends Widget {
-    private ShaderProgram shader;
-    
+    private final ShaderProgram shader;
+
     private static float globalTime = 0f;
     private static long lastFrameId = 0;
+    private static boolean frozen = false;
+
+    public static void setFrozen(boolean frozen) {
+        TrippyBackground.frozen = frozen;
+    }
     
-    private Texture whiteTexture;
-    private Color color1;
-    private Color color2;
+    private static final String VERTEX_SHADER = String.join("\n",
+            "attribute vec4 a_position;",
+            "attribute vec4 a_color;",
+            "attribute vec2 a_texCoord0;",
+            "uniform mat4 u_projTrans;",
+            "varying vec4 v_color;",
+            "varying vec2 v_texCoords;",
+            "void main() {",
+            "    v_color = a_color;",
+            "    v_texCoords = a_texCoord0;",
+            "    gl_Position = u_projTrans * a_position;",
+            "}");
+
+    private static final String FRAGMENT_SHADER = String.join("\n",
+            "#ifdef GL_ES",
+            "precision mediump float;",
+            "#endif",
+            "varying vec4 v_color;",
+            "varying vec2 v_texCoords;",
+            "uniform float u_time;",
+            "uniform vec3 u_color1;",
+            "uniform vec3 u_color2;",
+            "void main() {",
+            "    float pixels = 256.0;",
+            "    vec2 uv = floor(v_texCoords * pixels) / pixels;",
+            "    uv *= 8.0;",
+            "    uv.x *= 1.77;",
+            "    vec2 p = uv;",
+            "    for(int i = 1; i < 7; i++) {",
+            "        float fi = float(i);",
+            "        vec2 newp = p;",
+            "        newp.x += 0.6 / fi * sin(fi * p.y + u_time * 1.2 + 0.3);",
+            "        newp.y += 0.6 / fi * cos(fi * p.x + u_time * 1.2 + 0.3);",
+            "        p = newp;",
+            "    }",
+            "    float t = cos(p.x + p.y + 1.0) * 0.5 + 0.5;",
+            "    vec3 finalColor = mix(u_color1, u_color2, t);",
+            "    gl_FragColor = vec4(finalColor, 1.0) * v_color;",
+            "}");
+
+    private final Texture whiteTexture;
+    private final Color color1;
+    private final Color color2;
 
     public TrippyBackground(Color c1, Color c2) {
         this.color1 = new Color(c1);
         this.color2 = new Color(c2);
-        
-        String vertexShader = "attribute vec4 a_position;\n" +
-                "attribute vec4 a_color;\n" +
-                "attribute vec2 a_texCoord0;\n" +
-                "uniform mat4 u_projTrans;\n" +
-                "varying vec4 v_color;\n" +
-                "varying vec2 v_texCoords;\n" +
-                "void main() {\n" +
-                "    v_color = a_color;\n" +
-                "    v_texCoords = a_texCoord0;\n" +
-                "    gl_Position = u_projTrans * a_position;\n" +
-                "}";
-                
-        String fragmentShader = "#ifdef GL_ES\n" +
-                "precision mediump float;\n" +
-                "#endif\n" +
-                "varying vec4 v_color;\n" +
-                "varying vec2 v_texCoords;\n" +
-                "uniform float u_time;\n" +
-                "uniform vec3 u_color1;\n" +
-                "uniform vec3 u_color2;\n" +
-                "void main() {\n" +
-                "    float pixels = 256.0;\n" +
-                "    vec2 uv = floor(v_texCoords * pixels) / pixels;\n" +
-                "    uv *= 8.0;\n" +
-                "    uv.x *= 1.77;\n" +
-                "    vec2 p = uv;\n" +
-                "    for(int i = 1; i < 7; i++) {\n" +
-                "        float fi = float(i);\n" +
-                "        vec2 newp = p;\n" +
-                "        newp.x += 0.6 / fi * sin(fi * p.y + u_time * 1.2 + 0.3);\n" +
-                "        newp.y += 0.6 / fi * cos(fi * p.x + u_time * 1.2 + 0.3);\n" +
-                "        p = newp;\n" +
-                "    }\n" +
-                "    float t = cos(p.x + p.y + 1.0) * 0.5 + 0.5;\n" +
-                "    vec3 finalColor = mix(u_color1, u_color2, t);\n" +
-                "    gl_FragColor = vec4(finalColor, 1.0) * v_color;\n" +
-                "}";
-                
+
         ShaderProgram.pedantic = false;
-        shader = new ShaderProgram(vertexShader, fragmentShader);
+        shader = new ShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
         if (!shader.isCompiled()) {
             Gdx.app.error("TrippyBackground", "Shader compilation failed:\n" + shader.getLog());
         }
@@ -85,7 +92,9 @@ public class TrippyBackground extends Widget {
         
         long currentFrame = Gdx.graphics.getFrameId();
         if (currentFrame != lastFrameId) {
-            globalTime += delta * 0.8f; 
+            if (!frozen) {
+                globalTime += delta * 0.8f;
+            }
             lastFrameId = currentFrame;
         }
     }
