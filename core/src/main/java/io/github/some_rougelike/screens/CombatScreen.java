@@ -36,6 +36,7 @@ import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
+import io.github.some_rougelike.logic.BossAbilityType;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.model.Card;
@@ -200,6 +201,17 @@ public class CombatScreen extends PageScreen {
             this::exitToMainMenu);
     }
 
+    private BossAbilityType getActiveBossAbility() {
+        if (enemy != null && enemy.isBoss()) {
+            return enemy.getAbilityType();
+        }
+        return BossAbilityType.NONE;
+    }
+
+    private int getEffectiveHandSize() {
+        return getActiveBossAbility().modifyHandSize(GameConfig.STARTING_HAND_SIZE);
+    }
+
     private void loadDeckTexture() {
         try {
             FileHandle file = Gdx.files.internal(SaveManager.getInstance().getSelectedDeckSkinPath());
@@ -291,6 +303,14 @@ public class CombatScreen extends PageScreen {
     }
 
     private int getRowForSuit(Suit suit) {
+        if (getActiveBossAbility().areCardColorsHidden()) {
+            if (suit == Suit.HEARTS) {
+                return SUIT_ROWS.getOrDefault(Suit.SPADES, 2);
+            }
+            if (suit == Suit.DIAMONDS) {
+                return SUIT_ROWS.getOrDefault(Suit.CLUBS, 0);
+            }
+        }
         return SUIT_ROWS.getOrDefault(suit, 0);
     }
 
@@ -303,13 +323,17 @@ public class CombatScreen extends PageScreen {
     }
 
     private boolean rollDouble(Card card) {
+        if (!getActiveBossAbility().isDoubleRollAllowed()) {
+            return false;
+        }
         float chance = RankProgress.getInstance().get(getProgressIndex(card.getRank()));
         return MathUtils.random(100f) < chance;
     }
 
     private List<Card> drawUpToMax() {
         List<Card> drawn = new ArrayList<>();
-        while (hand.size() < GameConfig.STARTING_HAND_SIZE && !drawPile.isEmpty()) {
+        int maxHand = getEffectiveHandSize();
+        while (hand.size() < maxHand && !drawPile.isEmpty()) {
             Card c = drawPile.remove(0);
             hand.add(c);
             drawn.add(c);
@@ -671,10 +695,14 @@ public class CombatScreen extends PageScreen {
                 if (card.getTextureRegion() != null) {
                     Image cardImg = new Image(card.getTextureRegion());
                     cardImg.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
+                    if (getActiveBossAbility().areCardColorsHidden()) {
+                        cardImg.setColor(GameConfig.BOSS_HIDDEN_SUIT_TINT);
+                    }
                     cardImg.setTouchable(Touchable.disabled);
                     cardContent = cardImg;
                 } else {
-                    Label fallbackLbl = new Label(card.getRank().getSymbol() + "\n" + card.getSuit().name(), skin);
+                    String suitText = getActiveBossAbility().areCardColorsHidden() ? "???" : card.getSuit().name();
+                    Label fallbackLbl = new Label(card.getRank().getSymbol() + "\n" + suitText, skin);
                     fallbackLbl.setAlignment(Align.center);
                     fallbackLbl.setTouchable(Touchable.disabled);
                     cardContent = fallbackLbl;
@@ -723,7 +751,8 @@ public class CombatScreen extends PageScreen {
                             cardBg.setBackground(cardBgNormal);
                             saveCurrentCombatState();
                         } else {
-                            if (selectedCards.size() < 5) {
+                            int maxSelectable = getActiveBossAbility().getMaxSelectableCards();
+                            if (selectedCards.size() < maxSelectable) {
                                 selectedCards.add(card);
                                 cardBg.clearActions();
                                 cardBg.addAction(Actions.moveTo(0, selectOffset, 0.2f, Interpolation.exp10Out));
@@ -817,12 +846,30 @@ public class CombatScreen extends PageScreen {
         hand.removeAll(selectedCards);
         selectedCards.clear();
 
+        BossAbilityType bossAbility = getActiveBossAbility();
+        if (bossAbility.triggersRandomDiscardOnPlay() && !hand.isEmpty()) {
+            Card forcedDiscard = hand.remove(MathUtils.random(hand.size() - 1));
+            Group forcedCw = cardActorMap.remove(forcedDiscard);
+            if (forcedCw != null) {
+                forcedCw.clearActions();
+                forcedCw.addAction(Actions.sequence(
+                    Actions.parallel(
+                        Actions.moveBy(-1000f * uiScale, MathUtils.random(-150f, 150f), GameConfig.FLYOUT_DISCARD_DURATION, Interpolation.pow2In),
+                        Actions.rotateBy(MathUtils.random(-GameConfig.FLYOUT_DISCARD_ROTATION, GameConfig.FLYOUT_DISCARD_ROTATION), GameConfig.FLYOUT_DISCARD_DURATION),
+                        Actions.fadeOut(0.4f)
+                    ),
+                    Actions.removeActor()
+                ));
+            }
+        }
+
         preRolledDoubles.clear();
         preRolledChips.clear();
         int sumChips = 0;
         for (Card sc : scoringCards) {
             boolean doubled = rollDouble(sc);
-            int chips = doubled ? sc.getChips() * 2 : sc.getChips();
+            int baseChips = bossAbility.modifyCardChips(sc, sc.getChips());
+            int chips = doubled ? baseChips * 2 : baseChips;
             RankProgress.getInstance().add(getProgressIndex(sc.getRank()), 5f);
             preRolledDoubles.add(doubled);
             preRolledChips.add(chips);
@@ -830,7 +877,7 @@ public class CombatScreen extends PageScreen {
         }
         RankProgress.getInstance().save();
 
-        currentMultiplier = scoringCards.size();
+        currentMultiplier = bossAbility.modifyHandMultiplier(scoringCards.size());
         int projectedHandScore = sumChips * currentMultiplier;
         int projectedTotalScore = targetDisplayScore + projectedHandScore;
 
@@ -838,7 +885,7 @@ public class CombatScreen extends PageScreen {
         SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
 
         pendingDrawnCards.clear();
-        int needed = GameConfig.STARTING_HAND_SIZE - hand.size();
+        int needed = getEffectiveHandSize() - hand.size();
         while (pendingDrawnCards.size() < needed && !drawPile.isEmpty()) {
             pendingDrawnCards.add(drawPile.remove(0));
         }
@@ -890,7 +937,7 @@ public class CombatScreen extends PageScreen {
         updateTopBar();
 
         final List<Card> drawnAfterDiscard = new ArrayList<>();
-        int needed = GameConfig.STARTING_HAND_SIZE - hand.size();
+        int needed = getEffectiveHandSize() - hand.size();
         while (drawnAfterDiscard.size() < needed && !drawPile.isEmpty()) {
             drawnAfterDiscard.add(drawPile.remove(0));
         }
