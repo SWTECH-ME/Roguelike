@@ -31,7 +31,6 @@ import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
-import io.github.some_rougelike.ui.PauseMenu;
 import io.github.some_rougelike.ui.TrippyBackground;
 
 public class RunMapScreen extends PageScreen {
@@ -41,7 +40,6 @@ public class RunMapScreen extends PageScreen {
     private TextureRegionDrawable whiteTintableBg;
     private Table uiRoot;
     private boolean isTransitioning = false;
-    private PauseMenu pauseMenu;
     private Texture deckTexture;
     private TextureRegion[][] cardRegions;
 
@@ -82,14 +80,6 @@ public class RunMapScreen extends PageScreen {
         } catch (Exception e) {}
 
         buildUI();
-
-        float pw = Gdx.graphics.getWidth();
-        float ph = Gdx.graphics.getHeight();
-        float pauseScale = Math.min(pw / 1920f, ph / 1080f) * GameConfig.MAIN_MENU_SCALE;
-        pauseMenu = new PauseMenu(stage, uiSkin, pauseScale,
-            () -> setPaused(false),
-            () -> SaveManager.getInstance().saveRunMapState(runState),
-            this::exitToMainMenu);
 
         if (withCardRain) {
             CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, true);
@@ -374,12 +364,11 @@ public class RunMapScreen extends PageScreen {
 
     @Override
     protected void onEscapePressed() {
+        SaveManager.getInstance().saveRunMapState(runState);
         if (isPaused) {
-            pauseMenu.resume();
+            setPaused(false);
         } else {
-            SaveManager.getInstance().saveRunMapState(runState);
-            setPaused(true);
-            pauseMenu.show();
+            exitToMainMenu();
         }
     }
 
@@ -391,27 +380,13 @@ public class RunMapScreen extends PageScreen {
         }
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (!isPaused) {
-            stage.act(delta);
-        }
+        stage.act(delta);
         stage.draw();
-        pauseMenu.render(delta);
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        if (pauseMenu != null) {
-            pauseMenu.resize(width, height);
-        }
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        if (pauseMenu != null) {
-            pauseMenu.dispose();
-        }
         for (Texture tex : generatedTextures) {
             tex.dispose();
         }

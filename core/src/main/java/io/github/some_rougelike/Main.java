@@ -5,12 +5,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-
 import io.github.some_rougelike.audio.SoundManager;
+import io.github.some_rougelike.screens.SplashScreen;
 import io.github.some_rougelike.model.RankProgress;
 import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.save.UserSettingsData;
-import io.github.some_rougelike.screens.SplashScreen;
 
 public class Main extends Game {
 
@@ -57,22 +56,22 @@ public class Main extends Game {
         Gdx.graphics.setVSync(settings.isVsync());
 
         String mode = settings.getDisplayMode();
-        boolean windowed = "Windowed".equals(mode);
-        boolean borderless = "Borderless Windowed".equals(mode);
-
-        Gdx.graphics.setUndecorated(borderless);
-
-        if (borderless) {
+        if ("Windowed".equals(mode)) {
+            if (windowModeController != null) {
+                windowModeController.setBorderless(false);
+            }
+            Gdx.graphics.setUndecorated(false);
+            Gdx.graphics.setWindowedMode(windowedWidth, windowedHeight);
+        } else if ("Borderless Windowed".equals(mode)) {
+            Gdx.graphics.setUndecorated(true);
             Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode();
             Gdx.graphics.setWindowedMode(displayMode.width, displayMode.height);
-        } else if (windowed) {
-            Gdx.graphics.setWindowedMode(windowedWidth, windowedHeight);
+            if (windowModeController != null) {
+                windowModeController.setBorderless(true);
+            }
         } else {
+            Gdx.graphics.setUndecorated(false);
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-        }
-
-        if (windowModeController != null && (windowed || borderless)) {
-            windowModeController.setBorderless(borderless);
         }
     }
 
