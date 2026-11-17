@@ -191,6 +191,11 @@ public class CombatScreen extends PageScreen {
 
         pauseMenu = new PauseMenu(stage, skin, uiScale,
             () -> setPaused(false),
+            () -> {
+                saveCurrentCombatState();
+                RankProgress.getInstance().save();
+                SaveManager.getInstance().save();
+            },
             this::exitToMainMenu);
     }
 

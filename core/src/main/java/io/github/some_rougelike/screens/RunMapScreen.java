@@ -88,6 +88,7 @@ public class RunMapScreen extends PageScreen {
         float pauseScale = Math.min(pw / 1920f, ph / 1080f) * GameConfig.MAIN_MENU_SCALE;
         pauseMenu = new PauseMenu(stage, uiSkin, pauseScale,
             () -> setPaused(false),
+            () -> SaveManager.getInstance().saveRunMapState(runState),
             this::exitToMainMenu);
 
         if (withCardRain) {

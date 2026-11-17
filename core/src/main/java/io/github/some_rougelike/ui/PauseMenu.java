@@ -31,17 +31,19 @@ public class PauseMenu {
     private final float scale;
     private final Runnable onResume;
     private final Runnable onMainMenu;
+    private final Runnable onSave;
     private final Texture whiteTex;
 
     private Table overlay;
     private boolean visible = false;
     private boolean closing = false;
 
-    public PauseMenu(Stage stage, Skin skin, float scale, Runnable onResume, Runnable onMainMenu) {
+    public PauseMenu(Stage stage, Skin skin, float scale, Runnable onResume, Runnable onSave, Runnable onMainMenu) {
         this.stage = stage;
         this.skin = skin;
         this.scale = scale;
         this.onResume = onResume;
+        this.onSave = onSave;
         this.onMainMenu = onMainMenu;
 
         Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -72,11 +74,22 @@ public class PauseMenu {
         overlay.add(title).padBottom(60 * scale).row();
 
         Label resumeBtn = createButton("RESUME", GameConfig.MAIN_MENU_BUTTON_SIZE * scale, this::resume);
+        final Table currentOverlay = overlay;
+        final Label[] saveRef = new Label[1];
+        saveRef[0] = createButton("SAVE", GameConfig.MAIN_MENU_BUTTON_SIZE * scale, () -> {
+            if (onSave != null) onSave.run();
+            saveRef[0].setText("SAVED!");
+            // az overlay-en futtatjuk, mert a gomb hover-akciói törlik a saját akcióit
+            currentOverlay.addAction(Actions.sequence(
+                Actions.delay(1.2f),
+                Actions.run(() -> saveRef[0].setText("SAVE"))));
+        });
         Label menuBtn = createButton("MAIN MENU", GameConfig.MAIN_MENU_BUTTON_SIZE * scale, () -> {
             if (onMainMenu != null) onMainMenu.run();
         });
 
         overlay.add(resumeBtn).padBottom(25 * scale).row();
+        overlay.add(saveRef[0]).padBottom(25 * scale).row();
         overlay.add(menuBtn);
 
         stage.addActor(overlay);
