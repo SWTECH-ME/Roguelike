@@ -215,6 +215,22 @@ public class SettingsUIBuilder {
         });
         rootTable.add(vSyncTable).left().padBottom(paddingBetweenRows).row();
 
+        String defaultBgTheme = settings.getBackgroundTheme();
+        Table backgroundTable = createArrowSelector("Background:", GameConfig.BACKGROUND_THEMES, defaultBgTheme, skin, scale, new SelectorListener() {
+            @Override
+            public void onSelectionChanged(String selection) {
+                settings.setBackgroundTheme(selection);
+                GameConfig.applyBackgroundTheme(selection);
+                SaveManager.getInstance().save();
+                for (Actor actor : stage.getActors()) {
+                    if (actor instanceof TrippyBackground) {
+                        ((TrippyBackground) actor).setColors(GameConfig.BG_COLOR_1, GameConfig.BG_COLOR_2);
+                    }
+                }
+            }
+        });
+        rootTable.add(backgroundTable).left().padBottom(paddingBetweenRows).row();
+
         Table masterSliderTable = createSliderRow("Master volume:", SoundManager.getInstance().getMasterVolume(), scale, new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -285,7 +301,7 @@ public class SettingsUIBuilder {
 
         Label valueLabel = new Label(options[defaultIndex], skin);
         valueLabel.setAlignment(Align.center);
-        valueLabel.setFontScale(scale * 1.1f);
+        valueLabel.setFontScale(options[defaultIndex].length() > 19 ? scale * 0.9f : scale * 1.1f);
         valueLabel.setColor(Color.WHITE);
 
         final int[] currentIndex = {defaultIndex};
@@ -295,8 +311,10 @@ public class SettingsUIBuilder {
             public void clicked(InputEvent event, float x, float y) {
                 currentIndex[0]--;
                 if (currentIndex[0] < 0) currentIndex[0] = options.length - 1;
-                valueLabel.setText(options[currentIndex[0]]);
-                listener.onSelectionChanged(options[currentIndex[0]]);
+                String selectedText = options[currentIndex[0]];
+                valueLabel.setText(selectedText);
+                valueLabel.setFontScale(selectedText.length() > 19 ? scale * 0.9f : scale * 1.1f);
+                listener.onSelectionChanged(selectedText);
             }
         });
 
@@ -305,8 +323,10 @@ public class SettingsUIBuilder {
             public void clicked(InputEvent event, float x, float y) {
                 currentIndex[0]++;
                 if (currentIndex[0] >= options.length) currentIndex[0] = 0;
-                valueLabel.setText(options[currentIndex[0]]);
-                listener.onSelectionChanged(options[currentIndex[0]]);
+                String selectedText = options[currentIndex[0]];
+                valueLabel.setText(selectedText);
+                valueLabel.setFontScale(selectedText.length() > 19 ? scale * 0.9f : scale * 1.1f);
+                listener.onSelectionChanged(selectedText);
             }
         });
 

@@ -137,6 +137,8 @@ public class GameConfig {
     public static final int DEFAULT_WINDOW_WIDTH = 1280;
     public static final int DEFAULT_WINDOW_HEIGHT = 720;
     public static final boolean DEFAULT_VSYNC = true;
+    // Default background theme option
+    public static final String DEFAULT_BACKGROUND_THEME = "Random";
     // Default deck skin directory and file name
     public static final String DECK_SKINS_DIR = "deck_skins";
     public static final String DEFAULT_DECK_SKIN = "white_black.png";
@@ -163,6 +165,17 @@ public class GameConfig {
     public static Color BG_COLOR_1;
     public static Color BG_COLOR_2;
 
+    // Selectable background theme names in Settings (Random + named color combinations)
+    public static final String[] BACKGROUND_THEMES = {
+        "Random",
+        "Deep Blue & Purple",
+        "Retro Green & Teal",
+        "Crimson & Charcoal",
+        "Golden Orange & Brown",
+        "Neon Pink & Dark Violet",
+        "Seafoam & Midnight"
+    };
+
     static {
         rollRandomBackground();
     }
@@ -180,6 +193,43 @@ public class GameConfig {
         int randomIndex = MathUtils.random(0, colorCombos.length - 1);
         BG_COLOR_1 = colorCombos[randomIndex][0];
         BG_COLOR_2 = colorCombos[randomIndex][1];
+    }
+
+    // Applies a specific named background theme or rolls a random one if "Random" is selected
+    public static void applyBackgroundTheme(String themeName) {
+        if (themeName == null || "Random".equalsIgnoreCase(themeName)) {
+            rollRandomBackground();
+            return;
+        }
+        switch (themeName) {
+            case "Deep Blue & Purple":
+                BG_COLOR_1 = Color.valueOf("1a1a3a");
+                BG_COLOR_2 = Color.valueOf("4a154b");
+                break;
+            case "Retro Green & Teal":
+                BG_COLOR_1 = Color.valueOf("0f380f");
+                BG_COLOR_2 = Color.valueOf("306230");
+                break;
+            case "Crimson & Charcoal":
+                BG_COLOR_1 = Color.valueOf("4a0e17");
+                BG_COLOR_2 = Color.valueOf("1a1a1a");
+                break;
+            case "Golden Orange & Brown":
+                BG_COLOR_1 = Color.valueOf("7a4012");
+                BG_COLOR_2 = Color.valueOf("381d08");
+                break;
+            case "Neon Pink & Dark Violet":
+                BG_COLOR_1 = Color.valueOf("481045");
+                BG_COLOR_2 = Color.valueOf("1c0826");
+                break;
+            case "Seafoam & Midnight":
+                BG_COLOR_1 = Color.valueOf("225555");
+                BG_COLOR_2 = Color.valueOf("0f1a24");
+                break;
+            default:
+                rollRandomBackground();
+                break;
+        }
     }
 
     // --- DECK NAMES ---

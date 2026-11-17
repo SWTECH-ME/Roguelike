@@ -37,6 +37,7 @@ public class Main extends Game {
         SoundManager.getInstance().load();
 
         UserSettingsData settings = SaveManager.getInstance().getSettings();
+        GameConfig.applyBackgroundTheme(settings.getBackgroundTheme());
         SoundManager.getInstance().setMasterVolume(settings.getMasterVolume());
         SoundManager.getInstance().setMenuMusicVolume(settings.getMusicVolume());
         SoundManager.getInstance().setSfxVolume(settings.getSfxVolume());

@@ -11,6 +11,7 @@ public class UserSettingsData {
     private int resolutionHeight = GameConfig.DEFAULT_WINDOW_HEIGHT;
     private boolean vsync = GameConfig.DEFAULT_VSYNC;
     private String selectedDeckSkin = GameConfig.DEFAULT_DECK_SKIN;
+    private String backgroundTheme = GameConfig.DEFAULT_BACKGROUND_THEME;
 
     public UserSettingsData() {
     }
@@ -80,5 +81,16 @@ public class UserSettingsData {
 
     public void setSelectedDeckSkin(String selectedDeckSkin) {
         this.selectedDeckSkin = selectedDeckSkin;
+    }
+
+    public String getBackgroundTheme() {
+        if (backgroundTheme == null || backgroundTheme.trim().isEmpty()) {
+            return GameConfig.DEFAULT_BACKGROUND_THEME;
+        }
+        return backgroundTheme;
+    }
+
+    public void setBackgroundTheme(String backgroundTheme) {
+        this.backgroundTheme = backgroundTheme;
     }
 }
