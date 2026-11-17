@@ -14,6 +14,7 @@ import io.github.some_rougelike.ui.TrippyBackground;
 public abstract class PageScreen extends ScreenAdapter {
     protected final Main main;
     protected final Stage stage;
+    protected boolean isPaused = false;
     private TrippyBackground trippyBackground;
 
     private static final float REFERENCE_WIDTH = 1920f;
@@ -34,6 +35,18 @@ public abstract class PageScreen extends ScreenAdapter {
         return Math.min(currentWidth / REFERENCE_WIDTH, currentHeight / REFERENCE_HEIGHT) * 1.5f;
     }
 
+    public boolean isPaused() {
+        return isPaused;
+    }
+
+    public void setPaused(boolean paused) {
+        this.isPaused = paused;
+    }
+
+    protected void onEscapePressed() {
+        goBack();
+    }
+
     public void goBack() {
         main.switchScreen(new MainMenuScreen(main));
     }
@@ -51,7 +64,7 @@ public abstract class PageScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            goBack();
+            onEscapePressed();
         }
 
         Gdx.gl.glClearColor(0f, 0f, 0f, 1);

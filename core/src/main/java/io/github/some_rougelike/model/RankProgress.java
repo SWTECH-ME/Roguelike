@@ -1,15 +1,10 @@
 package io.github.some_rougelike.model;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
+import io.github.some_rougelike.save.SaveManager;
 
 /** Rangonkénti fejlődés (0..100). Index: 0 = "2", 1 = "3", ... 12 = "A". */
 public class RankProgress {
     public static final int RANK_COUNT = 13;
-
-    private static final String PREFS_NAME = "rougelike_progress";
-    private static final String KEY_INITIALIZED = "initialized_v2";
-    private static final String KEY_PREFIX = "rank_";
 
     private static final RankProgress INSTANCE = new RankProgress();
 
@@ -35,27 +30,15 @@ public class RankProgress {
         set(rankIndex, values[rankIndex] + amount);
     }
 
-    private void load() {
-        Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
-        if (prefs.getBoolean(KEY_INITIALIZED, false)) {
-            for (int i = 0; i < RANK_COUNT; i++) {
-                values[i] = prefs.getFloat(KEY_PREFIX + i, 0f);
-            }
-        } else {
-            // Első indítás (vagy nullázás után): minden sáv 0%-on
-            for (int i = 0; i < RANK_COUNT; i++) {
-                values[i] = 0f;
-            }
-            save();
+    public void load() {
+        float[] savedValues = SaveManager.getInstance().getRankProgressValues();
+        for (int i = 0; i < RANK_COUNT; i++) {
+            float val = i < savedValues.length ? savedValues[i] : 0f;
+            values[i] = Math.max(0f, Math.min(100f, val));
         }
     }
 
     public void save() {
-        Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
-        for (int i = 0; i < RANK_COUNT; i++) {
-            prefs.putFloat(KEY_PREFIX + i, values[i]);
-        }
-        prefs.putBoolean(KEY_INITIALIZED, true);
-        prefs.flush();
+        SaveManager.getInstance().updateRankProgressValues(values);
     }
 }

@@ -17,7 +17,7 @@ public class GameConfig {
     public static final String BG_ENEMY_1 = "ui/background.jpg";
     public static final String BG_ENEMY_2 = "ui/background.jpg";
     public static final String BG_BOSS = "ui/background.jpg";
-    
+
     // --- MENU ---
     // Fonts:
     public static final float MAIN_MENU_TITLE_SIZE = 2.2f;
@@ -25,7 +25,7 @@ public class GameConfig {
     public static final float MAIN_MENU_SCALE = 1.5f;
     public static final float MAIN_MENU_FADE_DURATION = 0.5f;
     // Collections Debug:
-    public static final boolean ALLOW_HIDING_COMBINATIONS = false; 
+    public static final boolean ALLOW_HIDING_COMBINATIONS = false;
 
     // --- SOUNDS ---
     public static final String MENU_MUSIC = "ui/uisounds/menu_theme_loopable.mp3";
@@ -35,8 +35,8 @@ public class GameConfig {
     public static final String SOUND_NOTIFICATION = "ui/uisounds/vaghato_notification_sounds.mp3";
 
     // --- CARDS AND DISCARDS (FUTURE REFERENCE, NOT CURRENTLY USED) ---
-    public static final String CARD_BACK_IMAGE = "ui/cards/card_back.png"; 
-    public static final String CARD_FRONT_ATLAS = "ui/cards/cards.atlas"; 
+    public static final String CARD_BACK_IMAGE = "ui/cards/card_back.png";
+    public static final String CARD_FRONT_ATLAS = "ui/cards/cards.atlas";
 
     // --- DEFAULT GAMEPLAY VALUES ---
     public static final int STARTING_MONEY = 10;
@@ -50,11 +50,11 @@ public class GameConfig {
     public static final float RUN_MAP_CARD_HEIGHT = 360f;
     public static final int RUN_MAP_CARD_RADIUS = 15;
     public static final int RUN_MAP_BORDER_THICKNESS = 3;
-    
+
     public static final Color RUN_MAP_NORMAL_BG = new Color(0.12f, 0.15f, 0.18f, 0.6f);
     public static final Color RUN_MAP_BOSS_BG = new Color(0.18f, 0.10f, 0.10f, 0.6f);
     public static final Color RUN_MAP_LOCKED_BG = new Color(0.08f, 0.08f, 0.08f, 0.4f);
-    
+
     public static final Color RUN_MAP_NORMAL_PILL = new Color(0.2f, 0.4f, 0.8f, 1f);
     public static final Color RUN_MAP_BOSS_PILL = new Color(0.8f, 0.2f, 0.2f, 1f);
     public static final Color RUN_MAP_LOCKED_PILL = new Color(0.3f, 0.3f, 0.3f, 1f);
@@ -76,18 +76,18 @@ public class GameConfig {
     public static final int COMBAT_CARD_RADIUS = 10;
     public static final float COMBAT_CARD_HOVER_OFFSET = 15f;
     public static final float COMBAT_CARD_SELECT_OFFSET = 30f;
-    
+
     // --- COMBAT SCREEN: LAYOUT & SPACING ---
     public static final float HAND_Y_POS = 100f;
     public static final float HAND_SPACING = 8f;
     public static final float PLAYED_Y_POS = HAND_Y_POS + 20;
     public static final float PLAYED_SPACING = 20f;
-    
+
     // --- COMBAT SCREEN: ANIMATION TIMINGS ---
     public static final float DRAW_INITIAL_DELAY = SCREEN_TRANSITION_DURATION + 0.1f;
     public static final float DRAW_CARD_DELAY = 0.1f;
     public static final float DRAW_CARD_DURATION = 0.5f;
-    
+
     public static final float FLYOUT_CARD_DELAY = 0.1f;
     public static final float FLYOUT_PLAY_DURATION = 0.5f;
     public static final float FLYOUT_DISCARD_DURATION = 0.6f;
@@ -108,7 +108,7 @@ public class GameConfig {
     public static final float VICTORY_UI_FADE_DURATION = 0.7f;
     public static final float VICTORY_BG_LERP_DELAY = 0.2f;
     public static final float VICTORY_BG_LERP_DURATION = 1.2f;
-    
+
     // --- COMBAT SCREEN: COLORS ---
     public static final Color COMBAT_CARD_BG_NORMAL = new Color(0.95f, 0.95f, 0.98f, 1f);
     public static final Color COMBAT_CARD_BG_SELECTED = new Color(0.8f, 0.9f, 1.0f, 1f);
@@ -118,9 +118,63 @@ public class GameConfig {
     public static final String SCORING_NUMBER_COLOR = "FFD700";
     public static final String DOUBLE_SCORING_NUMBER_COLOR = "FF66FF";
 
+    // --- SAVE SYSTEM & ENCRYPTION ---
+    // Local path where the JSON save file is stored
+    public static final String SAVE_FILE_PATH = "saves/savegame.json";
+    // Toggle between readable plain JSON (false, great for debugging) and AES encrypted save (true)
+    public static final boolean SAVE_ENCRYPTION_ENABLED = false;
+    // AES algorithm and 16-byte secret key used when SAVE_ENCRYPTION_ENABLED is true
+    public static final String SAVE_ENCRYPTION_ALGORITHM = "AES";
+    public static final String SAVE_ENCRYPTION_KEY = "SwTechRougelike!";
+
+    // --- DEFAULT USER SETTINGS ---
+    // Default audio volume levels (0.0 to 1.0)
+    public static final float DEFAULT_MASTER_VOLUME = 0.5f;
+    public static final float DEFAULT_MUSIC_VOLUME = 0.5f;
+    public static final float DEFAULT_SFX_VOLUME = 0.5f;
+    // Default display settings
+    public static final String DEFAULT_DISPLAY_MODE = "Fullscreen";
+    public static final int DEFAULT_WINDOW_WIDTH = 1280;
+    public static final int DEFAULT_WINDOW_HEIGHT = 720;
+    public static final boolean DEFAULT_VSYNC = true;
+    // Default background theme option
+    public static final String DEFAULT_BACKGROUND_THEME = "Random";
+    // Default deck skin directory and file name
+    public static final String DECK_SKINS_DIR = "deck_skins";
+    public static final String DEFAULT_DECK_SKIN = "white_black.png";
+    public static final int DECK_SHEET_COLS = 13;
+    public static final int DECK_SHEET_ROWS = 5;
+
+    // --- CONTINUE RUN MENU & ANIMATIONS ---
+    // Dimensions, colors, and animation timings for the continue/new run prompt in the main menu
+    public static final float CONTINUE_DIALOG_WIDTH = 520f;
+    public static final float CONTINUE_DIALOG_HEIGHT = 380f;
+    public static final int CONTINUE_DIALOG_RADIUS = 18;
+    public static final int CONTINUE_DIALOG_BORDER = 3;
+    public static final float CONTINUE_DIALOG_FADE_DURATION = 0.35f;
+    public static final float CONTINUE_DIALOG_SLIDE_OFFSET = 60f;
+    public static final float CONTINUE_BG_LERP_DURATION = 0.45f;
+    public static final Color CONTINUE_DIALOG_BG = new Color(0.08f, 0.10f, 0.14f, 0.88f);
+    public static final Color CONTINUE_DIALOG_BORDER_COLOR = new Color(0.85f, 0.85f, 0.9f, 1f);
+    public static final Color CONTINUE_OVERLAY_TINT = new Color(0f, 0f, 0f, 0.55f);
+    public static final Color CONTINUE_SUBTITLE_COLOR = new Color(0.55f, 0.8f, 1.0f, 1f);
+    public static final Color CONTINUE_BG_COLOR_1 = new Color(0.08f, 0.22f, 0.30f, 1f);
+    public static final Color CONTINUE_BG_COLOR_2 = new Color(0.04f, 0.10f, 0.18f, 1f);
+
     // --- RANDOMIZED GLOBAL BACKGROUND COLORS ---
     public static Color BG_COLOR_1;
     public static Color BG_COLOR_2;
+
+    // Selectable background theme names in Settings (Random + named color combinations)
+    public static final String[] BACKGROUND_THEMES = {
+        "Random",
+        "Deep Blue & Purple",
+        "Retro Green & Teal",
+        "Crimson & Charcoal",
+        "Golden Orange & Brown",
+        "Neon Pink & Dark Violet",
+        "Seafoam & Midnight"
+    };
 
     static {
         rollRandomBackground();
@@ -139,6 +193,43 @@ public class GameConfig {
         int randomIndex = MathUtils.random(0, colorCombos.length - 1);
         BG_COLOR_1 = colorCombos[randomIndex][0];
         BG_COLOR_2 = colorCombos[randomIndex][1];
+    }
+
+    // Applies a specific named background theme or rolls a random one if "Random" is selected
+    public static void applyBackgroundTheme(String themeName) {
+        if (themeName == null || "Random".equalsIgnoreCase(themeName)) {
+            rollRandomBackground();
+            return;
+        }
+        switch (themeName) {
+            case "Deep Blue & Purple":
+                BG_COLOR_1 = Color.valueOf("1a1a3a");
+                BG_COLOR_2 = Color.valueOf("4a154b");
+                break;
+            case "Retro Green & Teal":
+                BG_COLOR_1 = Color.valueOf("0f380f");
+                BG_COLOR_2 = Color.valueOf("306230");
+                break;
+            case "Crimson & Charcoal":
+                BG_COLOR_1 = Color.valueOf("4a0e17");
+                BG_COLOR_2 = Color.valueOf("1a1a1a");
+                break;
+            case "Golden Orange & Brown":
+                BG_COLOR_1 = Color.valueOf("7a4012");
+                BG_COLOR_2 = Color.valueOf("381d08");
+                break;
+            case "Neon Pink & Dark Violet":
+                BG_COLOR_1 = Color.valueOf("481045");
+                BG_COLOR_2 = Color.valueOf("1c0826");
+                break;
+            case "Seafoam & Midnight":
+                BG_COLOR_1 = Color.valueOf("225555");
+                BG_COLOR_2 = Color.valueOf("0f1a24");
+                break;
+            default:
+                rollRandomBackground();
+                break;
+        }
     }
 
     // --- DECK NAMES ---
