@@ -12,6 +12,7 @@ public class RunSaveData {
     private int chapterIndex;
     private int maxChapters = GameConfig.MAX_CHAPTERS;
     private int totalRunScore;
+    private ArrayList<String> usedBossNames = new ArrayList<>();
     private ArrayList<CardSaveData> deck = new ArrayList<>();
     private ArrayList<EnemySaveData> availableNormals = new ArrayList<>();
     private EnemySaveData bossEnemy;
@@ -29,6 +30,9 @@ public class RunSaveData {
         data.chapterIndex = runState.getChapterIndex();
         data.maxChapters = runState.getMaxChapters();
         data.totalRunScore = runState.getTotalRunScore();
+        if (runState.getUsedBossNames() != null) {
+            data.usedBossNames.addAll(runState.getUsedBossNames());
+        }
 
         for (Card card : runState.getDeck()) {
             data.deck.add(CardSaveData.fromCard(card));
@@ -81,7 +85,7 @@ public class RunSaveData {
             }
         }
 
-        return new RunState(money, chapterIndex, totalRunScore, restoredDeck, restoredNormals, restoredBoss, restoredActive);
+        return new RunState(money, chapterIndex, totalRunScore, restoredDeck, restoredNormals, restoredBoss, restoredActive, usedBossNames);
     }
 
     public int getMoney() {
@@ -114,6 +118,14 @@ public class RunSaveData {
 
     public void setTotalRunScore(int totalRunScore) {
         this.totalRunScore = totalRunScore;
+    }
+
+    public ArrayList<String> getUsedBossNames() {
+        return usedBossNames;
+    }
+
+    public void setUsedBossNames(ArrayList<String> usedBossNames) {
+        this.usedBossNames = usedBossNames;
     }
 
     public ArrayList<CardSaveData> getDeck() {

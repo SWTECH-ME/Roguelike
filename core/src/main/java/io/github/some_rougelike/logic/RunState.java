@@ -15,6 +15,7 @@ public class RunState {
     private boolean runCompleted;
 
     private List<Card> deck;
+    private List<String> usedBossNames;
 
     private List<Enemy> availableNormals;
     private Enemy bossEnemy;
@@ -25,20 +26,29 @@ public class RunState {
         this.chapterIndex = 1;
         this.totalRunScore = 0;
         this.runCompleted = false;
+        this.usedBossNames = new ArrayList<>();
         this.deck = generateStandardDeck();
         generateMockChapter();
     }
 
     public RunState(int money, int chapterIndex, int totalRunScore, List<Card> deck, List<Enemy> availableNormals, Enemy bossEnemy, Enemy activeEnemy) {
+        this(money, chapterIndex, totalRunScore, deck, availableNormals, bossEnemy, activeEnemy, null);
+    }
+
+    public RunState(int money, int chapterIndex, int totalRunScore, List<Card> deck, List<Enemy> availableNormals, Enemy bossEnemy, Enemy activeEnemy, List<String> usedBossNames) {
         this.money = money;
         this.chapterIndex = Math.max(1, Math.min(chapterIndex, GameConfig.MAX_CHAPTERS));
         this.totalRunScore = Math.max(0, totalRunScore);
         this.runCompleted = false;
+        this.usedBossNames = usedBossNames != null ? new ArrayList<>(usedBossNames) : new ArrayList<>();
         this.deck = (deck != null && !deck.isEmpty()) ? new ArrayList<>(deck) : generateStandardDeck();
         if (availableNormals != null && !availableNormals.isEmpty() && bossEnemy != null) {
             this.availableNormals = new ArrayList<>(availableNormals);
             this.bossEnemy = bossEnemy;
             this.activeEnemy = activeEnemy;
+            if (bossEnemy.getName() != null && !this.usedBossNames.contains(bossEnemy.getName())) {
+                this.usedBossNames.add(bossEnemy.getName());
+            }
         } else {
             generateMockChapter();
         }
@@ -56,25 +66,8 @@ public class RunState {
     }
 
     private void generateMockChapter() {
-        List<Enemy> normalPool = new ArrayList<>();
-        normalPool.add(new Enemy("Backrooms Obama", 300, 4, 3, GameConfig.BG_ENEMY_1));
-        normalPool.add(new Enemy("360 NoScope", 600, 4, 3, GameConfig.BG_ENEMY_2));
-        normalPool.add(new Enemy("Doge", 450, 4, 3, GameConfig.BG_ENEMY_1));
-        normalPool.add(new Enemy("Trollface", 550, 3, 2, GameConfig.BG_ENEMY_2));
-        Collections.shuffle(normalPool);
-
-        availableNormals = new ArrayList<>();
-        int count = Math.min(GameConfig.NORMALS_PER_CHAPTER, normalPool.size());
-        for (int i = 0; i < count; i++) {
-            availableNormals.add(normalPool.get(i));
-        }
-
-        List<Enemy> bossPool = new ArrayList<>();
-        bossPool.add(new Enemy("Triple T", 500, 3, 2, "Card colors are hidden.", GameConfig.BG_BOSS));
-        bossPool.add(new Enemy("Giga Chad", 500, 4, 2, "No discards allowed.", GameConfig.BG_BOSS));
-        Collections.shuffle(bossPool);
-
-        bossEnemy = bossPool.get(0);
+        availableNormals = ChapterGenerator.generateNormalEnemies();
+        bossEnemy = ChapterGenerator.generateUniqueBoss(usedBossNames);
         activeEnemy = null;
     }
 
@@ -128,5 +121,6 @@ public class RunState {
         }
     }
     public boolean isRunCompleted() { return runCompleted; }
+    public List<String> getUsedBossNames() { return usedBossNames; }
     public List<Card> getDeck() { return deck; }
 }

@@ -207,7 +207,7 @@ public class RunMapScreen extends PageScreen {
 
         for (Enemy enemy : runState.getAvailableNormals()) {
             boolean isDefeated = enemy.isDefeated();
-            Group blindItem = createBlindCard("NORMAL BLIND", normalPillBg, enemy.getName(), enemy.getTargetScore(), GameConfig.REWARD_MONEY, false, isDefeated, scale, normalBg, cardWidth, cardHeight, () -> transitionToCombat(enemy));
+            Group blindItem = createBlindCard("NORMAL BLIND", normalPillBg, enemy.getName(), null, enemy.getTargetScore(), GameConfig.REWARD_MONEY, false, isDefeated, scale, normalBg, cardWidth, cardHeight, () -> transitionToCombat(enemy));
             cardsTable.add(blindItem).size(cardWidth, cardHeight).pad(20 * scale);
         }
 
@@ -215,7 +215,7 @@ public class RunMapScreen extends PageScreen {
         boolean isBossUnlocked = runState.isBossUnlocked();
         boolean isBossDefeated = boss.isDefeated();
 
-        Group bossItem = createBlindCard("BOSS BLIND", isBossUnlocked ? bossPillBg : lockedPillBg, boss.getName(), boss.getTargetScore(), GameConfig.REWARD_MONEY * 2, !isBossUnlocked, isBossDefeated, scale, isBossUnlocked ? bossBg : lockedBg, cardWidth, cardHeight, () -> transitionToCombat(boss));
+        Group bossItem = createBlindCard("BOSS BLIND", isBossUnlocked ? bossPillBg : lockedPillBg, boss.getName(), boss.getSpecialAbility(), boss.getTargetScore(), GameConfig.REWARD_MONEY * 2, !isBossUnlocked, isBossDefeated, scale, isBossUnlocked ? bossBg : lockedBg, cardWidth, cardHeight, () -> transitionToCombat(boss));
         cardsTable.add(bossItem).size(cardWidth, cardHeight).pad(20 * scale);
 
         uiRoot.add(cardsTable).padBottom(35 * scale).colspan(3).row();
@@ -266,7 +266,7 @@ public class RunMapScreen extends PageScreen {
         uiRoot.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
     }
 
-    private Group createBlindCard(String typeText, TextureRegionDrawable pillBg, String nameText, int target, int reward, boolean locked, boolean defeated, float scale, TextureRegionDrawable bg, int width, int height, Runnable onClick) {
+    private Group createBlindCard(String typeText, TextureRegionDrawable pillBg, String nameText, String specialAbilityText, int target, int reward, boolean locked, boolean defeated, float scale, TextureRegionDrawable bg, int width, int height, Runnable onClick) {
         Group wrapper = new Group();
         wrapper.setSize(width, height);
 
@@ -284,7 +284,7 @@ public class RunMapScreen extends PageScreen {
         typeBg.setBackground(pillBg);
         typeBg.add(typeLbl).center();
 
-        table.add(typeBg).size(width - 80 * scale, 35 * scale).padBottom(30 * scale).row();
+        table.add(typeBg).size(width - 80 * scale, 35 * scale).padBottom(20 * scale).row();
 
         Label nameLbl = new Label(locked ? "LOCKED" : nameText, uiSkin);
         nameLbl.setFontScale(scale * 1.4f);
@@ -294,12 +294,21 @@ public class RunMapScreen extends PageScreen {
 
         table.add(nameLbl).width(width - 30 * scale).center().expandY().row();
 
+        if (!locked && specialAbilityText != null && !specialAbilityText.isEmpty()) {
+            Label abilityLbl = new Label(specialAbilityText, uiSkin);
+            abilityLbl.setFontScale(scale * 0.8f);
+            abilityLbl.setColor(GameConfig.RUN_MAP_ABILITY_TEXT_COLOR);
+            abilityLbl.setAlignment(Align.center);
+            abilityLbl.setWrap(true);
+            table.add(abilityLbl).width(width - 36 * scale).padBottom(12 * scale).row();
+        }
+
         if (!locked) {
             Label rewardLbl = new Label("Reward: $" + reward, uiSkin);
             rewardLbl.setFontScale(scale * 1.0f);
             rewardLbl.setColor(new Color(0.8f, 0.8f, 0.8f, 1f));
             rewardLbl.setAlignment(Align.center);
-            table.add(rewardLbl).padBottom(15 * scale).row();
+            table.add(rewardLbl).padBottom(12 * scale).row();
         }
 
         Label targetLbl = new Label("Target: " + target, uiSkin);
