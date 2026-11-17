@@ -29,14 +29,13 @@ import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
 import io.github.some_rougelike.model.CardCollection;
 import io.github.some_rougelike.model.RankProgress;
-import io.github.some_rougelike.save.SaveManager;
 
 public class CollectionScreen extends PageScreen {
     private static final float CARD_ASPECT_RATIO = 1.4f;
     private static final float REFERENCE_SCREEN_AREA = 1280f * 720f;
     private static final float MIN_UI_SCALE = 0.65f;
     private static final float MAX_UI_SCALE = 1.75f;
-    private static final String SKINS_DIR = GameConfig.DECK_SKINS_DIR;
+    private static final String SKINS_DIR = "deck_skins";
 
     private final Table rootTable;
     private final Skin uiSkin;
@@ -123,14 +122,9 @@ public class CollectionScreen extends PageScreen {
                 "white_black.png", "white_blue.png", "white_red.png"
         };
 
-        String savedSkin = SaveManager.getInstance().getSettings().getSelectedDeckSkin();
-
         for (String fileName : skinFileNames) {
             FileHandle file = Gdx.files.internal(SKINS_DIR + "/" + fileName);
             if (file.exists()) {
-                if (fileName.equals(savedSkin)) {
-                    currentSkinIndex = skinFiles.size;
-                }
                 skinFiles.add(file);
             }
         }
@@ -147,8 +141,8 @@ public class CollectionScreen extends PageScreen {
         try {
             FileHandle currentSkinFile = skinFiles.get(currentSkinIndex);
             currentDeckTexture = new Texture(currentSkinFile);
-            int cols = GameConfig.DECK_SHEET_COLS;
-            int rows = GameConfig.DECK_SHEET_ROWS;
+            int cols = 13;
+            int rows = 5;
             int tileWidth = currentDeckTexture.getWidth() / cols;
             int tileHeight = currentDeckTexture.getHeight() / rows;
             cardRegions = TextureRegion.split(currentDeckTexture, tileWidth, tileHeight);
@@ -162,8 +156,6 @@ public class CollectionScreen extends PageScreen {
         currentSkinIndex += delta;
         if (currentSkinIndex < 0) currentSkinIndex = skinFiles.size - 1;
         if (currentSkinIndex >= skinFiles.size) currentSkinIndex = 0;
-        SaveManager.getInstance().getSettings().setSelectedDeckSkin(skinFiles.get(currentSkinIndex).name());
-        SaveManager.getInstance().save();
         updateCurrentSkinTexture();
         rebuildUI();
     }
@@ -259,7 +251,7 @@ public class CollectionScreen extends PageScreen {
 
     private ScrollPane createModernScrollPane(Actor content, float uiScale) {
         ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
-
+        
         TextureRegionDrawable knob = new TextureRegionDrawable(new TextureRegion(whiteTex));
         knob.setMinWidth(4 * uiScale);
         style.vScrollKnob = knob;
@@ -268,7 +260,7 @@ public class CollectionScreen extends PageScreen {
         scrollPane.setFadeScrollBars(true);
         scrollPane.setOverscroll(false, false);
         scrollPane.setScrollingDisabled(true, false);
-
+        
         scrollPane.addListener(new InputListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
@@ -277,7 +269,7 @@ public class CollectionScreen extends PageScreen {
                 }
             }
         });
-
+        
         return scrollPane;
     }
 
@@ -344,13 +336,13 @@ public class CollectionScreen extends PageScreen {
         float cardHeight = cardWidth * CARD_ASPECT_RATIO;
 
         TextureRegion[] suitRow = cardRegions[0];
-
+        
         TextureRegionDrawable bg = new TextureRegionDrawable(new TextureRegion(darkGrayTex));
         bg.setMinHeight(4 * uiScale);
-
+        
         TextureRegionDrawable knobBefore = new TextureRegionDrawable(new TextureRegion(whiteTex));
         knobBefore.setMinHeight(4 * uiScale);
-
+        
         ProgressBar.ProgressBarStyle modernStyle = new ProgressBar.ProgressBarStyle();
         modernStyle.background = bg;
         modernStyle.knobBefore = knobBefore;

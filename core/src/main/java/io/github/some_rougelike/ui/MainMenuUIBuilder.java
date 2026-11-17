@@ -2,7 +2,6 @@ package io.github.some_rougelike.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -14,24 +13,20 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
 
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.screens.CollectionScreen;
 import io.github.some_rougelike.screens.FriendsScreen;
 import io.github.some_rougelike.screens.ProfileScreen;
+import io.github.some_rougelike.screens.RunMapScreen;
 import io.github.some_rougelike.screens.SettingsScreen;
 import io.github.some_rougelike.audio.SoundManager;
-import io.github.some_rougelike.save.SaveManager;
+import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.GameConfig;
 
 public class MainMenuUIBuilder {
 
     public void build(Stage stage, Skin skin, Main main, boolean animateUI) {
-        build(stage, skin, main, animateUI, null, new Array<>());
-    }
-
-    public void build(Stage stage, Skin skin, Main main, boolean animateUI, TrippyBackground trippyBackground, Array<Texture> generatedTextures) {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
         float scale = Math.min(width / 1920f, height / 1080f) * GameConfig.MAIN_MENU_SCALE;
@@ -57,14 +52,14 @@ public class MainMenuUIBuilder {
         leftMenu.row();
         leftMenu.add(collectionButton).padBottom(35 * scale).left();
         leftMenu.row();
-
+        
         leftMenu.add(profileBtn).padBottom(15 * scale).left();
         leftMenu.row();
         leftMenu.add(settingsBtn).padBottom(15 * scale).left();
         leftMenu.row();
         leftMenu.add(friendsBtn).padBottom(35 * scale).left();
         leftMenu.row();
-
+        
         leftMenu.add(exitButton).left();
 
         addSoundListeners(playButton);
@@ -74,8 +69,6 @@ public class MainMenuUIBuilder {
         addSoundListeners(friendsBtn);
         addSoundListeners(exitButton);
 
-        final RunContinueDialog continueDialog = new RunContinueDialog(stage, skin, main, leftMenu, trippyBackground, generatedTextures);
-
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -83,11 +76,8 @@ public class MainMenuUIBuilder {
                     Actions.color(Color.GRAY, 0.05f),
                     Actions.color(Color.WHITE, 0.05f),
                     Actions.run(() -> {
-                        if (SaveManager.getInstance().hasActiveRun()) {
-                            continueDialog.show();
-                        } else {
-                            continueDialog.startDirectNewRun();
-                        }
+                        RunState newRun = new RunState();
+                        main.switchScreen(new RunMapScreen(main, newRun));
                     })
                 ));
             }

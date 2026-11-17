@@ -20,7 +20,6 @@ import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
-import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
 import io.github.some_rougelike.ui.MainMenuUIBuilder;
 import io.github.some_rougelike.ui.TrippyBackground;
@@ -37,26 +36,23 @@ public class MainMenuScreen extends ScreenAdapter {
     public MainMenuScreen(Main main, boolean withCardRain, boolean animateUI) {
         stage = new Stage(new ScreenViewport());
         Skin skin = Assets.getInstance().getSkin(GameConfig.UI_SKIN);
-
+        
         trippyBackground = new TrippyBackground(GameConfig.BG_COLOR_1, GameConfig.BG_COLOR_2);
         trippyBackground.setTouchable(Touchable.disabled);
         stage.addActor(trippyBackground);
-
-        new MainMenuUIBuilder().build(stage, skin, main, animateUI, trippyBackground, generatedTextures);
+        
+        new MainMenuUIBuilder().build(stage, skin, main, animateUI);
 
         if (withCardRain) {
             Texture deckTexture = null;
             TextureRegion[][] cardRegions = null;
             try {
-                FileHandle file = Gdx.files.internal(SaveManager.getInstance().getSelectedDeckSkinPath());
-                if (!file.exists()) {
-                    file = Gdx.files.internal(GameConfig.DECK_SKINS_DIR + "/" + GameConfig.DEFAULT_DECK_SKIN);
-                }
+                FileHandle file = Gdx.files.internal("deck_skins/white_black.png");
                 if (file.exists()) {
                     deckTexture = new Texture(file);
                     generatedTextures.add(deckTexture);
-                    int cols = GameConfig.DECK_SHEET_COLS;
-                    int rows = GameConfig.DECK_SHEET_ROWS;
+                    int cols = 13;
+                    int rows = 5;
                     cardRegions = TextureRegion.split(deckTexture, deckTexture.getWidth() / cols, deckTexture.getHeight() / rows);
                 }
             } catch (Exception e) {}
@@ -65,7 +61,6 @@ public class MainMenuScreen extends ScreenAdapter {
             whitePix.setColor(Color.WHITE);
             whitePix.fill();
             Texture whiteTex = new Texture(whitePix);
-            whitePix.dispose();
             generatedTextures.add(whiteTex);
             TextureRegionDrawable whiteTintableBg = new TextureRegionDrawable(whiteTex);
 

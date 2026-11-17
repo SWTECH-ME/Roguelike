@@ -1,14 +1,6 @@
 package io.github.some_rougelike.screens;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,7 +8,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -36,18 +27,21 @@ import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
+import io.github.some_rougelike.model.Card;
+import io.github.some_rougelike.model.Suit;
+import io.github.some_rougelike.model.Rank;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
-import io.github.some_rougelike.model.Card;
-import io.github.some_rougelike.model.Rank;
-import io.github.some_rougelike.model.RankProgress;
-import io.github.some_rougelike.model.Suit;
-import io.github.some_rougelike.save.CardSaveData;
-import io.github.some_rougelike.save.CombatSaveData;
-import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
-import io.github.some_rougelike.ui.PauseMenu;
 import io.github.some_rougelike.ui.TrippyBackground;
+import com.badlogic.gdx.math.MathUtils;
+import io.github.some_rougelike.model.RankProgress;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CombatScreen extends PageScreen {
     private RunState runState;
@@ -61,15 +55,15 @@ public class CombatScreen extends PageScreen {
     private List<Card> drawPile;
     private List<Card> hand = new ArrayList<>();
     private List<Card> selectedCards = new ArrayList<>();
-
-    private final Map<Card, Group> cardActorMap = new HashMap<>();
+    
+    private Map<Card, Group> cardActorMap = new HashMap<>();
 
     private Label scoreLabel;
     private Label targetLabel;
     private Label playsLabel;
     private Label discardsLabel;
     private Label deckCountLabel;
-
+    
     private Table uiRoot;
     private Group cardLayer;
     private Skin skin;
@@ -90,11 +84,8 @@ public class CombatScreen extends PageScreen {
     private int scoringCardIndex = 0;
     private int currentHandPoints = 0;
     private int currentMultiplier = 1;
-    private final List<Card> scoringCards = new ArrayList<>();
-    private final List<Group> scoringCardGroups = new ArrayList<>();
-    private final List<Boolean> preRolledDoubles = new ArrayList<>();
-    private final List<Integer> preRolledChips = new ArrayList<>();
-    private final List<Card> pendingDrawnCards = new ArrayList<>();
+    private List<Card> scoringCards = new ArrayList<>();
+    private List<Group> scoringCardGroups = new ArrayList<>();
 
     private float uiScale;
     private TrippyBackground bgImg;
@@ -106,7 +97,6 @@ public class CombatScreen extends PageScreen {
     private Image discardStrike;
     private Label playBtnLabel;
     private Label discardBtnLabel;
-    private PauseMenu pauseMenu;
     private boolean playStrikeActive = false;
     private boolean discardStrikeActive = false;
 
@@ -115,13 +105,11 @@ public class CombatScreen extends PageScreen {
     }
 
     public CombatScreen(Main main, RunState runState) {
-        this(main, runState, null);
-    }
-
-    public CombatScreen(Main main, RunState runState, CombatSaveData savedCombat) {
         super(main, "");
         this.runState = runState;
         this.enemy = runState.getCurrentEnemy();
+        this.playsLeft = enemy.getMaxPlays();
+        this.discardsLeft = enemy.getMaxDiscards();
         this.skin = Assets.getInstance().getSkin(GameConfig.UI_SKIN);
         this.generatedTextures = new Array<>();
 
@@ -140,39 +128,8 @@ public class CombatScreen extends PageScreen {
 
         loadDeckTexture();
 
-        if (savedCombat != null) {
-            this.currentScore = savedCombat.getCurrentScore();
-            this.targetDisplayScore = savedCombat.getCurrentScore();
-            this.playsLeft = savedCombat.getPlaysLeft();
-            this.discardsLeft = savedCombat.getDiscardsLeft();
-            this.drawPile = new ArrayList<>();
-            if (savedCombat.getDrawPile() != null) {
-                for (CardSaveData csd : savedCombat.getDrawPile()) {
-                    this.drawPile.add(csd.toCard());
-                }
-            }
-            this.hand = new ArrayList<>();
-            if (savedCombat.getHand() != null) {
-                for (CardSaveData csd : savedCombat.getHand()) {
-                    this.hand.add(csd.toCard());
-                }
-            }
-            this.selectedCards = new ArrayList<>();
-            if (savedCombat.getSelectedHandIndices() != null) {
-                for (Integer idx : savedCombat.getSelectedHandIndices()) {
-                    if (idx != null && idx >= 0 && idx < this.hand.size()) {
-                        Card selected = this.hand.get(idx);
-                        selected.setSelected(true);
-                        this.selectedCards.add(selected);
-                    }
-                }
-            }
-        } else {
-            this.playsLeft = enemy.getMaxPlays();
-            this.discardsLeft = enemy.getMaxDiscards();
-            this.drawPile = new ArrayList<>(runState.getDeck());
-            Collections.shuffle(this.drawPile);
-        }
+        this.drawPile = new ArrayList<>(runState.getDeck());
+        Collections.shuffle(this.drawPile);
 
         currentColor1 = Color.valueOf("4C9A7F");
         currentColor2 = Color.valueOf("2D6A54");
@@ -187,29 +144,17 @@ public class CombatScreen extends PageScreen {
         bgImg.setTouchable(Touchable.disabled);
         stage.addActor(bgImg);
 
-        assignTextureRegionsToAllCards();
-        buildUI(savedCombat != null);
-
-        pauseMenu = new PauseMenu(stage, skin, uiScale,
-            () -> setPaused(false),
-            () -> {
-                saveCurrentCombatState();
-                RankProgress.getInstance().save();
-                SaveManager.getInstance().save();
-            },
-            this::exitToMainMenu);
+        assignTextureRegionsToDeck();
+        buildUI();
     }
 
     private void loadDeckTexture() {
         try {
-            FileHandle file = Gdx.files.internal(SaveManager.getInstance().getSelectedDeckSkinPath());
-            if (!file.exists()) {
-                file = Gdx.files.internal(GameConfig.DECK_SKINS_DIR + "/" + GameConfig.DEFAULT_DECK_SKIN);
-            }
+            FileHandle file = Gdx.files.internal("deck_skins/white_black.png");
             if (file.exists()) {
                 deckTexture = new Texture(file);
-                int cols = GameConfig.DECK_SHEET_COLS;
-                int rows = GameConfig.DECK_SHEET_ROWS;
+                int cols = 13;
+                int rows = 5;
                 int tileWidth = deckTexture.getWidth() / cols;
                 int tileHeight = deckTexture.getHeight() / rows;
                 cardRegions = TextureRegion.split(deckTexture, tileWidth, tileHeight);
@@ -219,16 +164,9 @@ public class CombatScreen extends PageScreen {
         }
     }
 
-    private void assignTextureRegionsToAllCards() {
+    private void assignTextureRegionsToDeck() {
         if (cardRegions == null) return;
-        assignRegionsToList(runState.getDeck());
-        assignRegionsToList(drawPile);
-        assignRegionsToList(hand);
-    }
-
-    private void assignRegionsToList(List<Card> cards) {
-        if (cards == null || cardRegions == null) return;
-        for (Card card : cards) {
+        for (Card card : runState.getDeck()) {
             int row = getRowForSuit(card.getSuit());
             int col = getColForRank(card.getRank());
             if (row >= 0 && row < cardRegions.length && col >= 0 && col < cardRegions[row].length) {
@@ -237,65 +175,33 @@ public class CombatScreen extends PageScreen {
         }
     }
 
-    public void saveCurrentCombatState() {
-        if (isGameOver) return;
-        CombatSaveData combatSaveData = CombatSaveData.create(
-            targetDisplayScore,
-            playsLeft,
-            discardsLeft,
-            drawPile,
-            hand,
-            selectedCards
-        );
-        SaveManager.getInstance().saveCombatState(runState, combatSaveData);
-    }
-
-    private void saveProjectedCombatState(int projectedScore, int projectedPlaysLeft, int projectedDiscardsLeft, List<Card> projectedDrawPile, List<Card> projectedHand, List<Card> projectedSelected) {
-        if (projectedScore < enemy.getTargetScore() && projectedPlaysLeft <= 0) {
-            SaveManager.getInstance().clearActiveRun();
-            return;
-        }
-        CombatSaveData combatSaveData = CombatSaveData.create(
-            projectedScore,
-            projectedPlaysLeft,
-            projectedDiscardsLeft,
-            projectedDrawPile,
-            projectedHand,
-            projectedSelected
-        );
-        SaveManager.getInstance().saveCombatState(runState, combatSaveData);
-    }
-
-    private static final Map<Suit, Integer> SUIT_ROWS = new EnumMap<>(Suit.class);
-    private static final Map<Rank, Integer> RANK_COLS = new EnumMap<>(Rank.class);
-
-    static {
-        SUIT_ROWS.put(Suit.CLUBS, 0);
-        SUIT_ROWS.put(Suit.HEARTS, 1);
-        SUIT_ROWS.put(Suit.SPADES, 2);
-        SUIT_ROWS.put(Suit.DIAMONDS, 3);
-
-        RANK_COLS.put(Rank.ACE, 0);
-        RANK_COLS.put(Rank.TWO, 1);
-        RANK_COLS.put(Rank.THREE, 2);
-        RANK_COLS.put(Rank.FOUR, 3);
-        RANK_COLS.put(Rank.FIVE, 4);
-        RANK_COLS.put(Rank.SIX, 5);
-        RANK_COLS.put(Rank.SEVEN, 6);
-        RANK_COLS.put(Rank.EIGHT, 7);
-        RANK_COLS.put(Rank.NINE, 8);
-        RANK_COLS.put(Rank.TEN, 9);
-        RANK_COLS.put(Rank.JACK, 10);
-        RANK_COLS.put(Rank.QUEEN, 11);
-        RANK_COLS.put(Rank.KING, 12);
-    }
-
     private int getRowForSuit(Suit suit) {
-        return SUIT_ROWS.getOrDefault(suit, 0);
+        switch (suit) {
+            case CLUBS: return 0;
+            case HEARTS: return 1;
+            case SPADES: return 2;
+            case DIAMONDS: return 3;
+            default: return 0;
+        }
     }
 
     private int getColForRank(Rank rank) {
-        return RANK_COLS.getOrDefault(rank, 0);
+        switch (rank) {
+            case ACE: return 0;
+            case TWO: return 1;
+            case THREE: return 2;
+            case FOUR: return 3;
+            case FIVE: return 4;
+            case SIX: return 5;
+            case SEVEN: return 6;
+            case EIGHT: return 7;
+            case NINE: return 8;
+            case TEN: return 9;
+            case JACK: return 10;
+            case QUEEN: return 11;
+            case KING: return 12;
+            default: return 0;
+        }
     }
 
     private int getProgressIndex(Rank rank) {
@@ -339,14 +245,14 @@ public class CombatScreen extends PageScreen {
         return new TextureRegionDrawable(tex);
     }
 
-    private void buildUI(boolean restoredFromSave) {
+    private void buildUI() {
         uiRoot = new Table();
         uiRoot.setFillParent(true);
 
         float cardWidth = GameConfig.COMBAT_CARD_WIDTH * uiScale;
         float cardHeight = GameConfig.COMBAT_CARD_HEIGHT * uiScale;
         int cornerRadius = (int)(GameConfig.COMBAT_CARD_RADIUS * uiScale);
-
+        
         cardBgNormal = createRoundedRect((int)cardWidth, (int)cardHeight, GameConfig.COMBAT_CARD_BG_NORMAL, cornerRadius);
         cardBgSelected = createRoundedRect((int)cardWidth, (int)cardHeight, GameConfig.COMBAT_CARD_BG_SELECTED, cornerRadius);
 
@@ -411,37 +317,29 @@ public class CombatScreen extends PageScreen {
         actionTable.add(playBtn).padRight(60 * uiScale);
         actionTable.add(discardBtn);
 
-        final List<Card> initialHandCards;
-        if (!restoredFromSave) {
-            initialHandCards = drawUpToMax();
-            saveCurrentCombatState();
-        } else {
-            initialHandCards = new ArrayList<>(hand);
-        }
-
         Table deckTable = new Table();
         Label deckTitle = new Label("DECK", skin);
         deckTitle.setFontScale(uiScale * 0.9f);
         deckTitle.setColor(new Color(0.7f, 0.7f, 0.7f, 1f));
         deckTitle.setAlignment(Align.right);
-
+        
         deckCountLabel = new Label(String.valueOf(drawPile.size()), skin);
         deckCountLabel.setFontScale(uiScale * 2.0f);
         deckCountLabel.setColor(Color.WHITE);
         deckCountLabel.setAlignment(Align.right);
-
+        
         deckTable.add(deckTitle).right().row();
         deckTable.add(deckCountLabel).right().padTop(5 * uiScale).row();
 
         Table dummyHandSpace = new Table();
-
+        
         Table handAndActions = new Table();
         handAndActions.add(dummyHandSpace).size(0, GameConfig.COMBAT_CARD_HEIGHT * uiScale).padBottom(40 * uiScale).row();
         handAndActions.add(actionTable);
 
         bottomSection.add().uniformX().expandX();
         bottomSection.add(handAndActions).center();
-
+        
         Table deckWrapper = new Table();
         deckWrapper.add(deckTable).expand().right().bottom().padRight(60 * uiScale).padBottom(50 * uiScale);
         bottomSection.add(deckWrapper).uniformX().expandX().fill();
@@ -460,7 +358,7 @@ public class CombatScreen extends PageScreen {
             Actions.removeActor()
         ));
         stage.addActor(inputBlocker);
-
+        
         cardLayer = new Group();
         cardLayer.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cardLayer.setTouchable(Touchable.childrenOnly);
@@ -471,7 +369,8 @@ public class CombatScreen extends PageScreen {
         stage.addAction(Actions.sequence(
             Actions.delay(GameConfig.DRAW_INITIAL_DELAY),
             Actions.run(() -> {
-                updateHandUI(initialHandCards);
+                List<Card> initialCards = drawUpToMax();
+                updateHandUI(initialCards);
             })
         ));
 
@@ -480,30 +379,30 @@ public class CombatScreen extends PageScreen {
 
     private Group createActionButton(String text, float scale, boolean checkBusy, Runnable onClick, Condition isZero, boolean isPlayBtn) {
         Group group = new Group();
-
+        
         Label label = new Label(text, skin);
         label.setFontScale(scale);
         label.setColor(GameConfig.BUTTON_TEXT_COLOR);
         label.setAlignment(Align.center);
         label.pack();
-
+        
         float w = label.getWidth();
         float h = label.getHeight();
         group.setSize(w, h);
         group.setOrigin(Align.center);
-
+        
         label.setPosition(0, 0);
         group.addActor(label);
-
+        
         float extraWidth = GameConfig.BUTTON_STRIKE_OVERHANG * uiScale;
         float strikeThick = GameConfig.BUTTON_STRIKE_THICKNESS * uiScale;
-
+        
         Image strikethrough = new Image(whiteTintableBg);
         strikethrough.setColor(GameConfig.BUTTON_TEXT_COLOR);
         strikethrough.setSize(0, strikeThick);
         strikethrough.setPosition(-extraWidth / 2f, h / 2f - (strikeThick / 2f));
         group.addActor(strikethrough);
-
+        
         if (isPlayBtn) {
             playStrike = strikethrough;
             playBtnLabel = label;
@@ -511,43 +410,43 @@ public class CombatScreen extends PageScreen {
             discardStrike = strikethrough;
             discardBtnLabel = label;
         }
-
+        
         group.setTouchable(Touchable.enabled);
-
+        
         group.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                if (pointer == -1 && !isPaused && (!checkBusy || (!isGameOver && !isScoring))) {
+                if (pointer == -1 && (!checkBusy || (!isGameOver && !isScoring))) {
                     group.clearActions();
                     group.addAction(Actions.scaleTo(1.1f, 1.1f, 0.15f, Interpolation.fade));
-
+                    
                     label.clearActions();
                     label.addAction(Actions.color(Color.WHITE, 0.15f, Interpolation.fade));
-
+                    
                     strikethrough.clearActions();
                     float targetW = isZero.isTrue() ? label.getWidth() + extraWidth : 0f;
-
+                    
                     strikethrough.addAction(Actions.parallel(
                         Actions.color(Color.WHITE, 0.15f, Interpolation.fade),
                         Actions.sizeTo(targetW, strikeThick, 0.15f, Interpolation.smooth)
                     ));
-
+                    
                     SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_HOVER);
                 }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                if (pointer == -1 && !isPaused) {
+                if (pointer == -1) {
                     group.clearActions();
                     group.addAction(Actions.scaleTo(1.0f, 1.0f, 0.15f, Interpolation.fade));
-
+                    
                     label.clearActions();
                     label.addAction(Actions.color(GameConfig.BUTTON_TEXT_COLOR, 0.15f, Interpolation.fade));
-
+                    
                     strikethrough.clearActions();
                     float targetW = isZero.isTrue() ? label.getWidth() + extraWidth : 0f;
-
+                    
                     strikethrough.addAction(Actions.parallel(
                         Actions.color(GameConfig.BUTTON_TEXT_COLOR, 0.15f, Interpolation.fade),
                         Actions.sizeTo(targetW, strikeThick, 0.15f, Interpolation.smooth)
@@ -557,16 +456,16 @@ public class CombatScreen extends PageScreen {
 
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (!isPaused && (!checkBusy || (!isGameOver && !isScoring))) {
+                if (!checkBusy || (!isGameOver && !isScoring)) {
                     if (isZero.isTrue()) {
                         SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
-
+                        
                         label.clearActions();
                         label.addAction(Actions.sequence(
                             Actions.color(GameConfig.BUTTON_ERROR_COLOR, 0.1f),
                             Actions.color(Color.WHITE, 0.2f)
                         ));
-
+                        
                         strikethrough.clearActions();
                         float targetW = label.getWidth() + extraWidth;
                         strikethrough.addAction(Actions.parallel(
@@ -578,13 +477,13 @@ public class CombatScreen extends PageScreen {
                         ));
                     } else {
                         SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
-
+                        
                         group.clearActions();
                         group.addAction(Actions.sequence(
                             Actions.scaleTo(1.0f, 1.0f, 0.1f, Interpolation.fade),
                             Actions.scaleTo(1.1f, 1.1f, 0.1f, Interpolation.fade)
                         ));
-
+                        
                         if (onClick != null) onClick.run();
                     }
                 }
@@ -605,7 +504,7 @@ public class CombatScreen extends PageScreen {
         label.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                if (pointer == -1 && !isPaused && (!checkBusy || (!isGameOver && !isScoring))) {
+                if (pointer == -1 && (!checkBusy || (!isGameOver && !isScoring))) {
                     label.clearActions();
                     label.addAction(Actions.parallel(
                         Actions.color(Color.WHITE, 0.15f, Interpolation.fade),
@@ -617,7 +516,7 @@ public class CombatScreen extends PageScreen {
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                if (pointer == -1 && !isPaused) {
+                if (pointer == -1) {
                     label.clearActions();
                     label.addAction(Actions.parallel(
                         Actions.color(GameConfig.BUTTON_TEXT_COLOR, 0.15f, Interpolation.fade),
@@ -628,15 +527,15 @@ public class CombatScreen extends PageScreen {
 
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (!isPaused && (!checkBusy || (!isGameOver && !isScoring))) {
+                if (!checkBusy || (!isGameOver && !isScoring)) {
                     SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
-
+                    
                     label.clearActions();
                     label.addAction(Actions.parallel(
                         Actions.color(GameConfig.BUTTON_TEXT_COLOR, 0.1f, Interpolation.fade),
                         Actions.scaleTo(scale, scale, 0.1f, Interpolation.fade)
                     ));
-
+                    
                     if (onClick != null) onClick.run();
                 }
             }
@@ -647,7 +546,7 @@ public class CombatScreen extends PageScreen {
 
     private void updateHandUI(List<Card> incomingCards) {
         float cardWidth = GameConfig.COMBAT_CARD_WIDTH * uiScale;
-        float cardHeight = GameConfig.COMBAT_CARD_HEIGHT * uiScale;
+        float cardHeight = GameConfig.COMBAT_CARD_HEIGHT * uiScale; 
         float hoverOffset = GameConfig.COMBAT_CARD_HOVER_OFFSET * uiScale;
         float selectOffset = GameConfig.COMBAT_CARD_SELECT_OFFSET * uiScale;
         float spacing = GameConfig.HAND_SPACING * uiScale;
@@ -664,7 +563,7 @@ public class CombatScreen extends PageScreen {
 
                 Table cardBg = new Table();
                 cardBg.setSize(cardWidth, cardHeight);
-                cardBg.setBackground(selectedCards.contains(card) ? cardBgSelected : cardBgNormal);
+                cardBg.setBackground(cardBgNormal);
                 cardBg.setTouchable(Touchable.disabled);
 
                 Actor cardContent;
@@ -682,7 +581,7 @@ public class CombatScreen extends PageScreen {
 
                 cardBg.add(cardContent).expand().fill();
                 cardWrapper.addActor(cardBg);
-
+                
                 cardActorMap.put(card, cardWrapper);
                 cardLayer.addActor(cardWrapper);
 
@@ -697,7 +596,7 @@ public class CombatScreen extends PageScreen {
                 cardWrapper.addListener(new ClickListener() {
                     @Override
                     public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                        if (isGameOver || isScoring || isTransitioningOut || isPaused) return;
+                        if (isGameOver || isScoring || isTransitioningOut) return;
                         if (selectedCards.contains(card)) return;
                         cardBg.clearActions();
                         cardBg.addAction(Actions.moveTo(0, hoverOffset, 0.15f, Interpolation.smooth));
@@ -705,7 +604,7 @@ public class CombatScreen extends PageScreen {
 
                     @Override
                     public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                        if (isGameOver || isScoring || isTransitioningOut || isPaused) return;
+                        if (isGameOver || isScoring || isTransitioningOut) return;
                         if (selectedCards.contains(card)) return;
                         cardBg.clearActions();
                         cardBg.addAction(Actions.moveTo(0, 0, 0.15f, Interpolation.smooth));
@@ -713,22 +612,20 @@ public class CombatScreen extends PageScreen {
 
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        if (isGameOver || isScoring || isTransitioningOut || isPaused) return;
+                        if (isGameOver || isScoring || isTransitioningOut) return;
                         SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
-
+                        
                         if (selectedCards.contains(card)) {
                             selectedCards.remove(card);
                             cardBg.clearActions();
                             cardBg.addAction(Actions.moveTo(0, hoverOffset, 0.2f, Interpolation.exp10Out));
                             cardBg.setBackground(cardBgNormal);
-                            saveCurrentCombatState();
                         } else {
                             if (selectedCards.size() < 5) {
                                 selectedCards.add(card);
                                 cardBg.clearActions();
                                 cardBg.addAction(Actions.moveTo(0, selectOffset, 0.2f, Interpolation.exp10Out));
                                 cardBg.setBackground(cardBgSelected);
-                                saveCurrentCombatState();
                             }
                         }
                     }
@@ -740,23 +637,22 @@ public class CombatScreen extends PageScreen {
 
         float totalWidth = hand.size() * cardWidth + (hand.size() - 1) * spacing;
         float startX = (Gdx.graphics.getWidth() - totalWidth) / 2f;
-
+        
         for (int i = 0; i < hand.size(); i++) {
             Card card = hand.get(i);
             Group cw = cardActorMap.get(card);
             float currentTargetX = startX + i * (cardWidth + spacing);
-
+            
             cw.clearActions();
             Actor bg = cw.getChild(0);
             bg.clearActions();
-
+            
             if (incomingCards != null && incomingCards.contains(card)) {
                 float delay = baseRepositionTime + (incomingCards.indexOf(card) * GameConfig.DRAW_CARD_DELAY);
                 float animDur = delay + GameConfig.DRAW_CARD_DURATION;
                 maxHandAnimTime = Math.max(maxHandAnimTime, animDur);
-
+                
                 bg.getColor().a = 0f;
-                bg.setPosition(0, selectedCards.contains(card) ? selectOffset : 0);
                 bg.addAction(Actions.sequence(
                     Actions.delay(delay),
                     Actions.fadeIn(0.3f)
@@ -772,7 +668,7 @@ public class CombatScreen extends PageScreen {
                 cw.addAction(Actions.moveTo(currentTargetX, targetY, 0.35f, Interpolation.smooth));
             }
         }
-
+        
         drawingTimer = maxHandAnimTime;
     }
 
@@ -788,7 +684,7 @@ public class CombatScreen extends PageScreen {
     }
 
     private void playSelectedCards() {
-        if (isGameOver || isScoring || selectedCards.isEmpty() || playsLeft <= 0 || isTransitioningOut || isPaused) return;
+        if (isGameOver || isScoring || selectedCards.isEmpty() || playsLeft <= 0 || isTransitioningOut) return;
 
         playsLeft--;
 
@@ -801,13 +697,13 @@ public class CombatScreen extends PageScreen {
         for (Card sc : scoringCards) {
             Group cw = cardActorMap.get(sc);
             scoringCardGroups.add(cw);
-
+            
             com.badlogic.gdx.math.Vector2 pos = cw.localToStageCoordinates(new com.badlogic.gdx.math.Vector2(0, 0));
-            cw.remove();
-            stage.addActor(cw);
-            cw.setPosition(pos.x, pos.y);
-            cardActorMap.remove(sc);
-
+            cw.remove(); 
+            stage.addActor(cw); 
+            cw.setPosition(pos.x, pos.y); 
+            cardActorMap.remove(sc); 
+            
             cw.clearActions();
             Actor bg = cw.getChild(0);
             bg.clearActions();
@@ -817,60 +713,34 @@ public class CombatScreen extends PageScreen {
         hand.removeAll(selectedCards);
         selectedCards.clear();
 
-        preRolledDoubles.clear();
-        preRolledChips.clear();
-        int sumChips = 0;
-        for (Card sc : scoringCards) {
-            boolean doubled = rollDouble(sc);
-            int chips = doubled ? sc.getChips() * 2 : sc.getChips();
-            RankProgress.getInstance().add(getProgressIndex(sc.getRank()), 5f);
-            preRolledDoubles.add(doubled);
-            preRolledChips.add(chips);
-            sumChips += chips;
-        }
-        RankProgress.getInstance().save();
-
-        currentMultiplier = scoringCards.size();
-        int projectedHandScore = sumChips * currentMultiplier;
-        int projectedTotalScore = targetDisplayScore + projectedHandScore;
-
-        pendingDrawnCards.clear();
-        int needed = GameConfig.STARTING_HAND_SIZE - hand.size();
-        while (pendingDrawnCards.size() < needed && !drawPile.isEmpty()) {
-            pendingDrawnCards.add(drawPile.remove(0));
-        }
-
-        List<Card> projectedHand = new ArrayList<>(hand);
-        projectedHand.addAll(pendingDrawnCards);
-        saveProjectedCombatState(projectedTotalScore, playsLeft, discardsLeft, drawPile, projectedHand, Collections.emptyList());
-
         isScoring = true;
         scoringTimer = 0f;
         scoringCardIndex = 0;
         currentHandPoints = 0;
+        currentMultiplier = scoringCards.size();
 
         updateTopBar();
     }
 
     private void discardSelectedCards() {
-        if (isGameOver || isScoring || selectedCards.isEmpty() || discardsLeft <= 0 || isTransitioningOut || isPaused) return;
+        if (isGameOver || isScoring || selectedCards.isEmpty() || discardsLeft <= 0 || isTransitioningOut) return;
 
         discardsLeft--;
-
+        
         float maxAnimTime = 0f;
         for (int i = 0; i < selectedCards.size(); i++) {
             Card sc = selectedCards.get(i);
             Group cw = cardActorMap.get(sc);
             cardActorMap.remove(sc);
-
+            
             cw.clearActions();
             Actor bg = cw.getChild(0);
             bg.clearActions();
             bg.addAction(Actions.moveTo(0, 0, 0.2f, Interpolation.smooth));
-
+            
             float animDur = i * GameConfig.FLYOUT_CARD_DELAY + GameConfig.FLYOUT_DISCARD_DURATION;
             maxAnimTime = Math.max(maxAnimTime, animDur);
-
+            
             cw.addAction(Actions.sequence(
                 Actions.delay(i * GameConfig.FLYOUT_CARD_DELAY),
                 Actions.parallel(
@@ -881,20 +751,10 @@ public class CombatScreen extends PageScreen {
                 Actions.removeActor()
             ));
         }
-
+        
         hand.removeAll(selectedCards);
         selectedCards.clear();
         updateTopBar();
-
-        final List<Card> drawnAfterDiscard = new ArrayList<>();
-        int needed = GameConfig.STARTING_HAND_SIZE - hand.size();
-        while (drawnAfterDiscard.size() < needed && !drawPile.isEmpty()) {
-            drawnAfterDiscard.add(drawPile.remove(0));
-        }
-
-        List<Card> projectedHand = new ArrayList<>(hand);
-        projectedHand.addAll(drawnAfterDiscard);
-        saveProjectedCombatState(targetDisplayScore, playsLeft, discardsLeft, drawPile, projectedHand, Collections.emptyList());
 
         Actor inputBlocker = new Actor();
         inputBlocker.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -908,11 +768,8 @@ public class CombatScreen extends PageScreen {
         stage.addAction(Actions.sequence(
             Actions.delay(maxAnimTime),
             Actions.run(() -> {
-                hand.addAll(drawnAfterDiscard);
-                if (deckCountLabel != null) {
-                    deckCountLabel.setText(String.valueOf(drawPile.size()));
-                }
-                updateHandUI(drawnAfterDiscard);
+                List<Card> newCards = drawUpToMax();
+                updateHandUI(newCards);
             })
         ));
     }
@@ -920,7 +777,7 @@ public class CombatScreen extends PageScreen {
     private void updateTopBar() {
         playsLabel.setText("Plays: " + playsLeft);
         discardsLabel.setText("Discards: " + discardsLeft);
-
+        
         float extraWidth = GameConfig.BUTTON_STRIKE_OVERHANG * uiScale;
         float strikeThick = GameConfig.BUTTON_STRIKE_THICKNESS * uiScale;
 
@@ -943,8 +800,7 @@ public class CombatScreen extends PageScreen {
 
     private void showFailedScreen() {
         isGameOver = true;
-        SaveManager.getInstance().clearActiveRun();
-
+        
         if (uiRoot != null) {
             uiRoot.clearActions();
             uiRoot.addAction(Actions.sequence(
@@ -958,7 +814,7 @@ public class CombatScreen extends PageScreen {
         final Color targetColor2 = GameConfig.GAMEOVER_BG_2;
         final Color startColor1 = new Color(currentColor1);
         final Color startColor2 = new Color(currentColor2);
-
+        
         FloatAction lerpAction = new FloatAction(0f, 1f, GameConfig.GAMEOVER_BG_LERP_DURATION, Interpolation.smooth) {
             @Override
             protected void update(float percent) {
@@ -983,14 +839,14 @@ public class CombatScreen extends PageScreen {
         Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, false, () -> {
             if (isTransitioningOut) return;
             isTransitioningOut = true;
-
+            
             failedOverlay.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
-
+            
             final Color targetMenuC1 = GameConfig.BG_COLOR_1;
             final Color targetMenuC2 = GameConfig.BG_COLOR_2;
             final Color currentC1 = new Color(currentColor1);
             final Color currentC2 = new Color(currentColor2);
-
+            
             FloatAction backLerp = new FloatAction(0f, 1f, GameConfig.SCREEN_TRANSITION_DURATION, Interpolation.smooth) {
                 @Override
                 protected void update(float percent) {
@@ -1003,9 +859,9 @@ public class CombatScreen extends PageScreen {
                 }
             };
             stage.addAction(backLerp);
-
+            
             CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
-
+            
             stage.addAction(Actions.sequence(
                 Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
                 Actions.run(() -> main.switchScreen(new MainMenuScreen(main, true, true)))
@@ -1022,15 +878,15 @@ public class CombatScreen extends PageScreen {
 
     private void executeVictoryTransition() {
         isTransitioningOut = true;
-
+        
         uiRoot.addAction(Actions.fadeOut(GameConfig.VICTORY_UI_FADE_DURATION, Interpolation.fade));
         cardLayer.addAction(Actions.fadeOut(GameConfig.VICTORY_UI_FADE_DURATION, Interpolation.fade));
-
+        
         final Color targetColor1 = GameConfig.BG_COLOR_1;
         final Color targetColor2 = GameConfig.BG_COLOR_2;
         final Color startColor1 = new Color(currentColor1);
         final Color startColor2 = new Color(currentColor2);
-
+        
         FloatAction lerpAction = new FloatAction(0f, 1f, GameConfig.VICTORY_BG_LERP_DURATION, Interpolation.smooth) {
             @Override
             protected void update(float percent) {
@@ -1042,64 +898,24 @@ public class CombatScreen extends PageScreen {
                 }
             }
         };
-
+        
         stage.addAction(Actions.sequence(
             Actions.delay(GameConfig.VICTORY_BG_LERP_DELAY),
             lerpAction,
             Actions.run(() -> {
                 runState.addMoney(GameConfig.REWARD_MONEY);
                 runState.registerVictory();
-                SaveManager.getInstance().saveRunMapState(runState);
                 main.switchScreen(new RunMapScreen(main, runState));
             })
         ));
     }
 
     @Override
-    public void setPaused(boolean paused) {
-        super.setPaused(paused);
-        if (uiRoot != null) {
-            uiRoot.setTouchable(paused ? Touchable.disabled : Touchable.childrenOnly);
-        }
-        if (cardLayer != null) {
-            cardLayer.setTouchable(paused ? Touchable.disabled : Touchable.childrenOnly);
-        }
-    }
-
-    public void exitToMainMenu() {
-        saveCurrentCombatState();
-        goBack();
-    }
-
-    @Override
-    protected void onEscapePressed() {
-        if (isPaused) {
-            pauseMenu.resume();
-        } else {
-            saveCurrentCombatState();
-            setPaused(true);
-            pauseMenu.show();
-        }
-    }
-
-    @Override
     public void render(float delta) {
-        if (!isGameOver && !isScoring && !isTransitioningOut && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            onEscapePressed();
-            return;
-        }
-
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (!isPaused) {
-            stage.act(delta);
-        }
+        stage.act(delta);
         stage.draw();
-        pauseMenu.render(delta);
-
-        if (isPaused) {
-            return;
-        }
 
         if (drawingTimer > 0) {
             drawingTimer -= delta;
@@ -1111,14 +927,11 @@ public class CombatScreen extends PageScreen {
                 scoringTimer = 0f;
 
                 if (scoringCardIndex < scoringCards.size()) {
-                    boolean doubled = scoringCardIndex < preRolledDoubles.size()
-                        && Boolean.TRUE.equals(preRolledDoubles.get(scoringCardIndex));
-                    Integer rolledChips = scoringCardIndex < preRolledChips.size()
-                        ? preRolledChips.get(scoringCardIndex)
-                        : null;
-                    int chips = rolledChips != null
-                        ? rolledChips
-                        : scoringCards.get(scoringCardIndex).getChips();
+                    Card c = scoringCards.get(scoringCardIndex);
+                    boolean doubled = rollDouble(c);
+                    int chips = doubled ? c.getChips() * 2 : c.getChips();
+
+                    RankProgress.getInstance().add(getProgressIndex(c.getRank()), 5f);
 
                     currentHandPoints += chips;
                     targetDisplayScore += chips;
@@ -1153,9 +966,10 @@ public class CombatScreen extends PageScreen {
                     scoringCardIndex++;
                 } else if (!isAnimatingFlyout) {
                     isAnimatingFlyout = true;
-
+                    
                     int finalHandScore = currentHandPoints * currentMultiplier;
                     targetDisplayScore += (finalHandScore - currentHandPoints);
+                    RankProgress.getInstance().save();
 
                     triggerShake(GameConfig.SCREEN_SHAKE_INTENSITY * 1.5f * uiScale);
 
@@ -1177,19 +991,13 @@ public class CombatScreen extends PageScreen {
                     }
                     scoringCardGroups.clear();
 
-                    final List<Card> drawnAfterPlay = new ArrayList<>(pendingDrawnCards);
-                    pendingDrawnCards.clear();
-
                     stage.addAction(Actions.sequence(
                         Actions.delay(maxAnimTime),
                         Actions.run(() -> {
                             isAnimatingFlyout = false;
                             isScoring = false;
-                            hand.addAll(drawnAfterPlay);
-                            if (deckCountLabel != null) {
-                                deckCountLabel.setText(String.valueOf(drawPile.size()));
-                            }
-                            updateHandUI(drawnAfterPlay);
+                            List<Card> newCards = drawUpToMax();
+                            updateHandUI(newCards);
                         })
                     ));
                 }
@@ -1217,19 +1025,8 @@ public class CombatScreen extends PageScreen {
     }
 
     @Override
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        if (pauseMenu != null) {
-            pauseMenu.resize(width, height);
-        }
-    }
-
-    @Override
     public void dispose() {
         super.dispose();
-        if (pauseMenu != null) {
-            pauseMenu.dispose();
-        }
         if (deckTexture != null) {
             deckTexture.dispose();
         }

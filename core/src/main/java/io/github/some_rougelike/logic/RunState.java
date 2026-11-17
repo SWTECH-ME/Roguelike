@@ -11,9 +11,9 @@ import io.github.some_rougelike.model.Rank;
 public class RunState {
     private int money;
     private int chapterIndex;
-
+    
     private List<Card> deck;
-
+    
     private List<Enemy> availableNormals;
     private Enemy bossEnemy;
     private Enemy activeEnemy;
@@ -23,19 +23,6 @@ public class RunState {
         this.chapterIndex = 1;
         this.deck = generateStandardDeck();
         generateMockChapter();
-    }
-
-    public RunState(int money, int chapterIndex, List<Card> deck, List<Enemy> availableNormals, Enemy bossEnemy, Enemy activeEnemy) {
-        this.money = money;
-        this.chapterIndex = chapterIndex;
-        this.deck = (deck != null && !deck.isEmpty()) ? new ArrayList<>(deck) : generateStandardDeck();
-        if (availableNormals != null && !availableNormals.isEmpty() && bossEnemy != null) {
-            this.availableNormals = new ArrayList<>(availableNormals);
-            this.bossEnemy = bossEnemy;
-            this.activeEnemy = activeEnemy;
-        } else {
-            generateMockChapter();
-        }
     }
 
     private List<Card> generateStandardDeck() {
@@ -56,16 +43,16 @@ public class RunState {
         normalPool.add(new Enemy("Doge", 450, 4, 3, GameConfig.BG_ENEMY_1));
         normalPool.add(new Enemy("Trollface", 550, 3, 2, GameConfig.BG_ENEMY_2));
         Collections.shuffle(normalPool);
-
+        
         availableNormals = new ArrayList<>();
         availableNormals.add(normalPool.get(0));
         availableNormals.add(normalPool.get(1));
-
+        
         List<Enemy> bossPool = new ArrayList<>();
         bossPool.add(new Enemy("Triple T", 500, 3, 2, "Card colors are hidden.", GameConfig.BG_BOSS));
         bossPool.add(new Enemy("Giga Chad", 500, 4, 2, "No discards allowed.", GameConfig.BG_BOSS));
         Collections.shuffle(bossPool);
-
+        
         bossEnemy = bossPool.get(0);
         activeEnemy = null;
     }

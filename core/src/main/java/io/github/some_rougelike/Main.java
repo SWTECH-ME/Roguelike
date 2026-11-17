@@ -2,21 +2,17 @@ package io.github.some_rougelike;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-
 import io.github.some_rougelike.audio.SoundManager;
-import io.github.some_rougelike.model.RankProgress;
-import io.github.some_rougelike.save.SaveManager;
-import io.github.some_rougelike.save.UserSettingsData;
 import io.github.some_rougelike.screens.SplashScreen;
+import io.github.some_rougelike.model.RankProgress;
 
 public class Main extends Game {
 
     // Stores the last known windowed resolution so fullscreen toggle can restore it
-    private int windowedWidth = GameConfig.DEFAULT_WINDOW_WIDTH;
-    private int windowedHeight = GameConfig.DEFAULT_WINDOW_HEIGHT;
+    private int windowedWidth = 1280;
+    private int windowedHeight = 720;
     private io.github.some_rougelike.ui.WindowModeController windowModeController;
 
     public void setWindowModeController(io.github.some_rougelike.ui.WindowModeController controller) {
@@ -29,51 +25,18 @@ public class Main extends Game {
 
     @Override
     public void create() {
-        SaveManager.getInstance().load();
-        RankProgress.getInstance().load();
-
         // Load all game assets at startup
         Assets.getInstance().load();
         Assets.getInstance().finishLoading();
         SoundManager.getInstance().load();
 
-        UserSettingsData settings = SaveManager.getInstance().getSettings();
-        GameConfig.applyBackgroundTheme(settings.getBackgroundTheme());
-        SoundManager.getInstance().setMasterVolume(settings.getMasterVolume());
-        SoundManager.getInstance().setMenuMusicVolume(settings.getMusicVolume());
-        SoundManager.getInstance().setSfxVolume(settings.getSfxVolume());
-
-        applySavedDisplaySettings(settings);
+        // Set default volumes to 50% (0.5f) right at startup
+        SoundManager.getInstance().setMasterVolume(0.5f);
+        SoundManager.getInstance().setMenuMusicVolume(0.5f);
+        SoundManager.getInstance().setSfxVolume(0.5f);
 
         // Set the initial screen (main menu)
         setScreen(new SplashScreen(this));
-    }
-
-    private void applySavedDisplaySettings(UserSettingsData settings) {
-        if (settings.getResolutionWidth() > 0 && settings.getResolutionHeight() > 0) {
-            windowedWidth = settings.getResolutionWidth();
-            windowedHeight = settings.getResolutionHeight();
-        }
-        Gdx.graphics.setVSync(settings.isVsync());
-
-        String mode = settings.getDisplayMode();
-        boolean windowed = "Windowed".equals(mode);
-        boolean borderless = "Borderless Windowed".equals(mode);
-
-        Gdx.graphics.setUndecorated(borderless);
-
-        if (borderless) {
-            Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode();
-            Gdx.graphics.setWindowedMode(displayMode.width, displayMode.height);
-        } else if (windowed) {
-            Gdx.graphics.setWindowedMode(windowedWidth, windowedHeight);
-        } else {
-            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-        }
-
-        if (windowModeController != null && (windowed || borderless)) {
-            windowModeController.setBorderless(borderless);
-        }
     }
 
     /**
@@ -107,23 +70,17 @@ public class Main extends Game {
      * When switching to fullscreen, the current window size is saved.
      */
     private void toggleFullscreen() {
-        UserSettingsData settings = SaveManager.getInstance().getSettings();
         if (Gdx.graphics.isFullscreen()) {
             // Restore previous windowed resolution
             Gdx.graphics.setWindowedMode(windowedWidth, windowedHeight);
-            settings.setDisplayMode("Windowed");
         } else {
             // Save current window size before going fullscreen
             windowedWidth = Gdx.graphics.getWidth();
             windowedHeight = Gdx.graphics.getHeight();
-            settings.setResolutionWidth(windowedWidth);
-            settings.setResolutionHeight(windowedHeight);
 
             // Switch to the monitor's native fullscreen mode
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-            settings.setDisplayMode("Fullscreen");
         }
-        SaveManager.getInstance().save();
     }
 
     @Override
@@ -133,7 +90,7 @@ public class Main extends Game {
         }
         super.dispose();
         RankProgress.getInstance().save();
-        SaveManager.getInstance().save();
+        Assets.getInstance().dispose();
 
         // Dispose all loaded assets
         Assets.getInstance().dispose();
