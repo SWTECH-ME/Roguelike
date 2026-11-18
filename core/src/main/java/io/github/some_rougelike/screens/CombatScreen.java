@@ -896,6 +896,7 @@ public class CombatScreen extends PageScreen {
                 : baseMultiplier;
         SaveManager.getInstance().discoverCombo(playedCombo);
         int projectedHandScore = (int) Math.round(sumChips * currentMultiplier);
+        int projectedTotalScore = targetDisplayScore + projectedHandScore;
 
         runState.addRunScore(projectedHandScore);
         if (!runState.isBossDebugMode()) {
