@@ -16,7 +16,7 @@ public class ProfileScreen extends PageScreen {
         super(main, "PROFILE");
         this.skin = Assets.getInstance().getSkin(GameConfig.UI_SKIN);
         this.uiBuilder = new ProfileUIBuilder();
-        this.uiBuilder.build(this.stage, this.skin, this.main, getScaleFactor());
+        this.uiBuilder.build(this.stage, this.skin, this.main, getScaleFactor(), true);
     }
 
     @Override
@@ -28,6 +28,6 @@ public class ProfileScreen extends PageScreen {
                 actor.remove();
             }
         }
-        uiBuilder.build(this.stage, this.skin, this.main, getScaleFactor());
+        uiBuilder.build(this.stage, this.skin, this.main, getScaleFactor(), false);
     }
 }

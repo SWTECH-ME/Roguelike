@@ -69,7 +69,10 @@ public class CollectionScreen extends PageScreen {
         stage.addActor(rootTable);
 
         updateCurrentSkinTexture();
-        rebuildUI();
+        rebuildUI(false);
+
+        rootTable.getColor().a = 0f;
+        rootTable.addAction(Actions.fadeIn(GameConfig.SUBMENU_FADE_DURATION, Interpolation.fade));
     }
 
     private void initTextures() {
@@ -169,10 +172,10 @@ public class CollectionScreen extends PageScreen {
         SaveManager.getInstance().getSettings().setSelectedDeckSkin(skinFiles.get(currentSkinIndex).name());
         SaveManager.getInstance().save();
         updateCurrentSkinTexture();
-        rebuildUI();
+        rebuildUI(false);
     }
 
-    private void rebuildUI() {
+    private void rebuildUI(boolean fadeContent) {
         rootTable.clearChildren();
         rootTable.center();
 
@@ -199,6 +202,10 @@ public class CollectionScreen extends PageScreen {
             default:
                 content = buildSkinsContent(uiScale, screenWidth, screenHeight);
                 break;
+        }
+        if (fadeContent) {
+            content.getColor().a = 0f;
+            content.addAction(Actions.fadeIn(GameConfig.SUBMENU_FADE_DURATION, Interpolation.fade));
         }
         rootTable.add(content).expand().fill().row();
 
@@ -234,7 +241,7 @@ public class CollectionScreen extends PageScreen {
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);
-        rebuildUI();
+        rebuildUI(false);
     }
 
     @Override
@@ -254,7 +261,7 @@ public class CollectionScreen extends PageScreen {
     private void setMode(Mode newMode) {
         if (mode == newMode) return;
         mode = newMode;
-        rebuildUI();
+        rebuildUI(true);
     }
 
     private int rankToColumn(int rankIndex) {
@@ -288,16 +295,13 @@ public class CollectionScreen extends PageScreen {
     private Table buildTabBar(float uiScale) {
         Table tabs = new Table();
 
-        Label skinsTab = createTabLabel("SKINS", uiScale, mode == Mode.SKINS, () -> setMode(Mode.SKINS));
         Label ranksTab = createTabLabel("CARD UPGRADES", uiScale, mode == Mode.RANKS, () -> setMode(Mode.RANKS));
+        Label skinsTab = createTabLabel("SKINS", uiScale, mode == Mode.SKINS, () -> setMode(Mode.SKINS));
         Label combosTab = createTabLabel("COMBINATIONS", uiScale, mode == Mode.COMBINATIONS, () -> setMode(Mode.COMBINATIONS));
 
-        skinsTab.setAlignment(Align.right);
-        combosTab.setAlignment(Align.left);
-
-        tabs.add(skinsTab).right().padRight(40f * uiScale).uniformX();
-        tabs.add(ranksTab).center();
-        tabs.add(combosTab).left().padLeft(40f * uiScale).uniformX();
+        tabs.add(ranksTab).center().padRight(40f * uiScale);
+        tabs.add(skinsTab).center().padRight(40f * uiScale);
+        tabs.add(combosTab).center();
 
         return tabs;
     }
@@ -471,7 +475,6 @@ public class CollectionScreen extends PageScreen {
 
     private Label createTabLabel(String text, float scale, boolean isActive, Runnable onClick) {
         Label label = new Label(text, uiSkin);
-        label.setOrigin(Align.center);
         label.setAlignment(Align.center);
 
         if (isActive) {
@@ -513,6 +516,8 @@ public class CollectionScreen extends PageScreen {
                 }
             });
         }
+        label.pack();
+        label.setOrigin(Align.center);
         return label;
     }
 
