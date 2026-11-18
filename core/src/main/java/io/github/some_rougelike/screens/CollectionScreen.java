@@ -27,6 +27,7 @@ import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
+import io.github.some_rougelike.logic.HandEvaluator;
 import io.github.some_rougelike.model.CardCollection;
 import io.github.some_rougelike.model.RankProgress;
 import io.github.some_rougelike.save.SaveManager;
@@ -90,11 +91,14 @@ public class CollectionScreen extends PageScreen {
     }
 
     private static final String[] RANK_NAMES = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
-    private static final String[] COMBINATIONS = {
-            "One Pair", "Two Pair", "Black Jack", "Three of a Kind", "5 Odd",
-            "5 Even", "Straight", "Flush", "Full House", "Prime 5",
-            "Royal House", "Four of a Kind", "Straight Flush", "Royal Flush"
+    private static final HandEvaluator.Combo[] COMBINATIONS = {
+            HandEvaluator.Combo.ONE_PAIR, HandEvaluator.Combo.TWO_PAIR, HandEvaluator.Combo.BLACK_JACK,
+            HandEvaluator.Combo.THREE_OF_A_KIND, HandEvaluator.Combo.FIVE_ODD, HandEvaluator.Combo.FIVE_EVEN,
+            HandEvaluator.Combo.STRAIGHT, HandEvaluator.Combo.FLUSH, HandEvaluator.Combo.FULL_HOUSE,
+            HandEvaluator.Combo.PRIME_FIVE, HandEvaluator.Combo.ROYAL_HOUSE, HandEvaluator.Combo.FOUR_OF_A_KIND,
+            HandEvaluator.Combo.STRAIGHT_FLUSH, HandEvaluator.Combo.ROYAL_FLUSH
     };
+    private static final String HIDDEN_COMBO_TEXT = "????";
 
     private static final int[][][] EXAMPLES = {
             { { 3, 0 }, { 3, 1 }, { 7, 2 }, { 11, 3 }, { 0, 0 } },
@@ -386,9 +390,10 @@ public class CollectionScreen extends PageScreen {
 
         for (int i = 0; i < COMBINATIONS.length; i++) {
             final int index = i;
-            boolean isHidden = GameConfig.ALLOW_HIDING_COMBINATIONS;
+            boolean isHidden = !SaveManager.getInstance().isComboDiscovered(COMBINATIONS[i]);
+            comboHidden[i] = isHidden;
 
-            final Label label = new Label(isHidden ? "---Find this in a run---" : COMBINATIONS[i], uiSkin);
+            final Label label = new Label(isHidden ? HIDDEN_COMBO_TEXT : COMBINATIONS[i].getDisplayName(), uiSkin);
             label.setFontScale(uiScale * 1.15f);
             label.setColor(Color.WHITE);
             label.setAlignment(Align.left);
@@ -444,7 +449,7 @@ public class CollectionScreen extends PageScreen {
                         comboHidden[index] = !comboHidden[index];
                         boolean hidden = comboHidden[index];
                         cards.setVisible(!hidden);
-                        label.setText(hidden ? "---Find this in a run---" : COMBINATIONS[index]);
+                        label.setText(hidden ? HIDDEN_COMBO_TEXT : COMBINATIONS[index].getDisplayName());
                         toggle.setText(hidden ? "SHOW" : "HIDE");
                     }
                 });
