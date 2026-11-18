@@ -84,6 +84,17 @@ public class SaveManager {
         }
     }
 
+    public String getUsername() {
+        ensureLoaded();
+        return currentSave.getUsername();
+    }
+
+    public void setUsername(String username) {
+        ensureLoaded();
+        currentSave.setUsername(username);
+        save();
+    }
+
     public UserSettingsData getSettings() {
         ensureLoaded();
         return currentSave.getSettings();
@@ -109,6 +120,44 @@ public class SaveManager {
         float[] target = getRankProgressValues();
         System.arraycopy(values, 0, target, 0, Math.min(values.length, target.length));
         save();
+    }
+
+    public int getAverageRankProgressPercent() {
+        float[] values = getRankProgressValues();
+        if (values.length == 0) {
+            return 0;
+        }
+        float sum = 0f;
+        for (float v : values) {
+            sum += Math.max(0f, Math.min(100f, v));
+        }
+        return Math.round(sum / values.length);
+    }
+
+    public int getMaxedRanksCount() {
+        float[] values = getRankProgressValues();
+        int count = 0;
+        for (float v : values) {
+            if (v >= 100f) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getDiscoveredCombosCount() {
+        ensureLoaded();
+        int count = 0;
+        for (HandEvaluator.Combo combo : HandEvaluator.Combo.values()) {
+            if (isComboDiscovered(combo)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getTotalCombosCount() {
+        return HandEvaluator.Combo.values().length;
     }
 
     public int getHighScore() {
