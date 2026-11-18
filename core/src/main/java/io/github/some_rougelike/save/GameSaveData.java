@@ -8,6 +8,18 @@ public class GameSaveData {
     private int highScore = 0;
     private boolean hasActiveRun = false;
     private RunSaveData activeRun = null;
+    private String[] discoveredCombos = new String[0];
+
+    public String[] getDiscoveredCombos() {
+        if (discoveredCombos == null) {
+            discoveredCombos = new String[0];
+        }
+        return discoveredCombos;
+    }
+
+    public void setDiscoveredCombos(String[] discoveredCombos) {
+        this.discoveredCombos = discoveredCombos;
+    }
 
     public GameSaveData() {
     }

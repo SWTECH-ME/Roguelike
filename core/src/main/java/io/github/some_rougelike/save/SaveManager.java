@@ -5,8 +5,11 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import io.github.some_rougelike.GameConfig;
+import io.github.some_rougelike.logic.HandEvaluator;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.model.RankProgress;
+
+import java.util.Arrays;
 
 public class SaveManager {
     private static final SaveManager INSTANCE = new SaveManager();
@@ -157,6 +160,33 @@ public class SaveManager {
         currentSave.setActiveRun(runData);
         currentSave.setHasActiveRun(true);
         save();
+    }
+
+    /** A High Card mindig ismert, a többi kombinációt egyszer ki kell játszani, hogy felfedezett legyen. */
+    public boolean isComboDiscovered(HandEvaluator.Combo combo) {
+        if (combo == null || combo == HandEvaluator.Combo.HIGH_CARD) {
+            return true;
+        }
+        ensureLoaded();
+        for (String name : currentSave.getDiscoveredCombos()) {
+            if (combo.name().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Felfedezettként jelöli és elmenti a kombinációt; true, ha most fedeztük fel először. */
+    public boolean discoverCombo(HandEvaluator.Combo combo) {
+        if (isComboDiscovered(combo)) {
+            return false;
+        }
+        String[] current = currentSave.getDiscoveredCombos();
+        String[] updated = Arrays.copyOf(current, current.length + 1);
+        updated[current.length] = combo.name();
+        currentSave.setDiscoveredCombos(updated);
+        save();
+        return true;
     }
 
     public void clearActiveRun() {

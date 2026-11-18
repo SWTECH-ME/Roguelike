@@ -40,6 +40,7 @@ import io.github.some_rougelike.logic.BossAbilityType;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.model.Card;
+import io.github.some_rougelike.logic.HandEvaluator;
 import io.github.some_rougelike.model.Rank;
 import io.github.some_rougelike.model.RankProgress;
 import io.github.some_rougelike.model.Suit;
@@ -70,6 +71,8 @@ public class CombatScreen extends PageScreen {
     private Label playsLabel;
     private Label discardsLabel;
     private Label deckCountLabel;
+    private Label comboLabel;
+    private String lastComboText = null;
 
     private Table uiRoot;
     private Group cardLayer;
@@ -90,7 +93,7 @@ public class CombatScreen extends PageScreen {
     private float drawingTimer = 0f;
     private int scoringCardIndex = 0;
     private int currentHandPoints = 0;
-    private int currentMultiplier = 1;
+    private double currentMultiplier = 1;
     private final List<Card> scoringCards = new ArrayList<>();
     private final List<Group> scoringCardGroups = new ArrayList<>();
     private final List<Boolean> preRolledDoubles = new ArrayList<>();
@@ -426,8 +429,14 @@ public class CombatScreen extends PageScreen {
             Label abilityLabel = new Label(enemy.getSpecialAbility(), skin);
             abilityLabel.setFontScale(uiScale * 1.1f);
             abilityLabel.setColor(new Color(0.9f, 0.5f, 0.5f, 1f));
-            middleTable.add(abilityLabel).padTop(10 * uiScale);
+            middleTable.add(abilityLabel).padTop(10 * uiScale).row();
         }
+
+        comboLabel = new Label("", skin);
+        comboLabel.setFontScale(uiScale * 2.0f);
+        comboLabel.setColor(Color.valueOf("FFD700"));
+        comboLabel.setAlignment(Align.center);
+        middleTable.add(comboLabel).padTop(30 * uiScale);
 
         Table bottomSection = new Table();
         Table actionTable = new Table();
@@ -880,9 +889,13 @@ public class CombatScreen extends PageScreen {
         }
         RankProgress.getInstance().save();
 
-        currentMultiplier = bossAbility.modifyHandMultiplier(scoringCards.size());
-        int projectedHandScore = sumChips * currentMultiplier;
-        int projectedTotalScore = targetDisplayScore + projectedHandScore;
+        HandEvaluator.Combo playedCombo = HandEvaluator.evaluate(scoringCards);
+        double baseMultiplier = playedCombo != null ? playedCombo.getMultiplier() : 1;
+        currentMultiplier = bossAbility == BossAbilityType.CAP_MULTIPLIER
+                ? Math.min(baseMultiplier, GameConfig.BOSS_MAX_MULTIPLIER_CAP)
+                : baseMultiplier;
+        SaveManager.getInstance().discoverCombo(playedCombo);
+        int projectedHandScore = (int) Math.round(sumChips * currentMultiplier);
 
         runState.addRunScore(projectedHandScore);
         if (!runState.isBossDebugMode()) {
@@ -1307,8 +1320,32 @@ public class CombatScreen extends PageScreen {
         }
     }
 
+    /** A kijelölt (pontozás közben a kijátszott) lapokból meghatározott kombináció kiírása. */
+    private void updateComboLabel() {
+        if (comboLabel == null) return;
+        List<Card> source = isScoring ? scoringCards : selectedCards;
+        HandEvaluator.Combo combo = HandEvaluator.evaluate(source);
+        String text;
+        if (combo == null) {
+            text = "";
+        } else if (!SaveManager.getInstance().isComboDiscovered(combo)) {
+            text = "????";
+        } else {
+            text = combo.getDisplayName() + "  x" + formatMult(combo.getMultiplier());
+        }
+        if (!text.equals(lastComboText)) {
+            lastComboText = text;
+            comboLabel.setText(text);
+        }
+    }
+
+    private static String formatMult(double m) {
+        return (m == Math.floor(m)) ? String.valueOf((int) m) : String.valueOf(m);
+    }
+
     @Override
     public void render(float delta) {
+        updateComboLabel();
         if (!isGameOver && !isScoring && !isTransitioningOut && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             onEscapePressed();
             return;
@@ -1379,7 +1416,7 @@ public class CombatScreen extends PageScreen {
                 } else if (!isAnimatingFlyout) {
                     isAnimatingFlyout = true;
 
-                    int finalHandScore = currentHandPoints * currentMultiplier;
+                    int finalHandScore = (int) Math.round(currentHandPoints * currentMultiplier);
                     targetDisplayScore += (finalHandScore - currentHandPoints);
 
                     triggerShake(GameConfig.SCREEN_SHAKE_INTENSITY * 1.5f * uiScale);
