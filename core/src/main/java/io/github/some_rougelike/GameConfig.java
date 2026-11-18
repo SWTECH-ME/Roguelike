@@ -223,8 +223,9 @@ public class GameConfig {
     public static final int PROFILE_MAX_USERNAME_LENGTH = 24;
     public static final float PROFILE_ROW_PADDING = 18f;
     public static final float PROFILE_TITLE_BOTTOM_PADDING = 50f;
-    public static final float PROFILE_LABEL_WIDTH = 310f;
-    public static final float PROFILE_VALUE_WIDTH = 340f;
+    public static final float PROFILE_LABEL_WIDTH = 280f;
+    public static final float PROFILE_VALUE_WIDTH = 280f;
+    public static final float PROFILE_COLUMN_GAP = 40f;
     public static final float PROFILE_ROW_FONT_SCALE = 1.1f;
     public static final float PROFILE_HINT_FONT_SCALE = 0.75f;
     public static final Color PROFILE_LABEL_COLOR = new Color(0.8f, 0.8f, 0.8f, 1f);

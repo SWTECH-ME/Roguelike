@@ -46,30 +46,28 @@ public class ProfileUIBuilder {
         titleLabel.setAlignment(Align.center);
         rootTable.add(titleLabel).center().padBottom(titleBottomPadding).row();
 
-        Table usernameRow = createEditableUsernameRow(stage, skin, scale);
-        rootTable.add(usernameRow).left().padBottom(rowPadding).row();
+        Table statsTable = new Table();
+
+        addEditableUsernameRow(statsTable, stage, skin, scale, rowPadding);
 
         String highScoreText = String.valueOf(saveManager.getHighScore());
-        Table highScoreRow = createStatRow("High score:", highScoreText, skin, scale, GameConfig.RUN_MAP_HIGH_SCORE_COLOR);
-        rootTable.add(highScoreRow).left().padBottom(rowPadding).row();
+        addStatRow(statsTable, "High score:", highScoreText, skin, scale, GameConfig.RUN_MAP_HIGH_SCORE_COLOR, rowPadding);
 
         String combosText = saveManager.getDiscoveredCombosCount() + " / " + saveManager.getTotalCombosCount();
-        Table combosRow = createStatRow("Discovered combos:", combosText, skin, scale, GameConfig.PROFILE_VALUE_COLOR);
-        rootTable.add(combosRow).left().padBottom(rowPadding).row();
+        addStatRow(statsTable, "Discovered combos:", combosText, skin, scale, GameConfig.PROFILE_VALUE_COLOR, rowPadding);
 
         String upgradesText = saveManager.getAverageRankProgressPercent() + "% ("
             + saveManager.getMaxedRanksCount() + "/" + RankProgress.RANK_COUNT + " MAX)";
-        Table upgradesRow = createStatRow("Card upgrades:", upgradesText, skin, scale, GameConfig.PROFILE_VALUE_COLOR);
-        rootTable.add(upgradesRow).left().padBottom(rowPadding).row();
+        addStatRow(statsTable, "Card upgrades:", upgradesText, skin, scale, GameConfig.PROFILE_VALUE_COLOR, rowPadding);
 
         String deckSkinName = GameConfig.getDeckSkinName(saveManager.getSettings().getSelectedDeckSkin());
-        Table deckRow = createStatRow("Selected deck:", deckSkinName, skin, scale, GameConfig.PROFILE_VALUE_COLOR);
-        rootTable.add(deckRow).left().padBottom(rowPadding).row();
+        addStatRow(statsTable, "Selected deck:", deckSkinName, skin, scale, GameConfig.PROFILE_VALUE_COLOR, rowPadding);
 
         String activeRunText = formatActiveRunText(saveManager);
         Color activeRunColor = saveManager.hasActiveRun() ? GameConfig.RUN_MAP_SUBHEADER_COLOR : GameConfig.PROFILE_HINT_COLOR;
-        Table activeRunRow = createStatRow("Active run:", activeRunText, skin, scale, activeRunColor);
-        rootTable.add(activeRunRow).left().padBottom(titleBottomPadding).row();
+        addStatRow(statsTable, "Active run:", activeRunText, skin, scale, activeRunColor, 0f);
+
+        rootTable.add(statsTable).center().padBottom(titleBottomPadding).row();
 
         Label backButton = createHoverAction("BACK", skin, GameConfig.MAIN_MENU_BUTTON_SIZE * scale);
         backButton.addListener(new ClickListener() {
@@ -85,10 +83,9 @@ public class ProfileUIBuilder {
         stage.addActor(mainContainer);
     }
 
-    private Table createEditableUsernameRow(Stage stage, Skin skin, float scale) {
-        Table table = new Table();
-
+    private void addEditableUsernameRow(Table statsTable, Stage stage, Skin skin, float scale, float bottomPad) {
         Label nameLabel = new Label("Username:", skin);
+        nameLabel.setAlignment(Align.left);
         nameLabel.setFontScale(scale * GameConfig.PROFILE_ROW_FONT_SCALE);
         nameLabel.setColor(GameConfig.PROFILE_LABEL_COLOR);
 
@@ -96,18 +93,18 @@ public class ProfileUIBuilder {
         valueContainer.setTouchable(Touchable.enabled);
 
         final Label valueLabel = new Label(currentUsernameText, skin);
-        valueLabel.setAlignment(Align.center);
-        valueLabel.setOrigin(Align.center);
+        valueLabel.setAlignment(Align.right);
+        valueLabel.setOrigin(Align.right);
         valueLabel.setFontScale(scale * GameConfig.PROFILE_ROW_FONT_SCALE);
         valueLabel.setColor(GameConfig.PROFILE_VALUE_COLOR);
 
         final Label hintLabel = new Label("(Hover to edit)", skin);
-        hintLabel.setAlignment(Align.center);
+        hintLabel.setAlignment(Align.right);
         hintLabel.setFontScale(scale * GameConfig.PROFILE_HINT_FONT_SCALE);
         hintLabel.setColor(GameConfig.PROFILE_HINT_COLOR);
 
-        valueContainer.add(valueLabel).width(GameConfig.PROFILE_VALUE_WIDTH * scale).center().row();
-        valueContainer.add(hintLabel).padTop(4 * scale).center();
+        valueContainer.add(valueLabel).width(GameConfig.PROFILE_VALUE_WIDTH * scale).right().row();
+        valueContainer.add(hintLabel).width(GameConfig.PROFILE_VALUE_WIDTH * scale).padTop(4 * scale).right();
 
         valueContainer.addListener(new ClickListener() {
             @Override
@@ -183,10 +180,9 @@ public class ProfileUIBuilder {
             }
         });
 
-        table.add(nameLabel).width(GameConfig.PROFILE_LABEL_WIDTH * scale).left();
-        table.add(valueContainer).width(GameConfig.PROFILE_VALUE_WIDTH * scale).center();
-
-        return table;
+        float halfGap = (GameConfig.PROFILE_COLUMN_GAP * scale) / 2f;
+        statsTable.add(nameLabel).width(GameConfig.PROFILE_LABEL_WIDTH * scale).left().top().padRight(halfGap).padBottom(bottomPad);
+        statsTable.add(valueContainer).width(GameConfig.PROFILE_VALUE_WIDTH * scale).right().top().padLeft(halfGap).padBottom(bottomPad).row();
     }
 
     private void updateUsernameDisplay(Label valueLabel, float scale) {
@@ -207,24 +203,22 @@ public class ProfileUIBuilder {
         SaveManager.getInstance().setUsername(currentUsernameText);
     }
 
-    private Table createStatRow(String labelText, String valueText, Skin skin, float scale, Color valueColor) {
-        Table table = new Table();
-
+    private void addStatRow(Table statsTable, String labelText, String valueText, Skin skin, float scale, Color valueColor, float bottomPad) {
         Label nameLabel = new Label(labelText, skin);
+        nameLabel.setAlignment(Align.left);
         nameLabel.setFontScale(scale * GameConfig.PROFILE_ROW_FONT_SCALE);
         nameLabel.setColor(GameConfig.PROFILE_LABEL_COLOR);
 
         Label valueLabel = new Label(valueText, skin);
-        valueLabel.setAlignment(Align.center);
+        valueLabel.setAlignment(Align.right);
         valueLabel.setFontScale(valueText.length() > 22
             ? scale * (GameConfig.PROFILE_ROW_FONT_SCALE * 0.85f)
             : scale * GameConfig.PROFILE_ROW_FONT_SCALE);
         valueLabel.setColor(valueColor);
 
-        table.add(nameLabel).width(GameConfig.PROFILE_LABEL_WIDTH * scale).left();
-        table.add(valueLabel).width(GameConfig.PROFILE_VALUE_WIDTH * scale).center();
-
-        return table;
+        float halfGap = (GameConfig.PROFILE_COLUMN_GAP * scale) / 2f;
+        statsTable.add(nameLabel).width(GameConfig.PROFILE_LABEL_WIDTH * scale).left().padRight(halfGap).padBottom(bottomPad);
+        statsTable.add(valueLabel).width(GameConfig.PROFILE_VALUE_WIDTH * scale).right().padLeft(halfGap).padBottom(bottomPad).row();
     }
 
     private String formatActiveRunText(SaveManager saveManager) {
