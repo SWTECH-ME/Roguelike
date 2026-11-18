@@ -36,6 +36,7 @@ import io.github.some_rougelike.Assets;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.Main;
 import io.github.some_rougelike.audio.SoundManager;
+import io.github.some_rougelike.logic.BossAbilityType;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.model.Card;
@@ -203,6 +204,17 @@ public class CombatScreen extends PageScreen {
             this::exitToMainMenu);
     }
 
+    private BossAbilityType getActiveBossAbility() {
+        if (enemy != null && enemy.isBoss()) {
+            return enemy.getAbilityType();
+        }
+        return BossAbilityType.NONE;
+    }
+
+    private int getEffectiveHandSize() {
+        return getActiveBossAbility().modifyHandSize(GameConfig.STARTING_HAND_SIZE);
+    }
+
     private void loadDeckTexture() {
         try {
             FileHandle file = Gdx.files.internal(SaveManager.getInstance().getSelectedDeckSkinPath());
@@ -241,7 +253,7 @@ public class CombatScreen extends PageScreen {
     }
 
     public void saveCurrentCombatState() {
-        if (isGameOver) return;
+        if (isGameOver || runState.isBossDebugMode()) return;
         CombatSaveData combatSaveData = CombatSaveData.create(
             targetDisplayScore,
             playsLeft,
@@ -254,6 +266,9 @@ public class CombatScreen extends PageScreen {
     }
 
     private void saveProjectedCombatState(int projectedScore, int projectedPlaysLeft, int projectedDiscardsLeft, List<Card> projectedDrawPile, List<Card> projectedHand, List<Card> projectedSelected) {
+        if (runState.isBossDebugMode()) {
+            return;
+        }
         if (projectedScore < enemy.getTargetScore() && projectedPlaysLeft <= 0) {
             SaveManager.getInstance().clearActiveRun();
             return;
@@ -294,6 +309,14 @@ public class CombatScreen extends PageScreen {
     }
 
     private int getRowForSuit(Suit suit) {
+        if (getActiveBossAbility().areCardColorsHidden()) {
+            if (suit == Suit.HEARTS) {
+                return SUIT_ROWS.getOrDefault(Suit.SPADES, 2);
+            }
+            if (suit == Suit.DIAMONDS) {
+                return SUIT_ROWS.getOrDefault(Suit.CLUBS, 0);
+            }
+        }
         return SUIT_ROWS.getOrDefault(suit, 0);
     }
 
@@ -306,13 +329,17 @@ public class CombatScreen extends PageScreen {
     }
 
     private boolean rollDouble(Card card) {
+        if (!getActiveBossAbility().isDoubleRollAllowed()) {
+            return false;
+        }
         float chance = RankProgress.getInstance().get(getProgressIndex(card.getRank()));
         return MathUtils.random(100f) < chance;
     }
 
     private List<Card> drawUpToMax() {
         List<Card> drawn = new ArrayList<>();
-        while (hand.size() < GameConfig.STARTING_HAND_SIZE && !drawPile.isEmpty()) {
+        int maxHand = getEffectiveHandSize();
+        while (hand.size() < maxHand && !drawPile.isEmpty()) {
             Card c = drawPile.remove(0);
             hand.add(c);
             drawn.add(c);
@@ -680,10 +707,14 @@ public class CombatScreen extends PageScreen {
                 if (card.getTextureRegion() != null) {
                     Image cardImg = new Image(card.getTextureRegion());
                     cardImg.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
+                    if (getActiveBossAbility().areCardColorsHidden()) {
+                        cardImg.setColor(GameConfig.BOSS_HIDDEN_SUIT_TINT);
+                    }
                     cardImg.setTouchable(Touchable.disabled);
                     cardContent = cardImg;
                 } else {
-                    Label fallbackLbl = new Label(card.getRank().getSymbol() + "\n" + card.getSuit().name(), skin);
+                    String suitText = getActiveBossAbility().areCardColorsHidden() ? "???" : card.getSuit().name();
+                    Label fallbackLbl = new Label(card.getRank().getSymbol() + "\n" + suitText, skin);
                     fallbackLbl.setAlignment(Align.center);
                     fallbackLbl.setTouchable(Touchable.disabled);
                     cardContent = fallbackLbl;
@@ -732,7 +763,8 @@ public class CombatScreen extends PageScreen {
                             cardBg.setBackground(cardBgNormal);
                             saveCurrentCombatState();
                         } else {
-                            if (selectedCards.size() < 5) {
+                            int maxSelectable = getActiveBossAbility().getMaxSelectableCards();
+                            if (selectedCards.size() < maxSelectable) {
                                 selectedCards.add(card);
                                 cardBg.clearActions();
                                 cardBg.addAction(Actions.moveTo(0, selectOffset, 0.2f, Interpolation.exp10Out));
@@ -826,12 +858,30 @@ public class CombatScreen extends PageScreen {
         hand.removeAll(selectedCards);
         selectedCards.clear();
 
+        BossAbilityType bossAbility = getActiveBossAbility();
+        if (bossAbility.triggersRandomDiscardOnPlay() && !hand.isEmpty()) {
+            Card forcedDiscard = hand.remove(MathUtils.random(hand.size() - 1));
+            Group forcedCw = cardActorMap.remove(forcedDiscard);
+            if (forcedCw != null) {
+                forcedCw.clearActions();
+                forcedCw.addAction(Actions.sequence(
+                    Actions.parallel(
+                        Actions.moveBy(-1000f * uiScale, MathUtils.random(-150f, 150f), GameConfig.FLYOUT_DISCARD_DURATION, Interpolation.pow2In),
+                        Actions.rotateBy(MathUtils.random(-GameConfig.FLYOUT_DISCARD_ROTATION, GameConfig.FLYOUT_DISCARD_ROTATION), GameConfig.FLYOUT_DISCARD_DURATION),
+                        Actions.fadeOut(0.4f)
+                    ),
+                    Actions.removeActor()
+                ));
+            }
+        }
+
         preRolledDoubles.clear();
         preRolledChips.clear();
         int sumChips = 0;
         for (Card sc : scoringCards) {
             boolean doubled = rollDouble(sc);
-            int chips = doubled ? sc.getChips() * 2 : sc.getChips();
+            int baseChips = bossAbility.modifyCardChips(sc, sc.getChips());
+            int chips = doubled ? baseChips * 2 : baseChips;
             RankProgress.getInstance().add(getProgressIndex(sc.getRank()), 5f);
             preRolledDoubles.add(doubled);
             preRolledChips.add(chips);
@@ -840,13 +890,20 @@ public class CombatScreen extends PageScreen {
         RankProgress.getInstance().save();
 
         HandEvaluator.Combo playedCombo = HandEvaluator.evaluate(scoringCards);
-        currentMultiplier = playedCombo != null ? playedCombo.getMultiplier() : 1;
+        double baseMultiplier = playedCombo != null ? playedCombo.getMultiplier() : 1;
+        currentMultiplier = bossAbility == BossAbilityType.CAP_MULTIPLIER
+                ? Math.min(baseMultiplier, GameConfig.BOSS_MAX_MULTIPLIER_CAP)
+                : baseMultiplier;
         SaveManager.getInstance().discoverCombo(playedCombo);
         int projectedHandScore = (int) Math.round(sumChips * currentMultiplier);
-        int projectedTotalScore = targetDisplayScore + projectedHandScore;
+
+        runState.addRunScore(projectedHandScore);
+        if (!runState.isBossDebugMode()) {
+            SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
+        }
 
         pendingDrawnCards.clear();
-        int needed = GameConfig.STARTING_HAND_SIZE - hand.size();
+        int needed = getEffectiveHandSize() - hand.size();
         while (pendingDrawnCards.size() < needed && !drawPile.isEmpty()) {
             pendingDrawnCards.add(drawPile.remove(0));
         }
@@ -898,7 +955,7 @@ public class CombatScreen extends PageScreen {
         updateTopBar();
 
         final List<Card> drawnAfterDiscard = new ArrayList<>();
-        int needed = GameConfig.STARTING_HAND_SIZE - hand.size();
+        int needed = getEffectiveHandSize() - hand.size();
         while (drawnAfterDiscard.size() < needed && !drawPile.isEmpty()) {
             drawnAfterDiscard.add(drawPile.remove(0));
         }
@@ -954,7 +1011,10 @@ public class CombatScreen extends PageScreen {
 
     private void showFailedScreen() {
         isGameOver = true;
-        SaveManager.getInstance().clearActiveRun();
+        if (!runState.isBossDebugMode()) {
+            SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
+            SaveManager.getInstance().clearActiveRun();
+        }
 
         if (uiRoot != null) {
             uiRoot.clearActions();
@@ -991,6 +1051,14 @@ public class CombatScreen extends PageScreen {
         failedLabel.setFontScale(uiScale * 4f);
         failedLabel.setColor(GameConfig.GAMEOVER_TEXT_COLOR);
 
+        Label runScoreLabel = new Label("RUN SCORE: " + runState.getTotalRunScore(), skin);
+        runScoreLabel.setFontScale(uiScale * 1.4f);
+        runScoreLabel.setColor(Color.WHITE);
+
+        Label highScoreLabel = new Label("HIGH SCORE: " + SaveManager.getInstance().getHighScore(), skin);
+        highScoreLabel.setFontScale(uiScale * 1.2f);
+        highScoreLabel.setColor(GameConfig.RUN_MAP_HIGH_SCORE_COLOR);
+
         Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, false, () -> {
             if (isTransitioningOut) return;
             isTransitioningOut = true;
@@ -1023,7 +1091,24 @@ public class CombatScreen extends PageScreen {
             ));
         });
 
-        failedOverlay.add(failedLabel).padBottom(80 * uiScale).row();
+        failedOverlay.add(failedLabel).padBottom(24 * uiScale).row();
+        failedOverlay.add(runScoreLabel).padBottom(10 * uiScale).row();
+        failedOverlay.add(highScoreLabel).padBottom(45 * uiScale).row();
+
+        if (runState.isBossDebugMode()) {
+            Label debugArenaBtn = createHoverLabel("DEBUG ARENA", uiScale * 1.5f, false, () -> {
+                if (isTransitioningOut) return;
+                isTransitioningOut = true;
+                failedOverlay.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+                CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+                stage.addAction(Actions.sequence(
+                    Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+                    Actions.run(() -> main.switchScreen(new RunMapScreen(main, runState, true)))
+                ));
+            });
+            failedOverlay.add(debugArenaBtn).padBottom(20 * uiScale).center().row();
+        }
+
         failedOverlay.add(menuBtn).center();
 
         stage.addActor(failedOverlay);
@@ -1031,7 +1116,111 @@ public class CombatScreen extends PageScreen {
         failedOverlay.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
     }
 
+    private void showRunVictoryScreen() {
+        isGameOver = true;
+        runState.addMoney(GameConfig.REWARD_MONEY * 2);
+        runState.registerVictory();
+        if (!runState.isBossDebugMode()) {
+            SaveManager.getInstance().updateHighScore(runState.getTotalRunScore());
+            SaveManager.getInstance().clearActiveRun();
+        }
+
+        if (uiRoot != null) {
+            uiRoot.clearActions();
+            uiRoot.addAction(Actions.sequence(
+                Actions.fadeOut(GameConfig.GAMEOVER_FADE_TIME, Interpolation.fade),
+                Actions.run(() -> uiRoot.setVisible(false))
+            ));
+        }
+        cardLayer.addAction(Actions.fadeOut(GameConfig.GAMEOVER_FADE_TIME, Interpolation.fade));
+
+        final Color targetColor1 = GameConfig.RUN_VICTORY_BG_1;
+        final Color targetColor2 = GameConfig.RUN_VICTORY_BG_2;
+        final Color startColor1 = new Color(currentColor1);
+        final Color startColor2 = new Color(currentColor2);
+
+        FloatAction lerpAction = new FloatAction(0f, 1f, GameConfig.GAMEOVER_BG_LERP_DURATION, Interpolation.smooth) {
+            @Override
+            protected void update(float percent) {
+                super.update(percent);
+                currentColor1.set(startColor1).lerp(targetColor1, percent);
+                currentColor2.set(startColor2).lerp(targetColor2, percent);
+                if (bgImg != null) {
+                    bgImg.setColors(currentColor1, currentColor2);
+                }
+            }
+        };
+        stage.addAction(lerpAction);
+
+        final Table victoryOverlay = new Table();
+        victoryOverlay.setFillParent(true);
+        victoryOverlay.setBackground(whiteTintableBg.tint(new Color(0f, 0f, 0f, GameConfig.GAMEOVER_SCREEN_TINT)));
+
+        Label victoryLabel = new Label("VICTORY", skin);
+        victoryLabel.setFontScale(uiScale * 4f);
+        victoryLabel.setColor(GameConfig.RUN_VICTORY_TEXT_COLOR);
+
+        Label chapterClearedLabel = new Label("ALL " + GameConfig.MAX_CHAPTERS + " CHAPTERS COMPLETED", skin);
+        chapterClearedLabel.setFontScale(uiScale * 1.3f);
+        chapterClearedLabel.setColor(GameConfig.RUN_MAP_SUBHEADER_COLOR);
+
+        Label runScoreLabel = new Label("FINAL RUN SCORE: " + runState.getTotalRunScore(), skin);
+        runScoreLabel.setFontScale(uiScale * 1.5f);
+        runScoreLabel.setColor(Color.WHITE);
+
+        Label highScoreLabel = new Label("HIGH SCORE: " + SaveManager.getInstance().getHighScore(), skin);
+        highScoreLabel.setFontScale(uiScale * 1.25f);
+        highScoreLabel.setColor(GameConfig.RUN_MAP_HIGH_SCORE_COLOR);
+
+        Label menuBtn = createHoverLabel("MAIN MENU", uiScale * 1.5f, false, () -> {
+            if (isTransitioningOut) return;
+            isTransitioningOut = true;
+
+            victoryOverlay.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+
+            final Color targetMenuC1 = GameConfig.BG_COLOR_1;
+            final Color targetMenuC2 = GameConfig.BG_COLOR_2;
+            final Color currentC1 = new Color(currentColor1);
+            final Color currentC2 = new Color(currentColor2);
+
+            FloatAction backLerp = new FloatAction(0f, 1f, GameConfig.SCREEN_TRANSITION_DURATION, Interpolation.smooth) {
+                @Override
+                protected void update(float percent) {
+                    super.update(percent);
+                    currentColor1.set(currentC1).lerp(targetMenuC1, percent);
+                    currentColor2.set(currentC2).lerp(targetMenuC2, percent);
+                    if (bgImg != null) {
+                        bgImg.setColors(currentColor1, currentColor2);
+                    }
+                }
+            };
+            stage.addAction(backLerp);
+
+            CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+
+            stage.addAction(Actions.sequence(
+                Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+                Actions.run(() -> main.switchScreen(new MainMenuScreen(main, true, true)))
+            ));
+        });
+
+        victoryOverlay.add(victoryLabel).padBottom(16 * uiScale).row();
+        victoryOverlay.add(chapterClearedLabel).padBottom(20 * uiScale).row();
+        victoryOverlay.add(runScoreLabel).padBottom(10 * uiScale).row();
+        victoryOverlay.add(highScoreLabel).padBottom(55 * uiScale).row();
+        victoryOverlay.add(menuBtn).center();
+
+        stage.addActor(victoryOverlay);
+        victoryOverlay.getColor().a = 0f;
+        victoryOverlay.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
+    }
+
     private void executeVictoryTransition() {
+        if (!runState.isBossDebugMode() && enemy.isBoss() && runState.getChapterIndex() >= runState.getMaxChapters()) {
+            showRunVictoryScreen();
+            return;
+        }
+
         isTransitioningOut = true;
 
         uiRoot.addAction(Actions.fadeOut(GameConfig.VICTORY_UI_FADE_DURATION, Interpolation.fade));
@@ -1058,7 +1247,7 @@ public class CombatScreen extends PageScreen {
             Actions.delay(GameConfig.VICTORY_BG_LERP_DELAY),
             lerpAction,
             Actions.run(() -> {
-                runState.addMoney(GameConfig.REWARD_MONEY);
+                runState.addMoney(enemy.isBoss() ? GameConfig.REWARD_MONEY * 2 : GameConfig.REWARD_MONEY);
                 runState.registerVictory();
                 SaveManager.getInstance().saveRunMapState(runState);
                 main.switchScreen(new RunMapScreen(main, runState));
@@ -1078,8 +1267,46 @@ public class CombatScreen extends PageScreen {
     }
 
     public void exitToMainMenu() {
+        if (isTransitioningOut) return;
+        isTransitioningOut = true;
         saveCurrentCombatState();
-        goBack();
+        setPaused(false);
+
+        if (uiRoot != null) {
+            uiRoot.setTouchable(Touchable.disabled);
+            uiRoot.clearActions();
+            uiRoot.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+        }
+        if (cardLayer != null) {
+            cardLayer.setTouchable(Touchable.disabled);
+            cardLayer.clearActions();
+            cardLayer.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+        }
+
+        final Color targetMenuC1 = GameConfig.BG_COLOR_1;
+        final Color targetMenuC2 = GameConfig.BG_COLOR_2;
+        final Color currentC1 = new Color(currentColor1);
+        final Color currentC2 = new Color(currentColor2);
+
+        FloatAction backLerp = new FloatAction(0f, 1f, GameConfig.SCREEN_TRANSITION_DURATION, Interpolation.smooth) {
+            @Override
+            protected void update(float percent) {
+                super.update(percent);
+                currentColor1.set(currentC1).lerp(targetMenuC1, percent);
+                currentColor2.set(currentC2).lerp(targetMenuC2, percent);
+                if (bgImg != null) {
+                    bgImg.setColors(currentColor1, currentColor2);
+                }
+            }
+        };
+        stage.addAction(backLerp);
+
+        CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+
+        stage.addAction(Actions.sequence(
+            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+            Actions.run(() -> main.switchScreen(new MainMenuScreen(main, true, true)))
+        ));
     }
 
     @Override

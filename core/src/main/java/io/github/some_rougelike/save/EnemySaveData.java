@@ -1,5 +1,6 @@
 package io.github.some_rougelike.save;
 
+import io.github.some_rougelike.logic.BossAbilityType;
 import io.github.some_rougelike.logic.Enemy;
 
 public class EnemySaveData {
@@ -9,19 +10,21 @@ public class EnemySaveData {
     private int maxDiscards;
     private boolean isBoss;
     private String specialAbility;
+    private String abilityType;
     private String backgroundPath;
     private boolean defeated;
 
     public EnemySaveData() {
     }
 
-    public EnemySaveData(String name, int targetScore, int maxPlays, int maxDiscards, boolean isBoss, String specialAbility, String backgroundPath, boolean defeated) {
+    public EnemySaveData(String name, int targetScore, int maxPlays, int maxDiscards, boolean isBoss, String specialAbility, String abilityType, String backgroundPath, boolean defeated) {
         this.name = name;
         this.targetScore = targetScore;
         this.maxPlays = maxPlays;
         this.maxDiscards = maxDiscards;
         this.isBoss = isBoss;
         this.specialAbility = specialAbility;
+        this.abilityType = abilityType;
         this.backgroundPath = backgroundPath;
         this.defeated = defeated;
     }
@@ -37,6 +40,7 @@ public class EnemySaveData {
             enemy.getMaxDiscards(),
             enemy.isBoss(),
             enemy.getSpecialAbility(),
+            enemy.getAbilityType().name(),
             enemy.getBackgroundPath(),
             enemy.isDefeated()
         );
@@ -45,7 +49,10 @@ public class EnemySaveData {
     public Enemy toEnemy() {
         Enemy enemy;
         if (isBoss) {
-            enemy = new Enemy(name, targetScore, maxPlays, maxDiscards, specialAbility, backgroundPath);
+            BossAbilityType resolvedType = BossAbilityType.fromNameOrDescription(abilityType, specialAbility);
+            String desc = (specialAbility != null && !specialAbility.isEmpty()) ? specialAbility : resolvedType.getDescription();
+            enemy = new Enemy(name, targetScore, maxPlays, maxDiscards, desc, backgroundPath);
+            enemy.setAbilityType(resolvedType);
         } else {
             enemy = new Enemy(name, targetScore, maxPlays, maxDiscards, backgroundPath);
         }
@@ -99,6 +106,14 @@ public class EnemySaveData {
 
     public void setSpecialAbility(String specialAbility) {
         this.specialAbility = specialAbility;
+    }
+
+    public String getAbilityType() {
+        return abilityType;
+    }
+
+    public void setAbilityType(String abilityType) {
+        this.abilityType = abilityType;
     }
 
     public String getBackgroundPath() {

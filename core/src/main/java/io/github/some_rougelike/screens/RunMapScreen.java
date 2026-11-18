@@ -12,10 +12,12 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -40,6 +42,7 @@ public class RunMapScreen extends PageScreen {
     private Array<Texture> generatedTextures;
     private TextureRegionDrawable whiteTintableBg;
     private Table uiRoot;
+    private ScrollPane debugScrollPane;
     private boolean isTransitioning = false;
     private PauseMenu pauseMenu;
     private Texture deckTexture;
@@ -164,6 +167,39 @@ public class RunMapScreen extends PageScreen {
         uiRoot.setFillParent(true);
         uiRoot.center();
 
+        if (runState.isBossDebugMode()) {
+            buildBossDebugUI(scale);
+            stage.addActor(uiRoot);
+            if (debugScrollPane != null) {
+                stage.setScrollFocus(debugScrollPane);
+            }
+            uiRoot.getColor().a = 0f;
+            uiRoot.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
+            return;
+        }
+
+        Table headerTable = new Table();
+
+        Label chapterLbl = new Label("CHAPTER " + runState.getChapterIndex() + " / " + runState.getMaxChapters(), uiSkin);
+        chapterLbl.setFontScale(scale * GameConfig.RUN_MAP_CHAPTER_TITLE_SCALE);
+        chapterLbl.setColor(GameConfig.RUN_MAP_CHAPTER_COLOR);
+        chapterLbl.setAlignment(Align.center);
+        headerTable.add(chapterLbl).padBottom(8 * scale).row();
+
+        Label statsLbl = new Label("RUN SCORE: " + runState.getTotalRunScore() + "   |   $" + runState.getMoney(), uiSkin);
+        statsLbl.setFontScale(scale * GameConfig.RUN_MAP_SUBHEADER_SCALE);
+        statsLbl.setColor(GameConfig.RUN_MAP_SUBHEADER_COLOR);
+        statsLbl.setAlignment(Align.center);
+        headerTable.add(statsLbl).padBottom(6 * scale).row();
+
+        Label highScoreLbl = new Label("HIGH SCORE: " + SaveManager.getInstance().getHighScore(), uiSkin);
+        highScoreLbl.setFontScale(scale * (GameConfig.RUN_MAP_SUBHEADER_SCALE * 0.92f));
+        highScoreLbl.setColor(GameConfig.RUN_MAP_HIGH_SCORE_COLOR);
+        highScoreLbl.setAlignment(Align.center);
+        headerTable.add(highScoreLbl).row();
+
+        uiRoot.add(headerTable).padBottom(25 * scale).colspan(3).row();
+
         Table cardsTable = new Table();
 
         int cardWidth = (int)(GameConfig.RUN_MAP_CARD_WIDTH * scale);
@@ -185,7 +221,7 @@ public class RunMapScreen extends PageScreen {
 
         for (Enemy enemy : runState.getAvailableNormals()) {
             boolean isDefeated = enemy.isDefeated();
-            Group blindItem = createBlindCard("NORMAL BLIND", normalPillBg, enemy.getName(), enemy.getTargetScore(), GameConfig.REWARD_MONEY, false, isDefeated, scale, normalBg, cardWidth, cardHeight, () -> transitionToCombat(enemy));
+            Group blindItem = createBlindCard("NORMAL BLIND", normalPillBg, enemy.getName(), null, enemy.getTargetScore(), GameConfig.REWARD_MONEY, false, isDefeated, scale, normalBg, cardWidth, cardHeight, () -> transitionToCombat(enemy));
             cardsTable.add(blindItem).size(cardWidth, cardHeight).pad(20 * scale);
         }
 
@@ -193,10 +229,10 @@ public class RunMapScreen extends PageScreen {
         boolean isBossUnlocked = runState.isBossUnlocked();
         boolean isBossDefeated = boss.isDefeated();
 
-        Group bossItem = createBlindCard("BOSS BLIND", isBossUnlocked ? bossPillBg : lockedPillBg, boss.getName(), boss.getTargetScore(), GameConfig.REWARD_MONEY * 2, !isBossUnlocked, isBossDefeated, scale, isBossUnlocked ? bossBg : lockedBg, cardWidth, cardHeight, () -> transitionToCombat(boss));
+        Group bossItem = createBlindCard("BOSS BLIND", isBossUnlocked ? bossPillBg : lockedPillBg, boss.getName(), boss.getSpecialAbility(), boss.getTargetScore(), GameConfig.REWARD_MONEY * 2, !isBossUnlocked, isBossDefeated, scale, isBossUnlocked ? bossBg : lockedBg, cardWidth, cardHeight, () -> transitionToCombat(boss));
         cardsTable.add(bossItem).size(cardWidth, cardHeight).pad(20 * scale);
 
-        uiRoot.add(cardsTable).padBottom(50 * scale).colspan(3).row();
+        uiRoot.add(cardsTable).padBottom(35 * scale).colspan(3).row();
 
         Label shopBtn = new Label("ENTER SHOP", uiSkin);
         shopBtn.setFontScale(scale * 1.3f);
@@ -244,7 +280,84 @@ public class RunMapScreen extends PageScreen {
         uiRoot.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
     }
 
-    private Group createBlindCard(String typeText, TextureRegionDrawable pillBg, String nameText, int target, int reward, boolean locked, boolean defeated, float scale, TextureRegionDrawable bg, int width, int height, Runnable onClick) {
+    private void buildBossDebugUI(float scale) {
+        uiRoot.top();
+
+        Label debugTitle = new Label("BOSS DEBUG ARENA (ALL 12 BOSSES)", uiSkin);
+        debugTitle.setFontScale(scale * 1.4f);
+        debugTitle.setColor(GameConfig.RUN_MAP_HIGH_SCORE_COLOR);
+        debugTitle.setAlignment(Align.center);
+        uiRoot.add(debugTitle).padTop(25 * scale).padBottom(15 * scale).row();
+
+        float cardScale = scale * GameConfig.DEBUG_BOSS_CARD_SCALE;
+        int cardWidth = Math.max(100, (int)(GameConfig.RUN_MAP_CARD_WIDTH * cardScale));
+        int cardHeight = Math.max(150, (int)(GameConfig.RUN_MAP_CARD_HEIGHT * cardScale));
+        int cardRadius = Math.max(4, (int)(GameConfig.RUN_MAP_CARD_RADIUS * cardScale));
+        int borderThickness = Math.max(2, (int)(GameConfig.RUN_MAP_BORDER_THICKNESS * cardScale));
+
+        TextureRegionDrawable bossBg = createOutlinedRoundedRect(cardWidth, cardHeight, GameConfig.RUN_MAP_BOSS_BG, new Color(0.9f, 0.2f, 0.2f, 1f), borderThickness, cardRadius);
+        int pillWidth = Math.max(60, (int)(cardWidth - 80 * cardScale));
+        int pillHeight = Math.max(18, (int)(35 * cardScale));
+        int pillRadius = Math.max(6, (int)(17 * cardScale));
+        TextureRegionDrawable bossPillBg = createSolidRoundedRect(pillWidth, pillHeight, GameConfig.RUN_MAP_BOSS_PILL, pillRadius);
+
+        Table gridTable = new Table();
+        int col = 0;
+        for (Enemy boss : runState.getAvailableNormals()) {
+            Group bossCard = createBlindCard(
+                "BOSS BLIND",
+                bossPillBg,
+                boss.getName(),
+                boss.getSpecialAbility(),
+                boss.getTargetScore(),
+                GameConfig.REWARD_MONEY * 2,
+                false,
+                boss.isDefeated(),
+                cardScale,
+                bossBg,
+                cardWidth,
+                cardHeight,
+                () -> transitionToCombat(boss)
+            );
+            gridTable.add(bossCard).size(cardWidth, cardHeight).pad(20 * scale);
+            col++;
+            if (col % GameConfig.DEBUG_BOSS_GRID_COLS == 0) {
+                gridTable.row();
+            }
+        }
+
+        Table wrapper = new Table();
+        wrapper.add(gridTable).expandX().center().top().padTop(20 * scale).padBottom(30 * scale);
+
+        debugScrollPane = createModernScrollPane(wrapper, scale);
+        uiRoot.add(debugScrollPane).expand().fill().padBottom(20 * scale).row();
+    }
+
+    private ScrollPane createModernScrollPane(Actor content, float uiScale) {
+        ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
+
+        TextureRegionDrawable knob = new TextureRegionDrawable(whiteTintableBg);
+        knob.setMinWidth(GameConfig.DEBUG_BOSS_SCROLL_KNOB_WIDTH * uiScale);
+        style.vScrollKnob = knob;
+
+        final ScrollPane scrollPane = new ScrollPane(content, style);
+        scrollPane.setFadeScrollBars(true);
+        scrollPane.setOverscroll(false, false);
+        scrollPane.setScrollingDisabled(true, false);
+
+        scrollPane.addListener(new InputListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                if (scrollPane.getStage() != null) {
+                    scrollPane.getStage().setScrollFocus(scrollPane);
+                }
+            }
+        });
+
+        return scrollPane;
+    }
+
+    private Group createBlindCard(String typeText, TextureRegionDrawable pillBg, String nameText, String specialAbilityText, int target, int reward, boolean locked, boolean defeated, float scale, TextureRegionDrawable bg, int width, int height, Runnable onClick) {
         Group wrapper = new Group();
         wrapper.setSize(width, height);
 
@@ -262,7 +375,7 @@ public class RunMapScreen extends PageScreen {
         typeBg.setBackground(pillBg);
         typeBg.add(typeLbl).center();
 
-        table.add(typeBg).size(width - 80 * scale, 35 * scale).padBottom(30 * scale).row();
+        table.add(typeBg).size(width - 80 * scale, 35 * scale).padBottom(20 * scale).row();
 
         Label nameLbl = new Label(locked ? "LOCKED" : nameText, uiSkin);
         nameLbl.setFontScale(scale * 1.4f);
@@ -272,12 +385,21 @@ public class RunMapScreen extends PageScreen {
 
         table.add(nameLbl).width(width - 30 * scale).center().expandY().row();
 
+        if (!locked && specialAbilityText != null && !specialAbilityText.isEmpty()) {
+            Label abilityLbl = new Label(specialAbilityText, uiSkin);
+            abilityLbl.setFontScale(scale * 0.8f);
+            abilityLbl.setColor(GameConfig.RUN_MAP_ABILITY_TEXT_COLOR);
+            abilityLbl.setAlignment(Align.center);
+            abilityLbl.setWrap(true);
+            table.add(abilityLbl).width(width - 36 * scale).padBottom(12 * scale).row();
+        }
+
         if (!locked) {
             Label rewardLbl = new Label("Reward: $" + reward, uiSkin);
             rewardLbl.setFontScale(scale * 1.0f);
             rewardLbl.setColor(new Color(0.8f, 0.8f, 0.8f, 1f));
             rewardLbl.setAlignment(Align.center);
-            table.add(rewardLbl).padBottom(15 * scale).row();
+            table.add(rewardLbl).padBottom(12 * scale).row();
         }
 
         Label targetLbl = new Label("Target: " + target, uiSkin);
@@ -365,11 +487,29 @@ public class RunMapScreen extends PageScreen {
         if (uiRoot != null) {
             uiRoot.setTouchable(paused ? Touchable.disabled : Touchable.childrenOnly);
         }
+        if (!paused && debugScrollPane != null && stage != null) {
+            stage.setScrollFocus(debugScrollPane);
+        }
     }
 
     public void exitToMainMenu() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        setPaused(false);
         SaveManager.getInstance().saveRunMapState(runState);
-        goBack();
+
+        if (uiRoot != null) {
+            uiRoot.setTouchable(Touchable.disabled);
+            uiRoot.clearActions();
+            uiRoot.addAction(Actions.fadeOut(0.4f, Interpolation.fade));
+        }
+
+        CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+
+        stage.addAction(Actions.sequence(
+            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+            Actions.run(() -> main.switchScreen(new MainMenuScreen(main, true, true)))
+        ));
     }
 
     @Override

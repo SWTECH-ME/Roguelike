@@ -67,7 +67,7 @@ public class PauseMenu {
         overlay = new Table();
         overlay.setFillParent(true);
         overlay.setBackground(new TextureRegionDrawable(whiteTex).tint(new Color(0f, 0f, 0f, 0.65f)));
-        overlay.setTouchable(Touchable.enabled); // elnyeli az alatta lévő kattintásokat
+        overlay.setTouchable(Touchable.enabled);
 
         Label title = new Label("PAUSED", skin);
         title.setFontScale(GameConfig.MAIN_MENU_TITLE_SIZE * scale);
@@ -86,6 +86,8 @@ public class PauseMenu {
                 Actions.run(() -> saveRef[0].setText("SAVE"))));
         });
         Label menuBtn = createButton("MAIN MENU", GameConfig.MAIN_MENU_BUTTON_SIZE * scale, () -> {
+            if (!visible || closing) return;
+            hide();
             if (onMainMenu != null) onMainMenu.run();
         });
 

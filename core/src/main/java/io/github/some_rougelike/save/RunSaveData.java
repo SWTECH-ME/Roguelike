@@ -2,6 +2,7 @@ package io.github.some_rougelike.save;
 
 import java.util.ArrayList;
 import java.util.List;
+import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.model.Card;
@@ -9,6 +10,9 @@ import io.github.some_rougelike.model.Card;
 public class RunSaveData {
     private int money;
     private int chapterIndex;
+    private int maxChapters = GameConfig.MAX_CHAPTERS;
+    private int totalRunScore;
+    private ArrayList<String> usedBossNames = new ArrayList<>();
     private ArrayList<CardSaveData> deck = new ArrayList<>();
     private ArrayList<EnemySaveData> availableNormals = new ArrayList<>();
     private EnemySaveData bossEnemy;
@@ -24,6 +28,11 @@ public class RunSaveData {
         RunSaveData data = new RunSaveData();
         data.money = runState.getMoney();
         data.chapterIndex = runState.getChapterIndex();
+        data.maxChapters = runState.getMaxChapters();
+        data.totalRunScore = runState.getTotalRunScore();
+        if (runState.getUsedBossNames() != null) {
+            data.usedBossNames.addAll(runState.getUsedBossNames());
+        }
 
         for (Card card : runState.getDeck()) {
             data.deck.add(CardSaveData.fromCard(card));
@@ -76,7 +85,7 @@ public class RunSaveData {
             }
         }
 
-        return new RunState(money, chapterIndex, restoredDeck, restoredNormals, restoredBoss, restoredActive);
+        return new RunState(money, chapterIndex, totalRunScore, restoredDeck, restoredNormals, restoredBoss, restoredActive, usedBossNames);
     }
 
     public int getMoney() {
@@ -93,6 +102,30 @@ public class RunSaveData {
 
     public void setChapterIndex(int chapterIndex) {
         this.chapterIndex = chapterIndex;
+    }
+
+    public int getMaxChapters() {
+        return maxChapters > 0 ? maxChapters : GameConfig.MAX_CHAPTERS;
+    }
+
+    public void setMaxChapters(int maxChapters) {
+        this.maxChapters = maxChapters;
+    }
+
+    public int getTotalRunScore() {
+        return totalRunScore;
+    }
+
+    public void setTotalRunScore(int totalRunScore) {
+        this.totalRunScore = totalRunScore;
+    }
+
+    public ArrayList<String> getUsedBossNames() {
+        return usedBossNames;
+    }
+
+    public void setUsedBossNames(ArrayList<String> usedBossNames) {
+        this.usedBossNames = usedBossNames;
     }
 
     public ArrayList<CardSaveData> getDeck() {

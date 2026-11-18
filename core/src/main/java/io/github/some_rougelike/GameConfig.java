@@ -26,6 +26,11 @@ public class GameConfig {
     public static final float MAIN_MENU_FADE_DURATION = 0.5f;
     // Collections Debug:
     public static final boolean ALLOW_HIDING_COMBINATIONS = false;
+    // Secret key sequence on the Main Menu to launch the scrollable 12-Boss test level
+    public static final String DEBUG_BOSS_TEST_CODE = "adamdebug";
+    public static final int DEBUG_BOSS_GRID_COLS = 3;
+    public static final float DEBUG_BOSS_CARD_SCALE = 0.9f;
+    public static final float DEBUG_BOSS_SCROLL_KNOB_WIDTH = 4f;
 
     // --- SOUNDS ---
     public static final String MENU_MUSIC = "ui/uisounds/menu_theme_loopable.mp3";
@@ -41,15 +46,77 @@ public class GameConfig {
     // --- DEFAULT GAMEPLAY VALUES ---
     public static final int STARTING_MONEY = 10;
     public static final int STARTING_HAND_SIZE = 8;
+    public static final int DEFAULT_MAX_SELECTABLE_CARDS = 5;
     public static final int REWARD_MONEY = 15;
     public static final int DEFAULT_MAX_PLAYS = 4;
     public static final int DEFAULT_MAX_DISCARDS = 3;
+    // Maximum number of chapters in a finite run and number of normal enemies per chapter (+1 boss)
+    public static final int MAX_CHAPTERS = 12;
+    public static final int NORMALS_PER_CHAPTER = 2;
+
+    // Normal enemy pool definitions (names, base target scores, plays, discards)
+    public static final String[] NORMAL_ENEMY_NAMES = {
+        "Backrooms Obama",
+        "360 NoScope",
+        "Doge",
+        "Trollface",
+        "Nyan Cat",
+        "Pepe the Frog",
+        "Wojak",
+        "Cheems"
+    };
+    public static final int[] NORMAL_ENEMY_BASE_TARGETS = {
+        300, 600, 450, 550, 350, 420, 480, 380
+    };
+    public static final int[] NORMAL_ENEMY_PLAYS = {
+        4, 4, 4, 3, 4, 4, 3, 4
+    };
+    public static final int[] NORMAL_ENEMY_DISCARDS = {
+        3, 3, 3, 2, 3, 3, 3, 3
+    };
+
+    // 12 unique Boss names and their base target scores (each paired with a unique BossAbilityType, appearing at most once per run)
+    public static final String[] BOSS_NAMES = {
+        "Triple T",
+        "Giga Chad",
+        "Skibidi Toilet",
+        "Sigma Patrick",
+        "Ohio Final Boss",
+        "Morbius",
+        "Walter White",
+        "Saul Goodman",
+        "Shrek",
+        "Big Chungus",
+        "Rick Astley",
+        "Amogus Impostor"
+    };
+    public static final int[] BOSS_BASE_TARGETS = {
+        500, 500, 520, 480, 450, 500, 500, 520, 480, 460, 500, 500
+    };
+    public static final int BOSS_DEFAULT_PLAYS = 4;
+    public static final int BOSS_DEFAULT_DISCARDS = 3;
+
+    // Boss special ability tuning constants
+    public static final int BOSS_REDUCED_MAX_SELECT_CARDS = 4;
+    public static final int BOSS_HAND_SIZE_PENALTY = 2;
+    public static final int BOSS_PLAYS_PENALTY = 1;
+    public static final int BOSS_FACE_CARD_NERF_CHIPS = 5;
+    public static final int BOSS_NUMBER_CARD_CHIP_PENALTY = 2;
+    public static final int BOSS_MAX_MULTIPLIER_CAP = 3;
+    public static final Color BOSS_HIDDEN_SUIT_TINT = new Color(0.55f, 0.55f, 0.62f, 1.0f);
 
     // --- RUN MAP SCREEN ---
     public static final float RUN_MAP_CARD_WIDTH = 240f;
     public static final float RUN_MAP_CARD_HEIGHT = 360f;
     public static final int RUN_MAP_CARD_RADIUS = 15;
     public static final int RUN_MAP_BORDER_THICKNESS = 3;
+    // Header scales and colors for displaying current chapter, run score, and high score on the Run Map
+    public static final float RUN_MAP_CHAPTER_TITLE_SCALE = 1.9f;
+    public static final float RUN_MAP_SUBHEADER_SCALE = 1.05f;
+    public static final Color RUN_MAP_CHAPTER_COLOR = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+    public static final Color RUN_MAP_SUBHEADER_COLOR = new Color(0.75f, 0.85f, 0.95f, 1.0f);
+    public static final Color RUN_MAP_HIGH_SCORE_COLOR = new Color(1.0f, 0.84f, 0.28f, 1.0f);
+    public static final Color RUN_MAP_ABILITY_TEXT_COLOR = new Color(1.0f, 0.6f, 0.6f, 1.0f);
 
     public static final Color RUN_MAP_NORMAL_BG = new Color(0.12f, 0.15f, 0.18f, 0.6f);
     public static final Color RUN_MAP_BOSS_BG = new Color(0.18f, 0.10f, 0.10f, 0.6f);
@@ -104,6 +171,11 @@ public class GameConfig {
     public static final Color GAMEOVER_TEXT_COLOR = new Color(0.9f, 0.2f, 0.2f, 1f);
     public static final Color GAMEOVER_BG_1 = new Color(0.3f, 0.0f, 0.05f, 1f);
     public static final Color GAMEOVER_BG_2 = new Color(0.15f, 0.0f, 0.0f, 1f);
+
+    // Run Victory overlay colors when all 12 chapters are beaten
+    public static final Color RUN_VICTORY_TEXT_COLOR = new Color(1.0f, 0.84f, 0.25f, 1f);
+    public static final Color RUN_VICTORY_BG_1 = new Color(0.08f, 0.32f, 0.18f, 1f);
+    public static final Color RUN_VICTORY_BG_2 = new Color(0.04f, 0.16f, 0.10f, 1f);
 
     public static final float VICTORY_UI_FADE_DURATION = 0.7f;
     public static final float VICTORY_BG_LERP_DELAY = 0.2f;

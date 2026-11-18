@@ -11,8 +11,12 @@ import io.github.some_rougelike.model.Rank;
 public class RunState {
     private int money;
     private int chapterIndex;
+    private int totalRunScore;
+    private boolean runCompleted;
+    private boolean bossDebugMode;
 
     private List<Card> deck;
+    private List<String> usedBossNames;
 
     private List<Enemy> availableNormals;
     private Enemy bossEnemy;
@@ -21,18 +25,42 @@ public class RunState {
     public RunState() {
         this.money = GameConfig.STARTING_MONEY;
         this.chapterIndex = 1;
+        this.totalRunScore = 0;
+        this.runCompleted = false;
+        this.bossDebugMode = false;
+        this.usedBossNames = new ArrayList<>();
         this.deck = generateStandardDeck();
         generateMockChapter();
     }
 
-    public RunState(int money, int chapterIndex, List<Card> deck, List<Enemy> availableNormals, Enemy bossEnemy, Enemy activeEnemy) {
+    public static RunState createBossDebugRun() {
+        RunState debugState = new RunState();
+        debugState.bossDebugMode = true;
+        debugState.availableNormals = ChapterGenerator.createAllBosses();
+        debugState.bossEnemy = debugState.availableNormals.get(debugState.availableNormals.size() - 1);
+        debugState.activeEnemy = null;
+        return debugState;
+    }
+
+    public RunState(int money, int chapterIndex, int totalRunScore, List<Card> deck, List<Enemy> availableNormals, Enemy bossEnemy, Enemy activeEnemy) {
+        this(money, chapterIndex, totalRunScore, deck, availableNormals, bossEnemy, activeEnemy, null);
+    }
+
+    public RunState(int money, int chapterIndex, int totalRunScore, List<Card> deck, List<Enemy> availableNormals, Enemy bossEnemy, Enemy activeEnemy, List<String> usedBossNames) {
         this.money = money;
-        this.chapterIndex = chapterIndex;
+        this.chapterIndex = Math.max(1, Math.min(chapterIndex, GameConfig.MAX_CHAPTERS));
+        this.totalRunScore = Math.max(0, totalRunScore);
+        this.runCompleted = false;
+        this.bossDebugMode = false;
+        this.usedBossNames = usedBossNames != null ? new ArrayList<>(usedBossNames) : new ArrayList<>();
         this.deck = (deck != null && !deck.isEmpty()) ? new ArrayList<>(deck) : generateStandardDeck();
         if (availableNormals != null && !availableNormals.isEmpty() && bossEnemy != null) {
             this.availableNormals = new ArrayList<>(availableNormals);
             this.bossEnemy = bossEnemy;
             this.activeEnemy = activeEnemy;
+            if (bossEnemy.getName() != null && !this.usedBossNames.contains(bossEnemy.getName())) {
+                this.usedBossNames.add(bossEnemy.getName());
+            }
         } else {
             generateMockChapter();
         }
@@ -50,23 +78,8 @@ public class RunState {
     }
 
     private void generateMockChapter() {
-        List<Enemy> normalPool = new ArrayList<>();
-        normalPool.add(new Enemy("Backrooms Obama", 300, 4, 3, GameConfig.BG_ENEMY_1));
-        normalPool.add(new Enemy("360 NoScope", 600, 4, 3, GameConfig.BG_ENEMY_2));
-        normalPool.add(new Enemy("Doge", 450, 4, 3, GameConfig.BG_ENEMY_1));
-        normalPool.add(new Enemy("Trollface", 550, 3, 2, GameConfig.BG_ENEMY_2));
-        Collections.shuffle(normalPool);
-
-        availableNormals = new ArrayList<>();
-        availableNormals.add(normalPool.get(0));
-        availableNormals.add(normalPool.get(1));
-
-        List<Enemy> bossPool = new ArrayList<>();
-        bossPool.add(new Enemy("Triple T", 500, 3, 2, "Card colors are hidden.", GameConfig.BG_BOSS));
-        bossPool.add(new Enemy("Giga Chad", 500, 4, 2, "No discards allowed.", GameConfig.BG_BOSS));
-        Collections.shuffle(bossPool);
-
-        bossEnemy = bossPool.get(0);
+        availableNormals = ChapterGenerator.generateNormalEnemies();
+        bossEnemy = ChapterGenerator.generateUniqueBoss(usedBossNames);
         activeEnemy = null;
     }
 
@@ -79,9 +92,31 @@ public class RunState {
     }
 
     public void registerVictory() {
+        if (bossDebugMode) {
+            if (activeEnemy != null) {
+                activeEnemy.setDefeated(true);
+            }
+            boolean allDefeated = true;
+            for (Enemy e : availableNormals) {
+                if (!e.isDefeated()) {
+                    allDefeated = false;
+                    break;
+                }
+            }
+            runCompleted = allDefeated;
+            activeEnemy = null;
+            return;
+        }
         if (activeEnemy == bossEnemy) {
-            chapterIndex++;
-            generateMockChapter();
+            if (chapterIndex < GameConfig.MAX_CHAPTERS) {
+                chapterIndex++;
+                generateMockChapter();
+            } else {
+                if (bossEnemy != null) {
+                    bossEnemy.setDefeated(true);
+                }
+                runCompleted = true;
+            }
         } else {
             if (activeEnemy != null) {
                 activeEnemy.setDefeated(true);
@@ -91,6 +126,9 @@ public class RunState {
     }
 
     public boolean isBossUnlocked() {
+        if (bossDebugMode) {
+            return true;
+        }
         for (Enemy enemy : availableNormals) {
             if (!enemy.isDefeated()) {
                 return false;
@@ -102,7 +140,18 @@ public class RunState {
     public List<Enemy> getAvailableNormals() { return availableNormals; }
     public Enemy getBossEnemy() { return bossEnemy; }
     public int getChapterIndex() { return chapterIndex; }
+    public int getMaxChapters() { return GameConfig.MAX_CHAPTERS; }
     public int getMoney() { return money; }
     public void addMoney(int amount) { this.money += amount; }
+    public int getTotalRunScore() { return totalRunScore; }
+    public void setTotalRunScore(int totalRunScore) { this.totalRunScore = Math.max(0, totalRunScore); }
+    public void addRunScore(int points) {
+        if (points > 0) {
+            this.totalRunScore += points;
+        }
+    }
+    public boolean isRunCompleted() { return runCompleted; }
+    public boolean isBossDebugMode() { return bossDebugMode; }
+    public List<String> getUsedBossNames() { return usedBossNames; }
     public List<Card> getDeck() { return deck; }
 }

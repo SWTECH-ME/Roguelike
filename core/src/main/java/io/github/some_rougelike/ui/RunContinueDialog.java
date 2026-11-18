@@ -108,7 +108,7 @@ public class RunContinueDialog {
         String stageSummary = buildStageSummary(runData);
 
         Label summaryLbl = new Label(chapterSummary, skin);
-        summaryLbl.setFontScale(scale * 0.95f);
+        summaryLbl.setFontScale(scale * 0.9f);
         summaryLbl.setColor(GameConfig.CONTINUE_SUBTITLE_COLOR);
         summaryLbl.setAlignment(Align.center);
         panelTable.add(summaryLbl).padBottom(6f * scale).row();
@@ -308,9 +308,11 @@ public class RunContinueDialog {
 
     private String buildRunSummary(RunSaveData runData) {
         if (runData == null) {
-            return "CHAPTER 1   |   $" + GameConfig.STARTING_MONEY;
+            return "CHAPTER 1 / " + GameConfig.MAX_CHAPTERS + "   |   $" + GameConfig.STARTING_MONEY + "   |   SCORE: 0";
         }
-        return "CHAPTER " + runData.getChapterIndex() + "   |   $" + runData.getMoney();
+        return "CHAPTER " + runData.getChapterIndex() + " / " + runData.getMaxChapters()
+            + "   |   $" + runData.getMoney()
+            + "   |   SCORE: " + runData.getTotalRunScore();
     }
 
     private String buildStageSummary(RunSaveData runData) {
