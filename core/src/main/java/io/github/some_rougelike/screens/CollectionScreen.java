@@ -292,9 +292,12 @@ public class CollectionScreen extends PageScreen {
         Label ranksTab = createTabLabel("CARD UPGRADES", uiScale, mode == Mode.RANKS, () -> setMode(Mode.RANKS));
         Label combosTab = createTabLabel("COMBINATIONS", uiScale, mode == Mode.COMBINATIONS, () -> setMode(Mode.COMBINATIONS));
 
-        tabs.add(skinsTab).padRight(40f * uiScale);
-        tabs.add(ranksTab).padRight(40f * uiScale);
-        tabs.add(combosTab);
+        skinsTab.setAlignment(Align.right);
+        combosTab.setAlignment(Align.left);
+
+        tabs.add(skinsTab).right().padRight(40f * uiScale).uniformX();
+        tabs.add(ranksTab).center();
+        tabs.add(combosTab).left().padLeft(40f * uiScale).uniformX();
 
         return tabs;
     }
