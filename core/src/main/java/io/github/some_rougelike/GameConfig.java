@@ -26,10 +26,11 @@ public class GameConfig {
     public static final float MAIN_MENU_FADE_DURATION = 0.5f;
     // Collections Debug:
     public static final boolean ALLOW_HIDING_COMBINATIONS = false;
-    // Secret key sequence on the Main Menu to launch the 12-Boss test level
+    // Secret key sequence on the Main Menu to launch the scrollable 12-Boss test level
     public static final String DEBUG_BOSS_TEST_CODE = "adamdebug";
-    public static final int DEBUG_BOSS_GRID_COLS = 4;
-    public static final float DEBUG_BOSS_CARD_SCALE = 0.56f;
+    public static final int DEBUG_BOSS_GRID_COLS = 3;
+    public static final float DEBUG_BOSS_CARD_SCALE = 0.9f;
+    public static final float DEBUG_BOSS_SCROLL_KNOB_WIDTH = 4f;
 
     // --- SOUNDS ---
     public static final String MENU_MUSIC = "ui/uisounds/menu_theme_loopable.mp3";
