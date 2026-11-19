@@ -28,10 +28,6 @@ public class ProfileUIBuilder {
     private boolean usernameHovered = false;
 
     public void build(Stage stage, Skin skin, Main main, float scale) {
-        build(stage, skin, main, scale, true);
-    }
-
-    public void build(Stage stage, Skin skin, Main main, float scale, boolean animate) {
         SaveManager saveManager = SaveManager.getInstance();
         currentUsernameText = saveManager.getUsername();
 
@@ -84,10 +80,6 @@ public class ProfileUIBuilder {
         rootTable.add(backButton).center();
 
         mainContainer.add(rootTable).center();
-        if (animate) {
-            mainContainer.getColor().a = 0f;
-            mainContainer.addAction(Actions.fadeIn(GameConfig.SUBMENU_FADE_DURATION, Interpolation.fade));
-        }
         stage.addActor(mainContainer);
     }
 
