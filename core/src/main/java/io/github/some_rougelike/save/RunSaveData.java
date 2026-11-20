@@ -2,8 +2,12 @@ package io.github.some_rougelike.save;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import io.github.some_rougelike.GameConfig;
+import io.github.some_rougelike.logic.CheatCard;
 import io.github.some_rougelike.logic.Enemy;
+import io.github.some_rougelike.logic.HandEvaluator;
+import io.github.some_rougelike.logic.HotCardState;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.model.Card;
 
@@ -20,6 +24,20 @@ public class RunSaveData {
     private int activeNormalIndex = -1;
     private boolean activeIsBoss;
     private CombatSaveData combatState;
+    private ArrayList<String> comboBonusNames = new ArrayList<>();
+    private float[] comboBonusValues = new float[0];
+    private boolean luckySeven;
+    private int shopCardSlots = RunState.DEFAULT_SHOP_CARD_SLOTS;
+    private int rerollDiscount;
+    private int goldRushCount;
+    private int cheatCardsBought;
+    private int[] delayedRounds = new int[0];
+    private int[] delayedAmounts = new int[0];
+    private int[] rankChipBonus = new int[0];
+    private boolean shopAvailable;
+    private String[] shopCheatTree = new String[0];
+    private ArrayList<String> hotCards = new ArrayList<>();
+    private HotCardState hotState = new HotCardState();
 
     public RunSaveData() {
     }
@@ -56,6 +74,35 @@ public class RunSaveData {
 
         data.inCombat = currentActive != null && combatSaveData != null;
         data.combatState = combatSaveData;
+
+        data.comboBonusValues = new float[runState.getComboBonuses().size()];
+        for (Map.Entry<HandEvaluator.Combo, Double> e : runState.getComboBonuses().entrySet()) {
+            data.comboBonusNames.add(e.getKey().name());
+            data.comboBonusValues[data.comboBonusNames.size() - 1] = e.getValue().floatValue();
+        }
+        data.luckySeven = runState.hasLuckySeven();
+        data.shopCardSlots = runState.getShopCardSlots();
+        data.rerollDiscount = runState.getRerollDiscount();
+        data.goldRushCount = runState.getGoldRushCount();
+        data.cheatCardsBought = runState.getCheatCardsBought();
+        data.rankChipBonus = runState.getRankChipBonuses();
+        data.shopAvailable = runState.isShopAvailable();
+        data.hotCards.addAll(runState.getHotCards());
+        data.hotState = runState.getHotState().copy();
+        CheatCard[] tree = runState.getShopCheatTree();
+        if (tree != null) {
+            data.shopCheatTree = new String[tree.length];
+            for (int i = 0; i < tree.length; i++) {
+                data.shopCheatTree[i] = tree[i].name();
+            }
+        }
+        List<int[]> delayed = runState.getDelayedMoney();
+        data.delayedRounds = new int[delayed.size()];
+        data.delayedAmounts = new int[delayed.size()];
+        for (int i = 0; i < delayed.size(); i++) {
+            data.delayedRounds[i] = delayed.get(i)[0];
+            data.delayedAmounts[i] = delayed.get(i)[1];
+        }
         return data;
     }
 
@@ -85,7 +132,44 @@ public class RunSaveData {
             }
         }
 
-        return new RunState(money, chapterIndex, totalRunScore, restoredDeck, restoredNormals, restoredBoss, restoredActive, usedBossNames);
+        RunState restored = new RunState(money, chapterIndex, totalRunScore, restoredDeck, restoredNormals, restoredBoss, restoredActive, usedBossNames);
+        if (comboBonusNames != null && comboBonusValues != null) {
+            for (int i = 0; i < Math.min(comboBonusNames.size(), comboBonusValues.length); i++) {
+                try {
+                    restored.addComboBonus(HandEvaluator.Combo.valueOf(comboBonusNames.get(i)), comboBonusValues[i]);
+                } catch (IllegalArgumentException ignored) {
+                    // régi/ismeretlen kombináció neve a mentésben
+                }
+            }
+        }
+        restored.setLuckySeven(luckySeven);
+        restored.setShopCardSlots(shopCardSlots);
+        restored.restoreCheatState(rerollDiscount, goldRushCount, cheatCardsBought);
+        restored.setRankChipBonuses(rankChipBonus);
+        restored.setShopAvailable(shopAvailable);
+        if (hotCards != null) {
+            for (String id : hotCards) {
+                restored.addHotCard(id);
+            }
+        }
+        restored.setHotState(hotState != null ? hotState.copy() : null);
+        if (shopCheatTree != null && shopCheatTree.length == RunState.SHOP_CHEAT_TREE_SIZE) {
+            try {
+                CheatCard[] tree = new CheatCard[shopCheatTree.length];
+                for (int i = 0; i < tree.length; i++) {
+                    tree[i] = CheatCard.valueOf(shopCheatTree[i]);
+                }
+                restored.setShopCheatTree(tree);
+            } catch (IllegalArgumentException | NullPointerException ignored) {
+                // ismeretlen lapnév: a bolt újat generál
+            }
+        }
+        if (delayedRounds != null && delayedAmounts != null) {
+            for (int i = 0; i < Math.min(delayedRounds.length, delayedAmounts.length); i++) {
+                restored.addDelayedMoney(delayedRounds[i], delayedAmounts[i]);
+            }
+        }
+        return restored;
     }
 
     public int getMoney() {

@@ -41,6 +41,7 @@ import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.model.Card;
 import io.github.some_rougelike.logic.HandEvaluator;
+import io.github.some_rougelike.logic.HotCardEffects;
 import io.github.some_rougelike.model.Rank;
 import io.github.some_rougelike.model.RankProgress;
 import io.github.some_rougelike.model.Suit;
@@ -48,6 +49,7 @@ import io.github.some_rougelike.save.CardSaveData;
 import io.github.some_rougelike.save.CombatSaveData;
 import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
+import io.github.some_rougelike.ui.HotCardBar;
 import io.github.some_rougelike.ui.PauseMenu;
 import io.github.some_rougelike.ui.TrippyBackground;
 
@@ -94,6 +96,9 @@ public class CombatScreen extends PageScreen {
     private int scoringCardIndex = 0;
     private int currentHandPoints = 0;
     private double currentMultiplier = 1;
+    private int pendingFlatChips = 0;
+    private Label hotEffectLabel;
+    private List<String> pendingBlindNotes = Collections.emptyList();
     private final List<Card> scoringCards = new ArrayList<>();
     private final List<Group> scoringCardGroups = new ArrayList<>();
     private final List<Boolean> preRolledDoubles = new ArrayList<>();
@@ -111,6 +116,7 @@ public class CombatScreen extends PageScreen {
     private Label playBtnLabel;
     private Label discardBtnLabel;
     private PauseMenu pauseMenu;
+    private HotCardBar hotCardBar;
     private boolean playStrikeActive = false;
     private boolean discardStrikeActive = false;
 
@@ -174,6 +180,12 @@ public class CombatScreen extends PageScreen {
         } else {
             this.playsLeft = enemy.getMaxPlays();
             this.discardsLeft = enemy.getMaxDiscards();
+            pendingBlindNotes = HotCardEffects.onBlindStart(runState, enemy);
+            if (runState.getHotState().bossAbilityDisabled) {
+                BossAbilityType disabled = enemy.getAbilityType();
+                if (disabled == BossAbilityType.ONE_LESS_PLAY) this.playsLeft += GameConfig.BOSS_PLAYS_PENALTY;
+                if (disabled == BossAbilityType.NO_DISCARDS) this.discardsLeft = GameConfig.BOSS_DEFAULT_DISCARDS;
+            }
             this.drawPile = new ArrayList<>(runState.getDeck());
             Collections.shuffle(this.drawPile);
         }
@@ -205,6 +217,9 @@ public class CombatScreen extends PageScreen {
     }
 
     private BossAbilityType getActiveBossAbility() {
+        if (runState.getHotState().bossAbilityDisabled) {
+            return BossAbilityType.NONE;
+        }
         if (enemy != null && enemy.isBoss()) {
             return enemy.getAbilityType();
         }
@@ -212,7 +227,7 @@ public class CombatScreen extends PageScreen {
     }
 
     private int getEffectiveHandSize() {
-        return getActiveBossAbility().modifyHandSize(GameConfig.STARTING_HAND_SIZE);
+        return getActiveBossAbility().modifyHandSize(GameConfig.STARTING_HAND_SIZE) + runState.getHotState().blindHandSizeBonus;
     }
 
     private void loadDeckTexture() {
@@ -411,6 +426,11 @@ public class CombatScreen extends PageScreen {
 
         Table topArea = new Table();
         topArea.add(leftScorePanel).expandX().left().padLeft(60 * uiScale).padTop(50 * uiScale);
+        if (!runState.isBossDebugMode()) {
+            float refScale = Math.min(Gdx.graphics.getWidth() / 1920f, Gdx.graphics.getHeight() / 1080f);
+            hotCardBar = new HotCardBar(runState, skin, refScale);
+            topArea.add(hotCardBar).top().padTop(30 * uiScale);
+        }
         topArea.add(rightStatsPanel).expandX().right().padRight(60 * uiScale).padTop(50 * uiScale).top();
 
         Table middleTable = new Table();
@@ -429,6 +449,10 @@ public class CombatScreen extends PageScreen {
             Label abilityLabel = new Label(enemy.getSpecialAbility(), skin);
             abilityLabel.setFontScale(uiScale * 1.1f);
             abilityLabel.setColor(new Color(0.9f, 0.5f, 0.5f, 1f));
+            if (runState.getHotState().bossAbilityDisabled) {
+                abilityLabel.setText("Boss ability disabled by One-Armed Bandit");
+                abilityLabel.setColor(new Color(0.6f, 0.6f, 0.6f, 1f));
+            }
             middleTable.add(abilityLabel).padTop(10 * uiScale).row();
         }
 
@@ -436,7 +460,14 @@ public class CombatScreen extends PageScreen {
         comboLabel.setFontScale(uiScale * 2.0f);
         comboLabel.setColor(Color.valueOf("FFD700"));
         comboLabel.setAlignment(Align.center);
-        middleTable.add(comboLabel).padTop(30 * uiScale);
+        middleTable.add(comboLabel).padTop(30 * uiScale).row();
+
+        hotEffectLabel = new Label("", skin);
+        hotEffectLabel.setFontScale(uiScale * 0.9f);
+        hotEffectLabel.setColor(new Color(1f, 0.6f, 0.3f, 1f));
+        hotEffectLabel.setAlignment(Align.center);
+        middleTable.add(hotEffectLabel).padTop(10 * uiScale);
+        showHotEffects(pendingBlindNotes);
 
         Table bottomSection = new Table();
         Table actionTable = new Table();
@@ -877,25 +908,33 @@ public class CombatScreen extends PageScreen {
 
         preRolledDoubles.clear();
         preRolledChips.clear();
+        HandEvaluator.Combo playedCombo = HotCardEffects.evaluate(runState, scoringCards);
+        HotCardEffects.HandResult hot = HotCardEffects.onHandPlayed(runState, scoringCards, playedCombo, drawPile.size());
         int sumChips = 0;
+        int scoringIndex = 0;
         for (Card sc : scoringCards) {
             boolean doubled = rollDouble(sc);
-            int baseChips = bossAbility.modifyCardChips(sc, sc.getChips());
+            int baseChips = bossAbility.modifyCardChips(sc, sc.getChips() + runState.getRankChipBonus(sc.getRank()) + hot.cardChips[scoringIndex++]);
             int chips = doubled ? baseChips * 2 : baseChips;
-            RankProgress.getInstance().add(getProgressIndex(sc.getRank()), 5f);
+            RankProgress.getInstance().add(getProgressIndex(sc.getRank()), 1.5f);
             preRolledDoubles.add(doubled);
             preRolledChips.add(chips);
             sumChips += chips;
         }
         RankProgress.getInstance().save();
 
-        HandEvaluator.Combo playedCombo = HandEvaluator.evaluate(scoringCards);
-        double baseMultiplier = playedCombo != null ? playedCombo.getMultiplier() : 1;
+        double baseMultiplier = runState.getComboMultiplier(playedCombo) + hot.multBonus;
         currentMultiplier = bossAbility == BossAbilityType.CAP_MULTIPLIER
                 ? Math.min(baseMultiplier, GameConfig.BOSS_MAX_MULTIPLIER_CAP)
                 : baseMultiplier;
         SaveManager.getInstance().discoverCombo(playedCombo);
-        int projectedHandScore = (int) Math.round(sumChips * currentMultiplier);
+        pendingFlatChips = hot.flatChips;
+        discardsLeft += hot.extraDiscards;
+        if (hot.hotCardsChanged && hotCardBar != null) {
+            hotCardBar.refresh();
+        }
+        showHotEffects(hot.notes);
+        int projectedHandScore = (int) Math.round((sumChips + pendingFlatChips) * currentMultiplier);
         int projectedTotalScore = targetDisplayScore + projectedHandScore;
 
         runState.addRunScore(projectedHandScore);
@@ -1321,18 +1360,45 @@ public class CombatScreen extends PageScreen {
         }
     }
 
+    /** A hot cardok által kiváltott hatások rövid kiírása a kombináció alatt. */
+    private void showHotEffects(List<String> notes) {
+        if (hotEffectLabel == null || notes == null || notes.isEmpty()) return;
+        hotEffectLabel.clearActions();
+        hotEffectLabel.setText(String.join("   |   ", notes));
+        hotEffectLabel.getColor().a = 1f;
+        hotEffectLabel.addAction(Actions.sequence(Actions.delay(3.5f), Actions.fadeOut(0.6f)));
+    }
+
+    /** A kézhez egyben adott hot card chipek felugró száma a kombináció felirata fölött. */
+    private void showFlatChipsPop(int chips) {
+        if (comboLabel == null) return;
+        Label pop = new Label("HOT +" + chips, skin);
+        pop.setFontScale(uiScale * 2.4f);
+        pop.setColor(new Color(1f, 0.6f, 0.3f, 1f));
+        pop.pack();
+        com.badlogic.gdx.math.Vector2 pos = comboLabel.localToStageCoordinates(
+            new com.badlogic.gdx.math.Vector2(comboLabel.getWidth() / 2f, comboLabel.getHeight()));
+        pop.setPosition(pos.x - pop.getWidth() / 2f, pos.y + 20 * uiScale);
+        stage.addActor(pop);
+        pop.addAction(Actions.sequence(
+            Actions.parallel(
+                Actions.moveBy(0, 80 * uiScale, 0.8f, Interpolation.circleOut),
+                Actions.fadeOut(0.8f, Interpolation.fade)),
+            Actions.removeActor()));
+    }
+
     /** A kijelölt (pontozás közben a kijátszott) lapokból meghatározott kombináció kiírása. */
     private void updateComboLabel() {
         if (comboLabel == null) return;
         List<Card> source = isScoring ? scoringCards : selectedCards;
-        HandEvaluator.Combo combo = HandEvaluator.evaluate(source);
+        HandEvaluator.Combo combo = HotCardEffects.evaluate(runState, source);
         String text;
         if (combo == null) {
             text = "";
         } else if (!SaveManager.getInstance().isComboDiscovered(combo)) {
             text = "????";
         } else {
-            text = combo.getDisplayName() + "  x" + formatMult(combo.getMultiplier());
+            text = combo.getDisplayName() + "  x" + formatMult(runState.getComboMultiplier(combo));
         }
         if (!text.equals(lastComboText)) {
             lastComboText = text;
@@ -1341,7 +1407,8 @@ public class CombatScreen extends PageScreen {
     }
 
     private static String formatMult(double m) {
-        return (m == Math.floor(m)) ? String.valueOf((int) m) : String.valueOf(m);
+        double r = Math.round(m * 100) / 100.0;
+        return (r == Math.floor(r)) ? String.valueOf((int) r) : String.valueOf(r);
     }
 
     @Override
@@ -1381,7 +1448,8 @@ public class CombatScreen extends PageScreen {
                         : null;
                     int chips = rolledChips != null
                         ? rolledChips
-                        : scoringCards.get(scoringCardIndex).getChips();
+                        : scoringCards.get(scoringCardIndex).getChips()
+                            + runState.getRankChipBonus(scoringCards.get(scoringCardIndex).getRank());
 
                     currentHandPoints += chips;
                     targetDisplayScore += chips;
@@ -1417,6 +1485,12 @@ public class CombatScreen extends PageScreen {
                 } else if (!isAnimatingFlyout) {
                     isAnimatingFlyout = true;
 
+                    if (pendingFlatChips > 0) {
+                        currentHandPoints += pendingFlatChips;
+                        targetDisplayScore += pendingFlatChips;
+                        showFlatChipsPop(pendingFlatChips);
+                        pendingFlatChips = 0;
+                    }
                     int finalHandScore = (int) Math.round(currentHandPoints * currentMultiplier);
                     targetDisplayScore += (finalHandScore - currentHandPoints);
 
@@ -1490,6 +1564,9 @@ public class CombatScreen extends PageScreen {
     @Override
     public void dispose() {
         super.dispose();
+        if (hotCardBar != null) {
+            hotCardBar.dispose();
+        }
         if (pauseMenu != null) {
             pauseMenu.dispose();
         }

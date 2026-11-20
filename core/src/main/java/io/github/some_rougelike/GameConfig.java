@@ -314,6 +314,7 @@ public class GameConfig {
             case "white_black.png": return "White & Black";
             case "white_blue.png": return "White & Blue";
             case "white_red.png": return "White & Red";
+            case "colored_suits.png": return "Colored Suits";
             default: return filename.replace(".png", "").replace("_", " ").toUpperCase();
         }
     }
