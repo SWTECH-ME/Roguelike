@@ -7,6 +7,7 @@ import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.logic.CheatCard;
 import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.HandEvaluator;
+import io.github.some_rougelike.logic.HotCard;
 import io.github.some_rougelike.logic.HotCardState;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.model.Card;
@@ -37,6 +38,7 @@ public class RunSaveData {
     private boolean shopAvailable;
     private String[] shopCheatTree = new String[0];
     private ArrayList<String> hotCards = new ArrayList<>();
+    private int[] hotCardPurchasePrices = new int[0];
     private HotCardState hotState = new HotCardState();
 
     public RunSaveData() {
@@ -87,7 +89,12 @@ public class RunSaveData {
         data.cheatCardsBought = runState.getCheatCardsBought();
         data.rankChipBonus = runState.getRankChipBonuses();
         data.shopAvailable = runState.isShopAvailable();
-        data.hotCards.addAll(runState.getHotCards());
+        List<String> ownedHot = runState.getHotCards();
+        data.hotCards.addAll(ownedHot);
+        data.hotCardPurchasePrices = new int[ownedHot.size()];
+        for (int i = 0; i < ownedHot.size(); i++) {
+            data.hotCardPurchasePrices[i] = runState.getHotCardPurchasePrice(ownedHot.get(i));
+        }
         data.hotState = runState.getHotState().copy();
         CheatCard[] tree = runState.getShopCheatTree();
         if (tree != null) {
@@ -148,8 +155,13 @@ public class RunSaveData {
         restored.setRankChipBonuses(rankChipBonus);
         restored.setShopAvailable(shopAvailable);
         if (hotCards != null) {
-            for (String id : hotCards) {
-                restored.addHotCard(id);
+            for (int i = 0; i < hotCards.size(); i++) {
+                String id = hotCards.get(i);
+                if (hotCardPurchasePrices != null && i < hotCardPurchasePrices.length) {
+                    restored.addHotCard(id, hotCardPurchasePrices[i]);
+                } else {
+                    restored.addHotCard(id);
+                }
             }
         }
         restored.setHotState(hotState != null ? hotState.copy() : null);
