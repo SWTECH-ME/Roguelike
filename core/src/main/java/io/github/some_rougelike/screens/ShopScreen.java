@@ -190,6 +190,13 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         stage.addActor(bg);
 
         hotCardBar = new HotCardBar(runState, uiSkin, s);
+        hotCardBar.setOnCardSoldListener((soldCard, sellPrice) -> {
+            if (isTransitioning) return;
+            updateMoneyLabel();
+            showMessage(soldCard.getDisplayName() + " sold for $" + sellPrice, GOLD);
+            refreshCardsForSale();
+            SaveManager.getInstance().saveRunMapState(runState);
+        });
 
         priceBg = outlinedRect((int) (150 * s), (int) (48 * s), PRICE_BG, PRICE_BORDER, Math.max(2, (int) (3 * s)), (int) (10 * s));
 
@@ -524,11 +531,11 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
             });
             addHoverAndClick(slot, content, () -> {
                 if (!runState.hasFreeHotCardSlot()) {
-                    showMessage("Your Hot card slots are full (" + RunState.MAX_HOT_CARDS + "/" + RunState.MAX_HOT_CARDS + ")", ERROR_COLOR);
+                    showMessage("Hot card slots are full (" + RunState.MAX_HOT_CARDS + "/" + RunState.MAX_HOT_CARDS + ") - sell a card to make room!", ERROR_COLOR);
                     return;
                 }
                 if (!tryPay(price)) return;
-                runState.addHotCard(card.getId());
+                runState.addHotCard(card.getId(), price);
                 stock.set(index, null);
                 SaveManager.getInstance().saveRunMapState(runState);
                 showMessage(card.getDisplayName() + " added to your Hot cards", GOLD);
@@ -711,6 +718,7 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         if (isTransitioning) return;
         isTransitioning = true;
         uiRoot.setTouchable(Touchable.disabled);
+        if (hotCardBar != null) hotCardBar.setTouchable(Touchable.disabled);
         CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
         uiRoot.addAction(Actions.parallel(
             Actions.moveBy(0, -80f, 0.6f, Interpolation.pow2In),

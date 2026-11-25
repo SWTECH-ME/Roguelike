@@ -47,6 +47,7 @@ public class RunMapScreen extends PageScreen {
     private boolean isTransitioning = false;
     private PauseMenu pauseMenu;
     private HotCardBar hotCardBar;
+    private Label statsLbl;
     private Texture deckTexture;
     private TextureRegion[][] cardRegions;
 
@@ -188,7 +189,7 @@ public class RunMapScreen extends PageScreen {
         chapterLbl.setAlignment(Align.center);
         headerTable.add(chapterLbl).padBottom(8 * scale).row();
 
-        Label statsLbl = new Label("RUN SCORE: " + runState.getTotalRunScore() + "   |   $" + runState.getMoney(), uiSkin);
+        statsLbl = new Label("RUN SCORE: " + runState.getTotalRunScore() + "   |   $" + runState.getMoney(), uiSkin);
         statsLbl.setFontScale(scale * GameConfig.RUN_MAP_SUBHEADER_SCALE);
         statsLbl.setColor(GameConfig.RUN_MAP_SUBHEADER_COLOR);
         statsLbl.setAlignment(Align.center);
@@ -283,6 +284,12 @@ public class RunMapScreen extends PageScreen {
         float refScale = Math.min(width / 1920f, height / 1080f);
         hotCardBar = new HotCardBar(runState, uiSkin, refScale);
         hotCardBar.setPosition(width - hotCardBar.getWidth() - 24 * refScale, height - hotCardBar.getHeight() - 20 * refScale);
+        hotCardBar.setOnCardSoldListener((card, sellPrice) -> {
+            if (statsLbl != null) {
+                statsLbl.setText("RUN SCORE: " + runState.getTotalRunScore() + "   |   $" + runState.getMoney());
+            }
+            SaveManager.getInstance().saveRunMapState(runState);
+        });
         stage.addActor(hotCardBar);
 
         uiRoot.getColor().a = 0f;
@@ -473,6 +480,7 @@ public class RunMapScreen extends PageScreen {
     private void transitionToCombat(Enemy selectedEnemy) {
         if (isTransitioning || isPaused) return;
         isTransitioning = true;
+        if (hotCardBar != null) hotCardBar.setTouchable(Touchable.disabled);
 
         CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
 
@@ -493,6 +501,7 @@ public class RunMapScreen extends PageScreen {
     private void transitionToShop() {
         if (isTransitioning || isPaused || !runState.isShopAvailable()) return;
         isTransitioning = true;
+        if (hotCardBar != null) hotCardBar.setTouchable(Touchable.disabled);
 
         // Belépéskor azonnal bezárul és mentődik, így újratöltéssel sem lehet új boltot kérni.
         runState.setShopAvailable(false);
@@ -517,6 +526,9 @@ public class RunMapScreen extends PageScreen {
         if (uiRoot != null) {
             uiRoot.setTouchable(paused ? Touchable.disabled : Touchable.childrenOnly);
         }
+        if (hotCardBar != null) {
+            hotCardBar.setTouchable(paused ? Touchable.disabled : Touchable.childrenOnly);
+        }
         if (!paused && debugScrollPane != null && stage != null) {
             stage.setScrollFocus(debugScrollPane);
         }
@@ -526,6 +538,7 @@ public class RunMapScreen extends PageScreen {
         if (isTransitioning) return;
         isTransitioning = true;
         setPaused(false);
+        if (hotCardBar != null) hotCardBar.setTouchable(Touchable.disabled);
         SaveManager.getInstance().saveRunMapState(runState);
 
         if (uiRoot != null) {

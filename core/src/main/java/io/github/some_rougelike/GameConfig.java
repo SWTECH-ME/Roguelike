@@ -56,6 +56,11 @@ public class GameConfig {
     public static final int MAX_CHAPTERS = 12;
     public static final int NORMALS_PER_CHAPTER = 2;
 
+    // Blind target score scaling
+    public static final int BASE_BLIND_TARGET = 300;
+    public static final int BLIND_TARGET_LINEAR_STEP = 100;
+    public static final int BLIND_TARGET_QUADRATIC_STEP = 16;
+
     // Normal enemy pool definitions (names, base target scores, plays, discards)
     public static final String[] NORMAL_ENEMY_NAMES = {
         "Backrooms Obama",

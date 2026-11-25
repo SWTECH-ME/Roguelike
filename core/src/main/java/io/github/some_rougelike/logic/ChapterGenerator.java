@@ -24,28 +24,51 @@ public class ChapterGenerator {
     private ChapterGenerator() {
     }
 
+    /**
+     * Kiszámítja a célpontszámot fejezet és a fejezeten belüli vak pozíció alapján.
+     * blindIndexInChapter: 0 = Normal 1, 1 = Normal 2, ..., NORMALS_PER_CHAPTER = Boss.
+     * Minden vak célpontszáma szigorúan növekvő a futás során.
+     */
+    public static int calculateTargetScore(int chapterIndex, int blindIndexInChapter) {
+        int chapter = Math.max(1, chapterIndex);
+        int blindNum = (chapter - 1) * (GameConfig.NORMALS_PER_CHAPTER + 1) + blindIndexInChapter + 1;
+        int raw = GameConfig.BASE_BLIND_TARGET
+                + GameConfig.BLIND_TARGET_LINEAR_STEP * (blindNum - 1)
+                + GameConfig.BLIND_TARGET_QUADRATIC_STEP * (blindNum - 1) * (blindNum - 1);
+        return Math.max(GameConfig.BASE_BLIND_TARGET, Math.round(raw / 50f) * 50);
+    }
+
     public static List<Enemy> generateNormalEnemies() {
+        return generateNormalEnemies(1);
+    }
+
+    public static List<Enemy> generateNormalEnemies(int chapterIndex) {
         List<Enemy> normalPool = new ArrayList<>();
         int count = GameConfig.NORMAL_ENEMY_NAMES.length;
         for (int i = 0; i < count; i++) {
             String name = GameConfig.NORMAL_ENEMY_NAMES[i];
-            int target = i < GameConfig.NORMAL_ENEMY_BASE_TARGETS.length ? GameConfig.NORMAL_ENEMY_BASE_TARGETS[i] : 400;
             int plays = i < GameConfig.NORMAL_ENEMY_PLAYS.length ? GameConfig.NORMAL_ENEMY_PLAYS[i] : GameConfig.DEFAULT_MAX_PLAYS;
             int discards = i < GameConfig.NORMAL_ENEMY_DISCARDS.length ? GameConfig.NORMAL_ENEMY_DISCARDS[i] : GameConfig.DEFAULT_MAX_DISCARDS;
             String bg = (i % 2 == 0) ? GameConfig.BG_ENEMY_1 : GameConfig.BG_ENEMY_2;
-            normalPool.add(new Enemy(name, target, plays, discards, bg));
+            normalPool.add(new Enemy(name, 0, plays, discards, bg));
         }
         Collections.shuffle(normalPool);
 
         List<Enemy> selected = new ArrayList<>();
         int pickCount = Math.min(GameConfig.NORMALS_PER_CHAPTER, normalPool.size());
         for (int i = 0; i < pickCount; i++) {
-            selected.add(normalPool.get(i));
+            Enemy base = normalPool.get(i);
+            int target = calculateTargetScore(chapterIndex, i);
+            selected.add(new Enemy(base.getName(), target, base.getMaxPlays(), base.getMaxDiscards(), base.getBackgroundPath()));
         }
         return selected;
     }
 
     public static Enemy generateUniqueBoss(List<String> usedBossNames) {
+        return generateUniqueBoss(usedBossNames, 1);
+    }
+
+    public static Enemy generateUniqueBoss(List<String> usedBossNames, int chapterIndex) {
         List<Enemy> allBosses = createAllBosses();
         List<Enemy> availableBosses = new ArrayList<>();
 
@@ -64,7 +87,16 @@ public class ChapterGenerator {
         if (usedBossNames != null && !usedBossNames.contains(chosen.getName())) {
             usedBossNames.add(chosen.getName());
         }
-        return chosen;
+
+        int target = calculateTargetScore(chapterIndex, GameConfig.NORMALS_PER_CHAPTER);
+        return new Enemy(
+            chosen.getName(),
+            target,
+            chosen.getMaxPlays(),
+            chosen.getMaxDiscards(),
+            chosen.getAbilityType(),
+            chosen.getBackgroundPath()
+        );
     }
 
     public static List<Enemy> createAllBosses() {
@@ -72,7 +104,7 @@ public class ChapterGenerator {
         int count = Math.min(GameConfig.BOSS_NAMES.length, BOSS_ABILITIES.length);
         for (int i = 0; i < count; i++) {
             String name = GameConfig.BOSS_NAMES[i];
-            int target = i < GameConfig.BOSS_BASE_TARGETS.length ? GameConfig.BOSS_BASE_TARGETS[i] : 500;
+            int target = calculateTargetScore(i + 1, GameConfig.NORMALS_PER_CHAPTER);
             BossAbilityType ability = BOSS_ABILITIES[i];
             bosses.add(new Enemy(
                 name,

@@ -42,4 +42,27 @@ public class HotCardState {
         c.moneyTreePlays = moneyTreePlays;
         return c;
     }
+
+    public void resetCardState(String cardId) {
+        if (cardId == null) return;
+        if (HotCard.CROSSED_BLADES.equals(cardId)) {
+            heartsPlayedThisBlind = 0;
+        } else if (HotCard.CHIP_STACK.equals(cardId)) {
+            blindHandSizeBonus = 0;
+        } else if (HotCard.ONE_ARMED_BANDIT.equals(cardId)) {
+            bossAbilityDisabled = false;
+        } else if (HotCard.DIG_DEEP.equals(cardId)) {
+            digDeepSpades = 0;
+        } else if (HotCard.OPEN_GRAVE.equals(cardId)) {
+            openGraveSpades = 0;
+        } else if (HotCard.GRAVE_LANTERN.equals(cardId)) {
+            graveLanternFlushes = 0;
+        } else if (HotCard.REAPERS_CROWN.equals(cardId)) {
+            reaperFlushes = 0;
+        } else if (HotCard.BLACK_WIDOW.equals(cardId)) {
+            blackWidowBlinds = 0;
+        } else if (HotCard.MONEY_TREE.equals(cardId)) {
+            moneyTreePlays = 0;
+        }
+    }
 }

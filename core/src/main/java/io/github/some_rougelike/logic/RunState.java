@@ -3,6 +3,7 @@ package io.github.some_rougelike.logic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import io.github.some_rougelike.GameConfig;
@@ -42,6 +43,7 @@ public class RunState {
     /** A játékosnál lévő hot cardok azonosítói (legfeljebb MAX_HOT_CARDS). */
     public static final int MAX_HOT_CARDS = 5;
     private final List<String> hotCards = new ArrayList<>();
+    private final Map<String, Integer> hotCardPurchasePrices = new LinkedHashMap<>();
     private HotCardState hotState = new HotCardState();
     /** Rangonkénti plusz chip (Hearts cheat lapok), Rank.ordinal() szerint indexelve. */
     private final int[] rankChipBonus = new int[Rank.values().length];
@@ -104,8 +106,8 @@ public class RunState {
     }
 
     private void generateMockChapter() {
-        availableNormals = ChapterGenerator.generateNormalEnemies();
-        bossEnemy = ChapterGenerator.generateUniqueBoss(usedBossNames);
+        availableNormals = ChapterGenerator.generateNormalEnemies(chapterIndex);
+        bossEnemy = ChapterGenerator.generateUniqueBoss(usedBossNames, chapterIndex);
         activeEnemy = null;
     }
 
@@ -229,10 +231,49 @@ public class RunState {
     public boolean hasHotCard(String id) { return hotCards.contains(id); }
     public HotCardState getHotState() { return hotState; }
     public void setHotState(HotCardState state) { this.hotState = state != null ? state : new HotCardState(); }
-    /** Hozzáadja, ha van hely és még nincs meg; true, ha sikerült. */
+    /** Hozzáadja a lapot az alapértelmezett árával, ha van hely és még nincs meg; true, ha sikerült. */
     public boolean addHotCard(String id) {
+        HotCard card = HotCard.byId(id);
+        return addHotCard(id, card != null ? card.getPrice() : 0);
+    }
+    /** Hozzáadja a lapot a megadott vételárral, ha van hely és még nincs meg; true, ha sikerült. */
+    public boolean addHotCard(String id, int purchasePrice) {
         if (id == null || !hasFreeHotCardSlot() || hotCards.contains(id) || HotCard.byId(id) == null) return false;
         hotCards.add(id);
+        hotCardPurchasePrices.put(id, Math.max(0, purchasePrice));
+        return true;
+    }
+    public int getHotCardPurchasePrice(String id) {
+        if (id == null) return 0;
+        Integer price = hotCardPurchasePrices.get(id);
+        if (price != null) return price;
+        HotCard card = HotCard.byId(id);
+        return card != null ? card.getPrice() : 0;
+    }
+    /** Vételár 50%-a (kerekítve). */
+    public int getHotCardSellPrice(String id) {
+        int purchasePrice = getHotCardPurchasePrice(id);
+        return Math.max(1, Math.round(purchasePrice * 0.5f));
+    }
+    /** Eladja a hot cardot 50%-os áron: levonja a lapot, jóváírja a pénzt, törli a számlálóit; visszaadja a kapott összeget (0 ha sikertelen). */
+    public int sellHotCard(String id) {
+        if (id == null || !hotCards.contains(id)) return 0;
+        int sellPrice = getHotCardSellPrice(id);
+        hotCards.remove(id);
+        hotCardPurchasePrices.remove(id);
+        addMoney(sellPrice);
+        if (hotState != null) {
+            hotState.resetCardState(id);
+        }
+        return sellPrice;
+    }
+    public boolean removeHotCard(String id) {
+        if (id == null || !hotCards.contains(id)) return false;
+        hotCards.remove(id);
+        hotCardPurchasePrices.remove(id);
+        if (hotState != null) {
+            hotState.resetCardState(id);
+        }
         return true;
     }
     public boolean isShopAvailable() { return shopAvailable; }
