@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"io.github.some_rougelike"},{"l":"io.github.some_rougelike.audio"},{"l":"io.github.some_rougelike.logic"},{"l":"io.github.some_rougelike.model"},{"l":"io.github.some_rougelike.save"},{"l":"io.github.some_rougelike.screens"},{"l":"io.github.some_rougelike.ui"}];updateSearchResults();
