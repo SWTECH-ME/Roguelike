@@ -24,6 +24,8 @@ public class GameConfig {
     public static final float MAIN_MENU_BUTTON_SIZE = 1.3f;
     public static final float MAIN_MENU_SCALE = 1.5f;
     public static final float MAIN_MENU_FADE_DURATION = 0.5f;
+    // Short fade-in duration when navigating between submenus (Collection, Profile, Settings, Friends) and Main Menu
+    public static final float SUBMENU_FADE_DURATION = 0.35f;
     // Collections Debug:
     public static final boolean ALLOW_HIDING_COMBINATIONS = false;
     // Secret key sequence on the Main Menu to launch the scrollable 12-Boss test level
@@ -216,6 +218,52 @@ public class GameConfig {
     public static final String DEFAULT_DECK_SKIN = "white_black.png";
     public static final int DECK_SHEET_COLS = 13;
     public static final int DECK_SHEET_ROWS = 5;
+
+    // --- PROFILE SCREEN ---
+    // Fallback username when machine name cannot be resolved, layout dimensions, and colors for the Profile menu
+    public static final String DEFAULT_FALLBACK_USERNAME = "Player";
+    public static final int PROFILE_MAX_USERNAME_LENGTH = 24;
+    public static final float PROFILE_ROW_PADDING = 18f;
+    public static final float PROFILE_TITLE_BOTTOM_PADDING = 50f;
+    public static final float PROFILE_LABEL_WIDTH = 280f;
+    public static final float PROFILE_VALUE_WIDTH = 280f;
+    public static final float PROFILE_COLUMN_GAP = 40f;
+    public static final float PROFILE_ROW_FONT_SCALE = 1.1f;
+    public static final float PROFILE_HINT_FONT_SCALE = 0.75f;
+    public static final Color PROFILE_LABEL_COLOR = new Color(0.8f, 0.8f, 0.8f, 1f);
+    public static final Color PROFILE_VALUE_COLOR = new Color(1.0f, 1.0f, 1.0f, 1f);
+    public static final Color PROFILE_USERNAME_HOVER_COLOR = new Color(1.0f, 0.84f, 0.28f, 1f);
+    public static final Color PROFILE_HINT_COLOR = new Color(0.65f, 0.65f, 0.65f, 1f);
+
+    // Resolves the default profile username from the machine's hostname or OS user name
+    public static String getDefaultUsername() {
+        try {
+            String host = java.net.InetAddress.getLocalHost().getHostName();
+            if (host != null && !host.trim().isEmpty()) {
+                host = host.trim();
+                if (host.endsWith(".local")) {
+                    host = host.substring(0, host.length() - 6);
+                }
+                if (!host.isEmpty()) {
+                    return host.length() > PROFILE_MAX_USERNAME_LENGTH
+                        ? host.substring(0, PROFILE_MAX_USERNAME_LENGTH)
+                        : host;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            String osUser = System.getProperty("user.name");
+            if (osUser != null && !osUser.trim().isEmpty()) {
+                String trimmed = osUser.trim();
+                return trimmed.length() > PROFILE_MAX_USERNAME_LENGTH
+                    ? trimmed.substring(0, PROFILE_MAX_USERNAME_LENGTH)
+                    : trimmed;
+            }
+        } catch (Exception ignored) {
+        }
+        return DEFAULT_FALLBACK_USERNAME;
+    }
 
     // --- CONTINUE RUN MENU & ANIMATIONS ---
     // Dimensions, colors, and animation timings for the continue/new run prompt in the main menu

@@ -45,10 +45,14 @@ public class SettingsUIBuilder {
     public void build(Stage stage, Skin skin, Main main, float scale, WindowModeController windowModeController) {
         UserSettingsData settings = SaveManager.getInstance().getSettings();
         boolean isBorderless = "Borderless Windowed".equals(settings.getDisplayMode());
-        build(stage, skin, main, scale, windowModeController, isBorderless);
+        build(stage, skin, main, scale, windowModeController, isBorderless, true);
     }
 
     public void build(Stage stage, Skin skin, Main main, float scale, WindowModeController windowModeController, boolean isBorderless) {
+        build(stage, skin, main, scale, windowModeController, isBorderless, false);
+    }
+
+    public void build(Stage stage, Skin skin, Main main, float scale, WindowModeController windowModeController, boolean isBorderless, boolean animate) {
         initTextures();
         final UserSettingsData settings = SaveManager.getInstance().getSettings();
 
@@ -142,7 +146,7 @@ public class SettingsUIBuilder {
                         }
 
                         float newScale = Math.min(width / 1920f, height / 1080f) * 1.5f;
-                        build(stage, skin, main, newScale, windowModeController, borderless);
+                        build(stage, skin, main, newScale, windowModeController, borderless, false);
                     }
                 });
             }
@@ -173,7 +177,7 @@ public class SettingsUIBuilder {
                             }
 
                             float newScale = Math.min(width / 1920f, height / 1080f) * 1.5f;
-                            build(stage, skin, main, newScale, windowModeController, isBorderless);
+                            build(stage, skin, main, newScale, windowModeController, isBorderless, false);
                         }
                     });
                 }
@@ -275,6 +279,10 @@ public class SettingsUIBuilder {
         rootTable.add(backButton).center();
 
         mainContainer.add(rootTable).center();
+        if (animate) {
+            mainContainer.getColor().a = 0f;
+            mainContainer.addAction(Actions.fadeIn(GameConfig.SUBMENU_FADE_DURATION, Interpolation.fade));
+        }
         stage.addActor(mainContainer);
     }
 
