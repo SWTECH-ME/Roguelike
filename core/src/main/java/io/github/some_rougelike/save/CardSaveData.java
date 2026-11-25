@@ -20,6 +20,10 @@ public class CardSaveData {
         this.multiplier = multiplier;
     }
 
+    /** 
+     * @param card
+     * @return CardSaveData
+     */
     public static CardSaveData fromCard(Card card) {
         return new CardSaveData(
             card.getSuit().name(),
@@ -29,6 +33,9 @@ public class CardSaveData {
         );
     }
 
+    /** 
+     * @return Card
+     */
     public Card toCard() {
         Suit cardSuit = Suit.valueOf(suit);
         Rank cardRank = Rank.valueOf(rank);
@@ -38,34 +45,58 @@ public class CardSaveData {
         return card;
     }
 
+    /** 
+     * @return String
+     */
     public String getSuit() {
         return suit;
     }
 
+    /** 
+     * @param suit
+     */
     public void setSuit(String suit) {
         this.suit = suit;
     }
 
+    /** 
+     * @return String
+     */
     public String getRank() {
         return rank;
     }
 
+    /** 
+     * @param rank
+     */
     public void setRank(String rank) {
         this.rank = rank;
     }
 
+    /** 
+     * @return int
+     */
     public int getChips() {
         return chips;
     }
 
+    /** 
+     * @param chips
+     */
     public void setChips(int chips) {
         this.chips = chips;
     }
 
+    /** 
+     * @return int
+     */
     public int getMultiplier() {
         return multiplier;
     }
 
+    /** 
+     * @param multiplier
+     */
     public void setMultiplier(int multiplier) {
         this.multiplier = multiplier;
     }

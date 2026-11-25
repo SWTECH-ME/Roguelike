@@ -47,6 +47,9 @@ public class Enemy {
     public boolean isBoss() { return isBoss; }
     public String getSpecialAbility() { return specialAbility; }
     public BossAbilityType getAbilityType() { return abilityType != null ? abilityType : BossAbilityType.NONE; }
+    /** 
+     * @param abilityType
+     */
     public void setAbilityType(BossAbilityType abilityType) {
         this.abilityType = abilityType != null ? abilityType : BossAbilityType.NONE;
         if (this.specialAbility == null || this.specialAbility.isEmpty()) {

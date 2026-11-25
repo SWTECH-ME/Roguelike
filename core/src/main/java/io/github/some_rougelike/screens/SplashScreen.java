@@ -51,6 +51,9 @@ public class SplashScreen extends ScreenAdapter {
         }
     }
 
+    /** 
+     * @param delta
+     */
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
@@ -60,6 +63,10 @@ public class SplashScreen extends ScreenAdapter {
         stage.draw();
     }
 
+    /** 
+     * @param width
+     * @param height
+     */
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);

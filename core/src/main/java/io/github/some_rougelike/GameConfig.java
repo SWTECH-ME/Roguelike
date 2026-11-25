@@ -240,6 +240,9 @@ public class GameConfig {
     public static final Color PROFILE_USERNAME_HOVER_COLOR = new Color(1.0f, 0.84f, 0.28f, 1f);
     public static final Color PROFILE_HINT_COLOR = new Color(0.65f, 0.65f, 0.65f, 1f);
 
+    /** 
+     * @return String
+     */
     // Resolves the default profile username from the machine's hostname or OS user name
     public static String getDefaultUsername() {
         try {
@@ -320,6 +323,9 @@ public class GameConfig {
         BG_COLOR_2 = colorCombos[randomIndex][1];
     }
 
+    /** 
+     * @param themeName
+     */
     // Applies a specific named background theme or rolls a random one if "Random" is selected
     public static void applyBackgroundTheme(String themeName) {
         if (themeName == null || "Random".equalsIgnoreCase(themeName)) {
@@ -357,6 +363,10 @@ public class GameConfig {
         }
     }
 
+    /** 
+     * @param filename
+     * @return String
+     */
     // --- DECK NAMES ---
     public static String getDeckSkinName(String filename) {
         if (filename == null) return "Unknown Deck";

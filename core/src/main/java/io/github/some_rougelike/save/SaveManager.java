@@ -25,10 +25,16 @@ public class SaveManager {
         currentSave = new GameSaveData();
     }
 
+    /** 
+     * @return SaveManager
+     */
     public static SaveManager getInstance() {
         return INSTANCE;
     }
 
+    /** 
+     * @return SaveEncryptionStrategy
+     */
     private SaveEncryptionStrategy getStrategy() {
         if (GameConfig.SAVE_ENCRYPTION_ENABLED) {
             return new AesSaveStrategy();
@@ -84,27 +90,42 @@ public class SaveManager {
         }
     }
 
+    /** 
+     * @return String
+     */
     public String getUsername() {
         ensureLoaded();
         return currentSave.getUsername();
     }
 
+    /** 
+     * @param username
+     */
     public void setUsername(String username) {
         ensureLoaded();
         currentSave.setUsername(username);
         save();
     }
 
+    /** 
+     * @return UserSettingsData
+     */
     public UserSettingsData getSettings() {
         ensureLoaded();
         return currentSave.getSettings();
     }
 
+    /** 
+     * @return String
+     */
     public String getSelectedDeckSkinPath() {
         ensureLoaded();
         return GameConfig.DECK_SKINS_DIR + "/" + currentSave.getSettings().getSelectedDeckSkin();
     }
 
+    /** 
+     * @return float[]
+     */
     public float[] getRankProgressValues() {
         ensureLoaded();
         float[] stored = currentSave.getRankProgress();
@@ -115,6 +136,9 @@ public class SaveManager {
         return stored;
     }
 
+    /** 
+     * @param values
+     */
     public void updateRankProgressValues(float[] values) {
         ensureLoaded();
         float[] target = getRankProgressValues();
@@ -122,6 +146,9 @@ public class SaveManager {
         save();
     }
 
+    /** 
+     * @return int
+     */
     public int getAverageRankProgressPercent() {
         float[] values = getRankProgressValues();
         if (values.length == 0) {
@@ -134,6 +161,9 @@ public class SaveManager {
         return Math.round(sum / values.length);
     }
 
+    /** 
+     * @return int
+     */
     public int getMaxedRanksCount() {
         float[] values = getRankProgressValues();
         int count = 0;
@@ -145,6 +175,9 @@ public class SaveManager {
         return count;
     }
 
+    /** 
+     * @return int
+     */
     public int getDiscoveredCombosCount() {
         ensureLoaded();
         int count = 0;
@@ -156,15 +189,24 @@ public class SaveManager {
         return count;
     }
 
+    /** 
+     * @return int
+     */
     public int getTotalCombosCount() {
         return HandEvaluator.Combo.values().length;
     }
 
+    /** 
+     * @return int
+     */
     public int getHighScore() {
         ensureLoaded();
         return currentSave.getHighScore();
     }
 
+    /** 
+     * @param candidateScore
+     */
     public void updateHighScore(int candidateScore) {
         ensureLoaded();
         if (candidateScore > currentSave.getHighScore()) {
@@ -173,16 +215,25 @@ public class SaveManager {
         }
     }
 
+    /** 
+     * @return boolean
+     */
     public boolean hasActiveRun() {
         ensureLoaded();
         return currentSave.isHasActiveRun();
     }
 
+    /** 
+     * @return RunSaveData
+     */
     public RunSaveData getActiveRunData() {
         ensureLoaded();
         return currentSave.getActiveRun();
     }
 
+    /** 
+     * @param runState
+     */
     public void saveRunMapState(RunState runState) {
         if (runState != null && runState.isBossDebugMode()) {
             return;
@@ -197,6 +248,10 @@ public class SaveManager {
         save();
     }
 
+    /** 
+     * @param runState
+     * @param combatSaveData
+     */
     public void saveCombatState(RunState runState, CombatSaveData combatSaveData) {
         if (runState != null && runState.isBossDebugMode()) {
             return;

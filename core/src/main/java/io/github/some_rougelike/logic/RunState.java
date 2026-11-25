@@ -61,6 +61,9 @@ public class RunState {
         generateMockChapter();
     }
 
+    /** 
+     * @return RunState
+     */
     public static RunState createBossDebugRun() {
         RunState debugState = new RunState();
         debugState.bossDebugMode = true;
@@ -94,6 +97,9 @@ public class RunState {
         }
     }
 
+    /** 
+     * @return List<Card>
+     */
     private List<Card> generateStandardDeck() {
         List<Card> newDeck = new ArrayList<>();
         for (Suit suit : Suit.values()) {
@@ -111,10 +117,16 @@ public class RunState {
         activeEnemy = null;
     }
 
+    /** 
+     * @param enemy
+     */
     public void setActiveEnemy(Enemy enemy) {
         this.activeEnemy = enemy;
     }
 
+    /** 
+     * @return Enemy
+     */
     public Enemy getCurrentEnemy() {
         return activeEnemy;
     }
@@ -157,6 +169,9 @@ public class RunState {
         activeEnemy = null;
     }
 
+    /** 
+     * @return boolean
+     */
     public boolean isBossUnlocked() {
         if (bossDebugMode) {
             return true;
@@ -186,10 +201,18 @@ public class RunState {
         if (combo == null) return 1;
         return combo.getMultiplier() + getComboBonus(combo);
     }
+    /** 
+     * @param combo
+     * @return double
+     */
     public double getComboBonus(HandEvaluator.Combo combo) {
         Double bonus = comboBonuses.get(combo);
         return bonus != null ? bonus : 0;
     }
+    /** 
+     * @param combo
+     * @param bonus
+     */
     public void addComboBonus(HandEvaluator.Combo combo, double bonus) {
         comboBonuses.put(combo, getComboBonus(combo) + bonus);
     }
@@ -217,11 +240,17 @@ public class RunState {
     public int getRankChipBonus(Rank rank) { return rank == null ? 0 : rankChipBonus[rank.ordinal()]; }
     public void addRankChipBonus(Rank rank, int amount) { rankChipBonus[rank.ordinal()] += amount; }
     public int[] getRankChipBonuses() { return rankChipBonus.clone(); }
+    /** 
+     * @param values
+     */
     public void setRankChipBonuses(int[] values) {
         if (values == null) return;
         System.arraycopy(values, 0, rankChipBonus, 0, Math.min(values.length, rankChipBonus.length));
     }
     public CheatCard[] getShopCheatTree() { return shopCheatTree == null ? null : shopCheatTree.clone(); }
+    /** 
+     * @param tree
+     */
     public void setShopCheatTree(CheatCard[] tree) {
         this.shopCheatTree = (tree != null && tree.length == SHOP_CHEAT_TREE_SIZE) ? tree.clone() : null;
     }
@@ -243,6 +272,10 @@ public class RunState {
         hotCardPurchasePrices.put(id, Math.max(0, purchasePrice));
         return true;
     }
+    /** 
+     * @param id
+     * @return int
+     */
     public int getHotCardPurchasePrice(String id) {
         if (id == null) return 0;
         Integer price = hotCardPurchasePrices.get(id);
@@ -267,6 +300,10 @@ public class RunState {
         }
         return sellPrice;
     }
+    /** 
+     * @param id
+     * @return boolean
+     */
     public boolean removeHotCard(String id) {
         if (id == null || !hotCards.contains(id)) return false;
         hotCards.remove(id);
@@ -289,11 +326,17 @@ public class RunState {
     public boolean hasLuckySeven() { return luckySeven; }
     public void setLuckySeven(boolean luckySeven) { this.luckySeven = luckySeven; }
     public int getShopCardSlots() { return shopCardSlots; }
+    /** 
+     * @param slots
+     */
     public void setShopCardSlots(int slots) {
         this.shopCardSlots = Math.max(DEFAULT_SHOP_CARD_SLOTS, Math.min(MAX_SHOP_CARD_SLOTS, slots));
     }
     public int getTotalRunScore() { return totalRunScore; }
     public void setTotalRunScore(int totalRunScore) { this.totalRunScore = Math.max(0, totalRunScore); }
+    /** 
+     * @param points
+     */
     public void addRunScore(int points) {
         if (points > 0) {
             this.totalRunScore += points;

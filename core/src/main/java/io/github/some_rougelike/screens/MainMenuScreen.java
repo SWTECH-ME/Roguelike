@@ -84,6 +84,9 @@ public class MainMenuScreen extends ScreenAdapter {
         }
     }
 
+    /** 
+     * @param main
+     */
     private void registerDebugKeyListener(Main main) {
         stage.addListener(new InputListener() {
             @Override
@@ -113,6 +116,9 @@ public class MainMenuScreen extends ScreenAdapter {
         });
     }
 
+    /** 
+     * @param main
+     */
     private void launchBossDebugLevel(Main main) {
         if (debugTransitioning) {
             return;
@@ -160,6 +166,9 @@ public class MainMenuScreen extends ScreenAdapter {
         SoundManager.getInstance().play(SoundManager.SoundEvent.GAME_OPEN);
     }
 
+    /** 
+     * @param delta
+     */
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1);
@@ -169,6 +178,10 @@ public class MainMenuScreen extends ScreenAdapter {
         stage.draw();
     }
 
+    /** 
+     * @param width
+     * @param height
+     */
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);

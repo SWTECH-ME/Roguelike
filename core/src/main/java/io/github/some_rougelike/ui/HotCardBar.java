@@ -103,15 +103,24 @@ public class HotCardBar extends Group implements Disposable {
         refresh();
     }
 
+    /** 
+     * @param sellable
+     */
     public void setSellable(boolean sellable) {
         this.sellable = sellable;
         refresh();
     }
 
+    /** 
+     * @return boolean
+     */
     public boolean isSellable() {
         return sellable;
     }
 
+    /** 
+     * @param listener
+     */
     public void setOnCardSoldListener(OnCardSoldListener listener) {
         this.sellListener = listener;
         this.sellable = true;
@@ -240,6 +249,9 @@ public class HotCardBar extends Group implements Disposable {
         addActor(tooltip);
     }
 
+    /** 
+     * @param card
+     */
     private void showTooltip(HotCard card) {
         String text = card.getDisplayName();
         if (sellable) {
@@ -252,6 +264,9 @@ public class HotCardBar extends Group implements Disposable {
         tooltip.setPosition(getWidth() - tooltip.getWidth(), -tooltip.getHeight() - 6 * s);
     }
 
+    /** 
+     * @param card
+     */
     private void sellCard(HotCard card) {
         if (card == null || !runState.hasHotCard(card.getId())) return;
         int gained = runState.sellHotCard(card.getId());
@@ -262,6 +277,10 @@ public class HotCardBar extends Group implements Disposable {
         }
     }
 
+    /** 
+     * @param card
+     * @return TextureRegion
+     */
     private TextureRegion regionFor(HotCard card) {
         TextureRegion cached = regions.get(card.getId());
         if (cached != null) return cached;
@@ -287,6 +306,15 @@ public class HotCardBar extends Group implements Disposable {
         return regionFor(card);
     }
 
+    /** 
+     * @param width
+     * @param height
+     * @param fill
+     * @param border
+     * @param thickness
+     * @param radius
+     * @return TextureRegionDrawable
+     */
     private TextureRegionDrawable roundedRect(int width, int height, Color fill, Color border, int thickness, int radius) {
         width = Math.max(width, 2 * radius + 2);
         height = Math.max(height, 2 * radius + 2);
@@ -301,6 +329,15 @@ public class HotCardBar extends Group implements Disposable {
         return new TextureRegionDrawable(tex);
     }
 
+    /** 
+     * @param p
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param r
+     * @param c
+     */
     private static void fill(Pixmap p, int x, int y, int w, int h, int r, Color c) {
         p.setColor(c);
         p.fillRectangle(x + r, y, w - 2 * r, h);

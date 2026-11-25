@@ -216,6 +216,9 @@ public class CombatScreen extends PageScreen {
             this::exitToMainMenu);
     }
 
+    /** 
+     * @return BossAbilityType
+     */
     private BossAbilityType getActiveBossAbility() {
         if (runState.getHotState().bossAbilityDisabled) {
             return BossAbilityType.NONE;
@@ -226,6 +229,9 @@ public class CombatScreen extends PageScreen {
         return BossAbilityType.NONE;
     }
 
+    /** 
+     * @return int
+     */
     private int getEffectiveHandSize() {
         return getActiveBossAbility().modifyHandSize(GameConfig.STARTING_HAND_SIZE) + runState.getHotState().blindHandSizeBonus;
     }
@@ -256,6 +262,9 @@ public class CombatScreen extends PageScreen {
         assignRegionsToList(hand);
     }
 
+    /** 
+     * @param cards
+     */
     private void assignRegionsToList(List<Card> cards) {
         if (cards == null || cardRegions == null) return;
         for (Card card : cards) {
@@ -280,6 +289,14 @@ public class CombatScreen extends PageScreen {
         SaveManager.getInstance().saveCombatState(runState, combatSaveData);
     }
 
+    /** 
+     * @param projectedScore
+     * @param projectedPlaysLeft
+     * @param projectedDiscardsLeft
+     * @param projectedDrawPile
+     * @param projectedHand
+     * @param projectedSelected
+     */
     private void saveProjectedCombatState(int projectedScore, int projectedPlaysLeft, int projectedDiscardsLeft, List<Card> projectedDrawPile, List<Card> projectedHand, List<Card> projectedSelected) {
         if (runState.isBossDebugMode()) {
             return;
@@ -323,6 +340,10 @@ public class CombatScreen extends PageScreen {
         RANK_COLS.put(Rank.KING, 12);
     }
 
+    /** 
+     * @param suit
+     * @return int
+     */
     private int getRowForSuit(Suit suit) {
         if (getActiveBossAbility().areCardColorsHidden()) {
             if (suit == Suit.HEARTS) {
@@ -335,14 +356,26 @@ public class CombatScreen extends PageScreen {
         return SUIT_ROWS.getOrDefault(suit, 0);
     }
 
+    /** 
+     * @param rank
+     * @return int
+     */
     private int getColForRank(Rank rank) {
         return RANK_COLS.getOrDefault(rank, 0);
     }
 
+    /** 
+     * @param rank
+     * @return int
+     */
     private int getProgressIndex(Rank rank) {
         return (getColForRank(rank) + 12) % 13;
     }
 
+    /** 
+     * @param card
+     * @return boolean
+     */
     private boolean rollDouble(Card card) {
         if (!getActiveBossAbility().isDoubleRollAllowed()) {
             return false;
@@ -351,6 +384,9 @@ public class CombatScreen extends PageScreen {
         return MathUtils.random(100f) < chance;
     }
 
+    /** 
+     * @return List<Card>
+     */
     private List<Card> drawUpToMax() {
         List<Card> drawn = new ArrayList<>();
         int maxHand = getEffectiveHandSize();
@@ -365,6 +401,13 @@ public class CombatScreen extends PageScreen {
         return drawn;
     }
 
+    /** 
+     * @param width
+     * @param height
+     * @param color
+     * @param radius
+     * @return TextureRegionDrawable
+     */
     private TextureRegionDrawable createRoundedRect(int width, int height, Color color, int radius) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setBlending(Pixmap.Blending.None);
@@ -384,6 +427,9 @@ public class CombatScreen extends PageScreen {
         return new TextureRegionDrawable(tex);
     }
 
+    /** 
+     * @param restoredFromSave
+     */
     private void buildUI(boolean restoredFromSave) {
         uiRoot = new Table();
         uiRoot.setFillParent(true);
@@ -545,6 +591,15 @@ public class CombatScreen extends PageScreen {
         updateTopBar();
     }
 
+    /** 
+     * @param text
+     * @param scale
+     * @param checkBusy
+     * @param onClick
+     * @param isZero
+     * @param isPlayBtn
+     * @return Group
+     */
     private Group createActionButton(String text, float scale, boolean checkBusy, Runnable onClick, Condition isZero, boolean isPlayBtn) {
         Group group = new Group();
 
@@ -661,6 +716,13 @@ public class CombatScreen extends PageScreen {
         return group;
     }
 
+    /** 
+     * @param text
+     * @param scale
+     * @param checkBusy
+     * @param onClick
+     * @return Label
+     */
     private Label createHoverLabel(String text, float scale, boolean checkBusy, Runnable onClick) {
         Label label = new Label(text, skin);
         label.setFontScale(scale);
@@ -712,6 +774,9 @@ public class CombatScreen extends PageScreen {
         return label;
     }
 
+    /** 
+     * @param incomingCards
+     */
     private void updateHandUI(List<Card> incomingCards) {
         float cardWidth = GameConfig.COMBAT_CARD_WIDTH * uiScale;
         float cardHeight = GameConfig.COMBAT_CARD_HEIGHT * uiScale;
@@ -848,6 +913,9 @@ public class CombatScreen extends PageScreen {
         drawingTimer = maxHandAnimTime;
     }
 
+    /** 
+     * @param intensity
+     */
     private void triggerShake(float intensity) {
         stage.getRoot().clearActions();
         stage.getRoot().setPosition(0, 0);
@@ -1295,6 +1363,9 @@ public class CombatScreen extends PageScreen {
         ));
     }
 
+    /** 
+     * @param paused
+     */
     @Override
     public void setPaused(boolean paused) {
         super.setPaused(paused);
@@ -1406,11 +1477,18 @@ public class CombatScreen extends PageScreen {
         }
     }
 
+    /** 
+     * @param m
+     * @return String
+     */
     private static String formatMult(double m) {
         double r = Math.round(m * 100) / 100.0;
         return (r == Math.floor(r)) ? String.valueOf((int) r) : String.valueOf(r);
     }
 
+    /** 
+     * @param delta
+     */
     @Override
     public void render(float delta) {
         updateComboLabel();
@@ -1553,6 +1631,10 @@ public class CombatScreen extends PageScreen {
         }
     }
 
+    /** 
+     * @param width
+     * @param height
+     */
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);

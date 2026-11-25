@@ -13,6 +13,12 @@ import io.github.some_rougelike.GameConfig;
 
 public class CardTransition {
 
+    /** 
+     * @param stage
+     * @param cardRegions
+     * @param whiteTintableBg
+     * @param isEnteringMenu
+     */
     public static void applyTransition(Stage stage, TextureRegion[][] cardRegions, TextureRegionDrawable whiteTintableBg, boolean isEnteringMenu) {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();

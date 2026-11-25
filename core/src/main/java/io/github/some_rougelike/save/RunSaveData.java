@@ -44,6 +44,11 @@ public class RunSaveData {
     public RunSaveData() {
     }
 
+    /** 
+     * @param runState
+     * @param combatSaveData
+     * @return RunSaveData
+     */
     public static RunSaveData fromRunState(RunState runState, CombatSaveData combatSaveData) {
         RunSaveData data = new RunSaveData();
         data.money = runState.getMoney();
@@ -113,6 +118,9 @@ public class RunSaveData {
         return data;
     }
 
+    /** 
+     * @return RunState
+     */
     public RunState toRunState() {
         List<Card> restoredDeck = new ArrayList<>();
         if (deck != null) {
@@ -184,98 +192,170 @@ public class RunSaveData {
         return restored;
     }
 
+    /** 
+     * @return int
+     */
     public int getMoney() {
         return money;
     }
 
+    /** 
+     * @param money
+     */
     public void setMoney(int money) {
         this.money = money;
     }
 
+    /** 
+     * @return int
+     */
     public int getChapterIndex() {
         return chapterIndex;
     }
 
+    /** 
+     * @param chapterIndex
+     */
     public void setChapterIndex(int chapterIndex) {
         this.chapterIndex = chapterIndex;
     }
 
+    /** 
+     * @return int
+     */
     public int getMaxChapters() {
         return maxChapters > 0 ? maxChapters : GameConfig.MAX_CHAPTERS;
     }
 
+    /** 
+     * @param maxChapters
+     */
     public void setMaxChapters(int maxChapters) {
         this.maxChapters = maxChapters;
     }
 
+    /** 
+     * @return int
+     */
     public int getTotalRunScore() {
         return totalRunScore;
     }
 
+    /** 
+     * @param totalRunScore
+     */
     public void setTotalRunScore(int totalRunScore) {
         this.totalRunScore = totalRunScore;
     }
 
+    /** 
+     * @return ArrayList<String>
+     */
     public ArrayList<String> getUsedBossNames() {
         return usedBossNames;
     }
 
+    /** 
+     * @param usedBossNames
+     */
     public void setUsedBossNames(ArrayList<String> usedBossNames) {
         this.usedBossNames = usedBossNames;
     }
 
+    /** 
+     * @return ArrayList<CardSaveData>
+     */
     public ArrayList<CardSaveData> getDeck() {
         return deck;
     }
 
+    /** 
+     * @param deck
+     */
     public void setDeck(ArrayList<CardSaveData> deck) {
         this.deck = deck;
     }
 
+    /** 
+     * @return ArrayList<EnemySaveData>
+     */
     public ArrayList<EnemySaveData> getAvailableNormals() {
         return availableNormals;
     }
 
+    /** 
+     * @param availableNormals
+     */
     public void setAvailableNormals(ArrayList<EnemySaveData> availableNormals) {
         this.availableNormals = availableNormals;
     }
 
+    /** 
+     * @return EnemySaveData
+     */
     public EnemySaveData getBossEnemy() {
         return bossEnemy;
     }
 
+    /** 
+     * @param bossEnemy
+     */
     public void setBossEnemy(EnemySaveData bossEnemy) {
         this.bossEnemy = bossEnemy;
     }
 
+    /** 
+     * @return boolean
+     */
     public boolean isInCombat() {
         return inCombat;
     }
 
+    /** 
+     * @param inCombat
+     */
     public void setInCombat(boolean inCombat) {
         this.inCombat = inCombat;
     }
 
+    /** 
+     * @return int
+     */
     public int getActiveNormalIndex() {
         return activeNormalIndex;
     }
 
+    /** 
+     * @param activeNormalIndex
+     */
     public void setActiveNormalIndex(int activeNormalIndex) {
         this.activeNormalIndex = activeNormalIndex;
     }
 
+    /** 
+     * @return boolean
+     */
     public boolean isActiveIsBoss() {
         return activeIsBoss;
     }
 
+    /** 
+     * @param activeIsBoss
+     */
     public void setActiveIsBoss(boolean activeIsBoss) {
         this.activeIsBoss = activeIsBoss;
     }
 
+    /** 
+     * @return CombatSaveData
+     */
     public CombatSaveData getCombatState() {
         return combatState;
     }
 
+    /** 
+     * @param combatState
+     */
     public void setCombatState(CombatSaveData combatState) {
         this.combatState = combatState;
     }

@@ -165,6 +165,9 @@ public class CollectionScreen extends PageScreen {
         }
     }
 
+    /** 
+     * @param delta
+     */
     private void changeSkin(int delta) {
         if (skinFiles.size == 0) return;
         currentSkinIndex += delta;
@@ -176,6 +179,9 @@ public class CollectionScreen extends PageScreen {
         rebuildUI(false);
     }
 
+    /** 
+     * @param fadeContent
+     */
     private void rebuildUI(boolean fadeContent) {
         rootTable.clearChildren();
         rootTable.center();
@@ -234,11 +240,20 @@ public class CollectionScreen extends PageScreen {
         rootTable.add(backBtn).center().padBottom(20f * uiScale);
     }
 
+    /** 
+     * @param screenWidth
+     * @param screenHeight
+     * @return float
+     */
     private float getUiScale(float screenWidth, float screenHeight) {
         float scale = (float) Math.sqrt((screenWidth * screenHeight) / REFERENCE_SCREEN_AREA);
         return Math.max(MIN_UI_SCALE, Math.min(MAX_UI_SCALE, scale));
     }
 
+    /** 
+     * @param width
+     * @param height
+     */
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);
@@ -259,16 +274,28 @@ public class CollectionScreen extends PageScreen {
         }
     }
 
+    /** 
+     * @param newMode
+     */
     private void setMode(Mode newMode) {
         if (mode == newMode) return;
         mode = newMode;
         rebuildUI(true);
     }
 
+    /** 
+     * @param rankIndex
+     * @return int
+     */
     private int rankToColumn(int rankIndex) {
         return ACE_FIRST_IN_SHEET ? (rankIndex + 1) % 13 : rankIndex;
     }
 
+    /** 
+     * @param content
+     * @param uiScale
+     * @return ScrollPane
+     */
     private ScrollPane createModernScrollPane(Actor content, float uiScale) {
         ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
 
@@ -293,6 +320,10 @@ public class CollectionScreen extends PageScreen {
         return scrollPane;
     }
 
+    /** 
+     * @param uiScale
+     * @return Table
+     */
     private Table buildTabBar(float uiScale) {
         Table tabs = new Table();
 
@@ -307,6 +338,12 @@ public class CollectionScreen extends PageScreen {
         return tabs;
     }
 
+    /** 
+     * @param uiScale
+     * @param screenWidth
+     * @param screenHeight
+     * @return Actor
+     */
     private Actor buildSkinsContent(float uiScale, float screenWidth, float screenHeight) {
         Table cardsTable = new Table();
         float padX = screenWidth * 0.003f;
@@ -337,6 +374,12 @@ public class CollectionScreen extends PageScreen {
         return createModernScrollPane(cardsTable, uiScale);
     }
 
+    /** 
+     * @param uiScale
+     * @param screenWidth
+     * @param screenHeight
+     * @return Actor
+     */
     private Actor buildRanksContent(float uiScale, float screenWidth, float screenHeight) {
         Table ranksTable = new Table();
         float pad = Math.min(screenWidth, screenHeight) * 0.008f;
@@ -387,6 +430,12 @@ public class CollectionScreen extends PageScreen {
         return createModernScrollPane(ranksTable, uiScale);
     }
 
+    /** 
+     * @param uiScale
+     * @param screenWidth
+     * @param screenHeight
+     * @return Actor
+     */
     private Actor buildCombinationsContent(float uiScale, float screenWidth, float screenHeight) {
         Table list = new Table();
 
@@ -474,6 +523,13 @@ public class CollectionScreen extends PageScreen {
         return createModernScrollPane(wrapper, uiScale);
     }
 
+    /** 
+     * @param text
+     * @param scale
+     * @param isActive
+     * @param onClick
+     * @return Label
+     */
     private Label createTabLabel(String text, float scale, boolean isActive, Runnable onClick) {
         Label label = new Label(text, uiSkin);
         label.setAlignment(Align.center);
@@ -522,6 +578,12 @@ public class CollectionScreen extends PageScreen {
         return label;
     }
 
+    /** 
+     * @param text
+     * @param scale
+     * @param onClick
+     * @return Label
+     */
     private Label createHoverAction(String text, float scale, Runnable onClick) {
         return createTabLabel(text, scale, false, onClick);
     }

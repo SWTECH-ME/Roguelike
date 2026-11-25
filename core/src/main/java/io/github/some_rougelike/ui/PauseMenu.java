@@ -54,6 +54,9 @@ public class PauseMenu {
         pm.dispose();
     }
 
+    /** 
+     * @return boolean
+     */
     public boolean isVisible() {
         return visible;
     }
@@ -120,12 +123,19 @@ public class PauseMenu {
         o.addAction(Actions.sequence(Actions.fadeOut(FADE, Interpolation.fade), Actions.removeActor()));
     }
 
+    /** 
+     * @param delta
+     */
     public void render(float delta) {
         if (pauseStage.getActors().size == 0) return;
         pauseStage.act(delta);
         pauseStage.draw();
     }
 
+    /** 
+     * @param width
+     * @param height
+     */
     public void resize(int width, int height) {
         pauseStage.getViewport().update(width, height, true);
     }
@@ -136,6 +146,12 @@ public class PauseMenu {
         whiteTex.dispose();
     }
 
+    /** 
+     * @param text
+     * @param fontScale
+     * @param onClick
+     * @return Label
+     */
     private Label createButton(String text, float fontScale, Runnable onClick) {
         final Label label = new Label(text, skin);
         label.setFontScale(fontScale);

@@ -166,6 +166,11 @@ public class RunContinueDialog {
         });
     }
 
+    /** 
+     * @param overlay
+     * @param panelGroup
+     * @param scale
+     */
     private void startContinueRun(Table overlay, Group panelGroup, float scale) {
         if (isTransitioning) {
             return;
@@ -194,6 +199,11 @@ public class RunContinueDialog {
         });
     }
 
+    /** 
+     * @param overlay
+     * @param panelGroup
+     * @param scale
+     */
     private void startNewRun(Table overlay, Group panelGroup, float scale) {
         if (isTransitioning) {
             return;
@@ -211,6 +221,11 @@ public class RunContinueDialog {
         });
     }
 
+    /** 
+     * @param overlay
+     * @param panelGroup
+     * @param scale
+     */
     private void closeDialog(Table overlay, Group panelGroup, float scale) {
         if (isTransitioning) {
             return;
@@ -241,6 +256,11 @@ public class RunContinueDialog {
         ));
     }
 
+    /** 
+     * @param overlay
+     * @param panelGroup
+     * @param scale
+     */
     private void animateDialogOut(Table overlay, Group panelGroup, float scale) {
         panelGroup.clearActions();
         panelGroup.addAction(Actions.parallel(
@@ -251,6 +271,9 @@ public class RunContinueDialog {
         overlay.addAction(Actions.fadeOut(GameConfig.CONTINUE_DIALOG_FADE_DURATION, Interpolation.fade));
     }
 
+    /** 
+     * @param onComplete
+     */
     private void triggerCardRainAndSwitch(Runnable onComplete) {
         TextureRegion[][] cardRegions = loadSelectedSkinRegions();
         TextureRegionDrawable whiteBg = createSolidDrawable(Color.WHITE);
@@ -263,6 +286,9 @@ public class RunContinueDialog {
         ));
     }
 
+    /** 
+     * @return TextureRegion[][]
+     */
     private TextureRegion[][] loadSelectedSkinRegions() {
         try {
             FileHandle file = Gdx.files.internal(SaveManager.getInstance().getSelectedDeckSkinPath());
@@ -283,6 +309,13 @@ public class RunContinueDialog {
         return null;
     }
 
+    /** 
+     * @param from1
+     * @param from2
+     * @param to1
+     * @param to2
+     * @param duration
+     */
     private void lerpBackground(Color from1, Color from2, Color to1, Color to2, float duration) {
         if (trippyBackground == null) {
             return;
@@ -306,6 +339,10 @@ public class RunContinueDialog {
         stage.addAction(lerpAction);
     }
 
+    /** 
+     * @param runData
+     * @return String
+     */
     private String buildRunSummary(RunSaveData runData) {
         if (runData == null) {
             return "CHAPTER 1 / " + GameConfig.MAX_CHAPTERS + "   |   $" + GameConfig.STARTING_MONEY + "   |   SCORE: 0";
@@ -315,6 +352,10 @@ public class RunContinueDialog {
             + "   |   SCORE: " + runData.getTotalRunScore();
     }
 
+    /** 
+     * @param runData
+     * @return String
+     */
     private String buildStageSummary(RunSaveData runData) {
         if (runData == null) {
             return "STAGE: RUN MAP";
@@ -336,6 +377,12 @@ public class RunContinueDialog {
         return "STAGE: RUN MAP";
     }
 
+    /** 
+     * @param text
+     * @param scale
+     * @param onClick
+     * @return Label
+     */
     private Label createDialogButton(String text, float scale, Runnable onClick) {
         Label label = new Label(text, skin);
         label.setFontScale(scale);
@@ -382,6 +429,10 @@ public class RunContinueDialog {
         return label;
     }
 
+    /** 
+     * @param color
+     * @return TextureRegionDrawable
+     */
     private TextureRegionDrawable createSolidDrawable(Color color) {
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
@@ -393,6 +444,15 @@ public class RunContinueDialog {
         return new TextureRegionDrawable(tex);
     }
 
+    /** 
+     * @param width
+     * @param height
+     * @param bgColor
+     * @param borderColor
+     * @param borderThickness
+     * @param radius
+     * @return TextureRegionDrawable
+     */
     private TextureRegionDrawable createOutlinedRoundedRect(int width, int height, Color bgColor, Color borderColor, int borderThickness, int radius) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setBlending(Pixmap.Blending.None);

@@ -19,10 +19,16 @@ public class Main extends Game {
     private int windowedHeight = GameConfig.DEFAULT_WINDOW_HEIGHT;
     private io.github.some_rougelike.ui.WindowModeController windowModeController;
 
+    /** 
+     * @param controller
+     */
     public void setWindowModeController(io.github.some_rougelike.ui.WindowModeController controller) {
         this.windowModeController = controller;
     }
 
+    /** 
+     * @return WindowModeController
+     */
     public io.github.some_rougelike.ui.WindowModeController getWindowModeController() {
         return windowModeController;
     }
@@ -49,6 +55,9 @@ public class Main extends Game {
         setScreen(new SplashScreen(this));
     }
 
+    /** 
+     * @param settings
+     */
     private void applySavedDisplaySettings(UserSettingsData settings) {
         if (settings.getResolutionWidth() > 0 && settings.getResolutionHeight() > 0) {
             windowedWidth = settings.getResolutionWidth();

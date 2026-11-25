@@ -29,16 +29,25 @@ public abstract class PageScreen extends ScreenAdapter {
         stage.addActor(trippyBackground);
     }
 
+    /** 
+     * @return float
+     */
     public float getScaleFactor() {
         float currentWidth = Gdx.graphics.getWidth();
         float currentHeight = Gdx.graphics.getHeight();
         return Math.min(currentWidth / REFERENCE_WIDTH, currentHeight / REFERENCE_HEIGHT) * 1.5f;
     }
 
+    /** 
+     * @return boolean
+     */
     public boolean isPaused() {
         return isPaused;
     }
 
+    /** 
+     * @param paused
+     */
     public void setPaused(boolean paused) {
         this.isPaused = paused;
     }
@@ -61,6 +70,9 @@ public abstract class PageScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
     }
 
+    /** 
+     * @param delta
+     */
     @Override
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -74,6 +86,10 @@ public abstract class PageScreen extends ScreenAdapter {
         stage.draw();
     }
 
+    /** 
+     * @param width
+     * @param height
+     */
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);

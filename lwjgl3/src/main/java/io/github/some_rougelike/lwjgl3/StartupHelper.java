@@ -215,11 +215,19 @@ public class StartupHelper {
 		return true;
 	}
 
+	/** 
+	 * @param isMac
+	 * @return String
+	 */
 	private static String getJreErrMsg(boolean isMac) {
 		if (isMac) return MAC_JRE_ERR_MSG;
 		else return LINUX_JRE_ERR_MSG;
 	}
 
+	/** 
+	 * @param isMac
+	 * @return long
+	 */
 	private static long getProcessID(boolean isMac) {
 		if (isMac) return LibC.getpid();
 		else return UNISTD.getpid();
