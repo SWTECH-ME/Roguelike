@@ -127,7 +127,8 @@ public class CollectionScreen extends PageScreen {
     private void loadSkinFiles() {
         String[] skinFileNames = {
                 "black_blue.png", "black_red.png", "black_white.png",
-                "white_black.png", "white_blue.png", "white_red.png"
+                "white_black.png", "white_blue.png", "white_red.png",
+                "colored_suits.png"
         };
 
         String savedSkin = SaveManager.getInstance().getSettings().getSelectedDeckSkin();

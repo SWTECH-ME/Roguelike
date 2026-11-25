@@ -33,6 +33,7 @@ import io.github.some_rougelike.logic.Enemy;
 import io.github.some_rougelike.logic.RunState;
 import io.github.some_rougelike.save.SaveManager;
 import io.github.some_rougelike.ui.CardTransition;
+import io.github.some_rougelike.ui.HotCardBar;
 import io.github.some_rougelike.ui.PauseMenu;
 import io.github.some_rougelike.ui.TrippyBackground;
 
@@ -45,6 +46,7 @@ public class RunMapScreen extends PageScreen {
     private ScrollPane debugScrollPane;
     private boolean isTransitioning = false;
     private PauseMenu pauseMenu;
+    private HotCardBar hotCardBar;
     private Texture deckTexture;
     private TextureRegion[][] cardRegions;
 
@@ -234,12 +236,13 @@ public class RunMapScreen extends PageScreen {
 
         uiRoot.add(cardsTable).padBottom(35 * scale).colspan(3).row();
 
-        Label shopBtn = new Label("ENTER SHOP", uiSkin);
-        shopBtn.setFontScale(scale * 1.3f);
-        shopBtn.setColor(new Color(0.7f, 0.7f, 0.7f, 1f));
+        boolean shopOpen = runState.isShopAvailable();
+        Label shopBtn = new Label(shopOpen ? "ENTER SHOP" : "SHOP CLOSED - WIN A BLIND TO OPEN", uiSkin);
+        shopBtn.setFontScale(scale * (shopOpen ? 1.3f : 1.0f));
+        shopBtn.setColor(shopOpen ? new Color(0.7f, 0.7f, 0.7f, 1f) : new Color(0.4f, 0.4f, 0.4f, 1f));
         shopBtn.setOrigin(Align.center);
         shopBtn.setAlignment(Align.center);
-        shopBtn.setTouchable(Touchable.enabled);
+        shopBtn.setTouchable(shopOpen ? Touchable.enabled : Touchable.disabled);
 
         shopBtn.addListener(new ClickListener() {
             @Override
@@ -269,12 +272,18 @@ public class RunMapScreen extends PageScreen {
             public void clicked(InputEvent event, float x, float y) {
                 if (!isTransitioning && !isPaused) {
                     SoundManager.getInstance().play(SoundManager.SoundEvent.BUTTON_CLICK);
+                    transitionToShop();
                 }
             }
         });
 
         uiRoot.add(shopBtn).colspan(3).center();
         stage.addActor(uiRoot);
+
+        float refScale = Math.min(width / 1920f, height / 1080f);
+        hotCardBar = new HotCardBar(runState, uiSkin, refScale);
+        hotCardBar.setPosition(width - hotCardBar.getWidth() - 24 * refScale, height - hotCardBar.getHeight() - 20 * refScale);
+        stage.addActor(hotCardBar);
 
         uiRoot.getColor().a = 0f;
         uiRoot.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
@@ -481,6 +490,27 @@ public class RunMapScreen extends PageScreen {
         ));
     }
 
+    private void transitionToShop() {
+        if (isTransitioning || isPaused || !runState.isShopAvailable()) return;
+        isTransitioning = true;
+
+        // Belépéskor azonnal bezárul és mentődik, így újratöltéssel sem lehet új boltot kérni.
+        runState.setShopAvailable(false);
+        SaveManager.getInstance().saveRunMapState(runState);
+
+        CardTransition.applyTransition(stage, cardRegions, whiteTintableBg, false);
+
+        uiRoot.addAction(Actions.parallel(
+            Actions.moveBy(0, -80f, 0.6f, Interpolation.pow2In),
+            Actions.fadeOut(0.6f, Interpolation.fade)
+        ));
+
+        stage.addAction(Actions.sequence(
+            Actions.delay(GameConfig.SCREEN_TRANSITION_DURATION),
+            Actions.run(() -> main.switchScreen(new ShopScreen(main, runState)))
+        ));
+    }
+
     @Override
     public void setPaused(boolean paused) {
         super.setPaused(paused);
@@ -549,6 +579,9 @@ public class RunMapScreen extends PageScreen {
     @Override
     public void dispose() {
         super.dispose();
+        if (hotCardBar != null) {
+            hotCardBar.dispose();
+        }
         if (pauseMenu != null) {
             pauseMenu.dispose();
         }

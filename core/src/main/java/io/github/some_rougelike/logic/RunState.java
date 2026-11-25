@@ -2,7 +2,9 @@ package io.github.some_rougelike.logic;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import io.github.some_rougelike.GameConfig;
 import io.github.some_rougelike.model.Card;
 import io.github.some_rougelike.model.Suit;
@@ -21,6 +23,30 @@ public class RunState {
     private List<Enemy> availableNormals;
     private Enemy bossEnemy;
     private Enemy activeEnemy;
+
+    // --- Cheat lapok tartós hatásai ---
+    public static final int DEFAULT_SHOP_CARD_SLOTS = 3;
+    public static final int MAX_SHOP_CARD_SLOTS = 5;
+    private final Map<HandEvaluator.Combo, Double> comboBonuses = new EnumMap<>(HandEvaluator.Combo.class);
+    private boolean luckySeven = false;
+    private int shopCardSlots = DEFAULT_SHOP_CARD_SLOTS;
+    public static final int BASE_REROLL_PRICE = 5;
+    public static final int GOLD_RUSH_PER_ROUND = 2;
+    private int rerollDiscount = 0;
+    private int goldRushCount = 0;
+    private int cheatCardsBought = 0;
+    /** A bolt blindonként egyszer látogatható: győzelemkor nyílik, belépéskor bezárul. */
+    private boolean shopAvailable = false;
+    /** A bolt bal oldali cheat fája (0-3: felső sor, 4-5: alsó sor); null, amíg még nem generáltuk. */
+    private CheatCard[] shopCheatTree = null;
+    /** A játékosnál lévő hot cardok azonosítói (legfeljebb MAX_HOT_CARDS). */
+    public static final int MAX_HOT_CARDS = 5;
+    private final List<String> hotCards = new ArrayList<>();
+    private HotCardState hotState = new HotCardState();
+    /** Rangonkénti plusz chip (Hearts cheat lapok), Rank.ordinal() szerint indexelve. */
+    private final int[] rankChipBonus = new int[Rank.values().length];
+    /** Késleltetett pénzmozgások: [hátralévő körök, összeg] (Pawn Ticket, Time Is Money). */
+    private final List<int[]> delayedMoney = new ArrayList<>();
 
     public RunState() {
         this.money = GameConfig.STARTING_MONEY;
@@ -92,6 +118,10 @@ public class RunState {
     }
 
     public void registerVictory() {
+        if (!bossDebugMode) {
+            onRoundEnd();
+            shopAvailable = true;
+        }
         if (bossDebugMode) {
             if (activeEnemy != null) {
                 activeEnemy.setDefeated(true);
@@ -143,6 +173,84 @@ public class RunState {
     public int getMaxChapters() { return GameConfig.MAX_CHAPTERS; }
     public int getMoney() { return money; }
     public void addMoney(int amount) { this.money += amount; }
+    /** Levonja az összeget, ha van rá elég pénz; különben nem változtat és false-t ad. */
+    public boolean spendMoney(int amount) {
+        if (amount < 0 || money < amount) return false;
+        money -= amount;
+        return true;
+    }
+    /** A kombináció alap szorzója + a cheat lapokból (Royal Flush) kapott bónusz. */
+    public double getComboMultiplier(HandEvaluator.Combo combo) {
+        if (combo == null) return 1;
+        return combo.getMultiplier() + getComboBonus(combo);
+    }
+    public double getComboBonus(HandEvaluator.Combo combo) {
+        Double bonus = comboBonuses.get(combo);
+        return bonus != null ? bonus : 0;
+    }
+    public void addComboBonus(HandEvaluator.Combo combo, double bonus) {
+        comboBonuses.put(combo, getComboBonus(combo) + bonus);
+    }
+    public Map<HandEvaluator.Combo, Double> getComboBonuses() { return comboBonuses; }
+    /** Kör (megnyert harc) végi cheat hatások: Gold Rush, és a lejárt késleltetett pénzmozgások. */
+    private void onRoundEnd() {
+        HotCardEffects.onBlindWon(this);
+        money += goldRushCount * GOLD_RUSH_PER_ROUND;
+        for (int i = delayedMoney.size() - 1; i >= 0; i--) {
+            int[] entry = delayedMoney.get(i);
+            entry[0]--;
+            if (entry[0] <= 0) {
+                money = Math.max(0, money + entry[1]);
+                delayedMoney.remove(i);
+            }
+        }
+    }
+    public void addDelayedMoney(int rounds, int amount) { delayedMoney.add(new int[] { rounds, amount }); }
+    public List<int[]> getDelayedMoney() { return delayedMoney; }
+    public int getRerollDiscount() { return rerollDiscount; }
+    public void addRerollDiscount(int amount) { rerollDiscount = Math.min(BASE_REROLL_PRICE, rerollDiscount + amount); }
+    public int getRerollPrice() { return Math.max(0, BASE_REROLL_PRICE - rerollDiscount); }
+    public int getGoldRushCount() { return goldRushCount; }
+    public void addGoldRush() { goldRushCount++; }
+    public int getRankChipBonus(Rank rank) { return rank == null ? 0 : rankChipBonus[rank.ordinal()]; }
+    public void addRankChipBonus(Rank rank, int amount) { rankChipBonus[rank.ordinal()] += amount; }
+    public int[] getRankChipBonuses() { return rankChipBonus.clone(); }
+    public void setRankChipBonuses(int[] values) {
+        if (values == null) return;
+        System.arraycopy(values, 0, rankChipBonus, 0, Math.min(values.length, rankChipBonus.length));
+    }
+    public CheatCard[] getShopCheatTree() { return shopCheatTree == null ? null : shopCheatTree.clone(); }
+    public void setShopCheatTree(CheatCard[] tree) {
+        this.shopCheatTree = (tree != null && tree.length == SHOP_CHEAT_TREE_SIZE) ? tree.clone() : null;
+    }
+    public static final int SHOP_CHEAT_TREE_SIZE = 6;
+    public List<String> getHotCards() { return Collections.unmodifiableList(hotCards); }
+    public boolean hasFreeHotCardSlot() { return hotCards.size() < MAX_HOT_CARDS; }
+    public boolean hasHotCard(String id) { return hotCards.contains(id); }
+    public HotCardState getHotState() { return hotState; }
+    public void setHotState(HotCardState state) { this.hotState = state != null ? state : new HotCardState(); }
+    /** Hozzáadja, ha van hely és még nincs meg; true, ha sikerült. */
+    public boolean addHotCard(String id) {
+        if (id == null || !hasFreeHotCardSlot() || hotCards.contains(id) || HotCard.byId(id) == null) return false;
+        hotCards.add(id);
+        return true;
+    }
+    public boolean isShopAvailable() { return shopAvailable; }
+    public void setShopAvailable(boolean shopAvailable) { this.shopAvailable = shopAvailable; }
+    public int getCheatCardsBought() { return cheatCardsBought; }
+    public void incrementCheatCardsBought() { cheatCardsBought++; }
+    /** Mentésből visszatöltéshez. */
+    public void restoreCheatState(int rerollDiscount, int goldRushCount, int cheatCardsBought) {
+        this.rerollDiscount = Math.max(0, rerollDiscount);
+        this.goldRushCount = Math.max(0, goldRushCount);
+        this.cheatCardsBought = Math.max(0, cheatCardsBought);
+    }
+    public boolean hasLuckySeven() { return luckySeven; }
+    public void setLuckySeven(boolean luckySeven) { this.luckySeven = luckySeven; }
+    public int getShopCardSlots() { return shopCardSlots; }
+    public void setShopCardSlots(int slots) {
+        this.shopCardSlots = Math.max(DEFAULT_SHOP_CARD_SLOTS, Math.min(MAX_SHOP_CARD_SLOTS, slots));
+    }
     public int getTotalRunScore() { return totalRunScore; }
     public void setTotalRunScore(int totalRunScore) { this.totalRunScore = Math.max(0, totalRunScore); }
     public void addRunScore(int points) {

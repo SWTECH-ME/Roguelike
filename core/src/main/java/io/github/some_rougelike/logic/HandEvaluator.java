@@ -56,6 +56,11 @@ public final class HandEvaluator {
 
     /** Üres kézre null-t ad. */
     public static Combo evaluate(List<Card> cards) {
+        return evaluate(cards, false);
+    }
+
+    /** @param allCountAsOneSuit minden lap egy színnek számít (Bleeding Heart hot card) */
+    public static Combo evaluate(List<Card> cards, boolean allCountAsOneSuit) {
         if (cards == null || cards.isEmpty()) return null;
 
         int n = cards.size();
@@ -70,7 +75,7 @@ public final class HandEvaluator {
         }
 
         boolean five = n == 5;
-        boolean sameSuit = five && allSameSuit(cards);
+        boolean sameSuit = five && (allCountAsOneSuit || allSameSuit(cards));
         boolean straight = five && isStraight(counts);
         boolean royalStraight = straight && counts.containsKey(Rank.TEN) && counts.containsKey(Rank.ACE);
 
