@@ -15,6 +15,15 @@ public class CombatSaveData {
     public CombatSaveData() {
     }
 
+    /** 
+     * @param currentScore
+     * @param playsLeft
+     * @param discardsLeft
+     * @param drawPileCards
+     * @param handCards
+     * @param selectedCards
+     * @return CombatSaveData
+     */
     public static CombatSaveData create(int currentScore, int playsLeft, int discardsLeft, List<Card> drawPileCards, List<Card> handCards, List<Card> selectedCards) {
         CombatSaveData data = new CombatSaveData();
         data.currentScore = currentScore;
@@ -40,50 +49,86 @@ public class CombatSaveData {
         return data;
     }
 
+    /** 
+     * @return int
+     */
     public int getCurrentScore() {
         return currentScore;
     }
 
+    /** 
+     * @param currentScore
+     */
     public void setCurrentScore(int currentScore) {
         this.currentScore = currentScore;
     }
 
+    /** 
+     * @return int
+     */
     public int getPlaysLeft() {
         return playsLeft;
     }
 
+    /** 
+     * @param playsLeft
+     */
     public void setPlaysLeft(int playsLeft) {
         this.playsLeft = playsLeft;
     }
 
+    /** 
+     * @return int
+     */
     public int getDiscardsLeft() {
         return discardsLeft;
     }
 
+    /** 
+     * @param discardsLeft
+     */
     public void setDiscardsLeft(int discardsLeft) {
         this.discardsLeft = discardsLeft;
     }
 
+    /** 
+     * @return ArrayList<CardSaveData>
+     */
     public ArrayList<CardSaveData> getDrawPile() {
         return drawPile;
     }
 
+    /** 
+     * @param drawPile
+     */
     public void setDrawPile(ArrayList<CardSaveData> drawPile) {
         this.drawPile = drawPile;
     }
 
+    /** 
+     * @return ArrayList<CardSaveData>
+     */
     public ArrayList<CardSaveData> getHand() {
         return hand;
     }
 
+    /** 
+     * @param hand
+     */
     public void setHand(ArrayList<CardSaveData> hand) {
         this.hand = hand;
     }
 
+    /** 
+     * @return ArrayList<Integer>
+     */
     public ArrayList<Integer> getSelectedHandIndices() {
         return selectedHandIndices;
     }
 
+    /** 
+     * @param selectedHandIndices
+     */
     public void setSelectedHandIndices(ArrayList<Integer> selectedHandIndices) {
         this.selectedHandIndices = selectedHandIndices;
     }

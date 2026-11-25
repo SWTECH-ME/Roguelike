@@ -14,18 +14,33 @@ public class RankProgress {
         load();
     }
 
+    /** 
+     * @return RankProgress
+     */
     public static RankProgress getInstance() {
         return INSTANCE;
     }
 
+    /** 
+     * @param rankIndex
+     * @return float
+     */
     public float get(int rankIndex) {
         return values[rankIndex];
     }
 
+    /** 
+     * @param rankIndex
+     * @param value
+     */
     public void set(int rankIndex, float value) {
         values[rankIndex] = Math.max(0f, Math.min(100f, value));
     }
 
+    /** 
+     * @param rankIndex
+     * @param amount
+     */
     public void add(int rankIndex, float amount) {
         set(rankIndex, values[rankIndex] + amount);
     }

@@ -19,6 +19,12 @@ import io.github.some_rougelike.screens.MainMenuScreen;
 
 public class FriendsUIBuilder {
 
+    /** 
+     * @param stage
+     * @param skin
+     * @param main
+     * @param scale
+     */
     public void build(Stage stage, Skin skin, Main main, float scale) {
         Table mainContainer = new Table();
         mainContainer.setFillParent(true);
@@ -53,6 +59,12 @@ public class FriendsUIBuilder {
         stage.addActor(mainContainer);
     }
 
+    /** 
+     * @param text
+     * @param skin
+     * @param scale
+     * @return Label
+     */
     private Label createHoverAction(String text, Skin skin, float scale) {
         Label label = new Label(text, skin);
         label.setFontScale(scale);

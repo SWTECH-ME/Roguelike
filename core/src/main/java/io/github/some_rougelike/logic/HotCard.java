@@ -71,6 +71,12 @@ public final class HotCard {
         add(ROULETTE, "Roulette", "Every hand gets a random +0.3x to +1.3x", 15);
     }
 
+    /** 
+     * @param id
+     * @param name
+     * @param description
+     * @param price
+     */
     private static void add(String id, String name, String description, int price) {
         ALL.put(id, new HotCard(id, name, description, price * PRICE_MULTIPLIER));
     }

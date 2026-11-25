@@ -236,6 +236,9 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         stage.addActor(hotCardBar);
     }
 
+    /** 
+     * @return Group
+     */
     // ---------------------------------------------------------------- left: cheat tree
 
     private Group buildItemTree() {
@@ -276,15 +279,30 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         return panel;
     }
 
+    /** 
+     * @param i
+     * @return float
+     */
     private static float topX(int i) {
         float center = PAIR_CENTER[i / 2];
         return i % 2 == 0 ? center - ITEM_W - 10 : center + 10;
     }
 
+    /** 
+     * @param j
+     * @return float
+     */
     private static float bottomX(int j) {
         return PAIR_CENTER[j] - ITEM_W / 2f;
     }
 
+    /** 
+     * @param card
+     * @param refX
+     * @param refY
+     * @param buyable
+     * @return ItemView
+     */
     private ItemView createItem(CheatCard card, float refX, float refY, boolean buyable) {
         Group actor = new Group();
         actor.setBounds(refX * s, refY * s, ITEM_W * s, ITEM_H * s);
@@ -347,6 +365,9 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         return view;
     }
 
+    /** 
+     * @param view
+     */
     private void buyCheat(ItemView view) {
         int slot = view == bottomViews[0] ? 0 : view == bottomViews[1] ? 1 : -1;
         if (slot < 0 || !tryPay(price(view.card.getPrice()))) return;
@@ -412,6 +433,13 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         stage.addAction(Actions.sequence(Actions.delay(dur * 1.5f), Actions.run(() -> treeAnimating = false)));
     }
 
+    /** 
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return Actor
+     */
     private Actor connector(float x1, float y1, float x2, float y2) {
         float thickness = Math.max(2f, 5 * s);
         float length = (float) Math.hypot(x2 - x1, y2 - y1);
@@ -425,6 +453,9 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         return line;
     }
 
+    /** 
+     * @return Group
+     */
     // ---------------------------------------------------------------- right: random cards
 
     private Group buildCardsPanel() {
@@ -545,6 +576,10 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         }
     }
 
+    /** 
+     * @param panelW
+     * @return Actor
+     */
     private Actor buildRerollButton(float panelW) {
         Table btn = new Table();
         btn.setBackground(outlinedRect((int) (260 * s), (int) (64 * s), PRICE_BG, TEAL, Math.max(2, (int) (3 * s)), (int) (14 * s)));
@@ -578,6 +613,9 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         rerollLabel.setText(price == 0 ? "Reroll  FREE" : "Reroll  $" + price);
     }
 
+    /** 
+     * @return int
+     */
     private int currentRerollPrice() {
         return freeRerolls > 0 ? 0 : price(runState.getRerollPrice());
     }
@@ -610,6 +648,9 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         discountActive = true;
     }
 
+    /** 
+     * @return boolean
+     */
     @Override
     public boolean isDiscountActive() {
         return discountActive;
@@ -620,6 +661,10 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         hotCardBar.refresh();
     }
 
+    /** 
+     * @param price
+     * @return boolean
+     */
     // ---------------------------------------------------------------- helpers
 
     private boolean tryPay(int price) {
@@ -635,6 +680,10 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         moneyLabel.setText("$ " + runState.getMoney());
     }
 
+    /** 
+     * @param text
+     * @param color
+     */
     private void showMessage(String text, Color color) {
         messageLabel.clearActions();
         messageLabel.setText(text);
@@ -642,6 +691,11 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         messageLabel.addAction(Actions.sequence(Actions.delay(2.2f), Actions.fadeOut(0.4f)));
     }
 
+    /** 
+     * @param priceLabel
+     * @param refWidth
+     * @return Table
+     */
     private Table pricePill(Label priceLabel, float refWidth) {
         Table pill = new Table();
         pill.setBackground(priceBg);
@@ -651,6 +705,11 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         return holder;
     }
 
+    /** 
+     * @param wrapper
+     * @param lifted
+     * @param onClick
+     */
     private void addHoverAndClick(Group wrapper, Actor lifted, Runnable onClick) {
         wrapper.setTouchable(Touchable.enabled);
         wrapper.addListener(new ClickListener() {
@@ -679,6 +738,9 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         });
     }
 
+    /** 
+     * @return Actor
+     */
     private Actor buildLeaveButton() {
         Table btn = new Table();
         btn.setBackground(outlinedRect((int) (240 * s), (int) (72 * s), new Color(0.55f, 0.12f, 0.12f, 1f),
@@ -730,6 +792,12 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         ));
     }
 
+    /** 
+     * @param text
+     * @param fontScale
+     * @param color
+     * @return Label
+     */
     private Label label(String text, float fontScale, Color color) {
         Label l = new Label(text, uiSkin);
         l.setFontScale(fontScale * s);
@@ -738,6 +806,15 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         return l;
     }
 
+    /** 
+     * @param width
+     * @param height
+     * @param bgColor
+     * @param borderColor
+     * @param border
+     * @param radius
+     * @return TextureRegionDrawable
+     */
     private TextureRegionDrawable outlinedRect(int width, int height, Color bgColor, Color borderColor, int border, int radius) {
         width = Math.max(width, 2 * radius + 2);
         height = Math.max(height, 2 * radius + 2);
@@ -752,6 +829,15 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         return new TextureRegionDrawable(tex);
     }
 
+    /** 
+     * @param p
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param r
+     * @param c
+     */
     private static void fillRounded(Pixmap p, int x, int y, int w, int h, int r, Color c) {
         p.setColor(c);
         p.fillRectangle(x + r, y, w - 2 * r, h);
@@ -769,6 +855,9 @@ public class ShopScreen extends PageScreen implements CheatCard.ShopContext {
         leaveShop();
     }
 
+    /** 
+     * @param delta
+     */
     @Override
     public void render(float delta) {
         if (!isTransitioning && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

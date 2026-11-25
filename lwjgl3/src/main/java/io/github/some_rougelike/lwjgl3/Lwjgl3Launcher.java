@@ -12,11 +12,17 @@ import org.lwjgl.glfw.GLFW;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
+    /** 
+     * @param args
+     */
     public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
         createApplication();
     }
 
+    /** 
+     * @return Lwjgl3Application
+     */
     private static Lwjgl3Application createApplication() {
         Main mainApp = new Main();
         mainApp.setWindowModeController(new WindowModeController() {
@@ -44,6 +50,9 @@ public class Lwjgl3Launcher {
         return new Lwjgl3Application(mainApp, getDefaultConfiguration());
     }
 
+    /** 
+     * @return Lwjgl3ApplicationConfiguration
+     */
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         //// Vsync limits the frames per second to what your hardware can display, and helps eliminate

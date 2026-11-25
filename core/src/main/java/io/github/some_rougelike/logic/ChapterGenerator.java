@@ -38,10 +38,17 @@ public class ChapterGenerator {
         return Math.max(GameConfig.BASE_BLIND_TARGET, Math.round(raw / 50f) * 50);
     }
 
+    /** 
+     * @return List<Enemy>
+     */
     public static List<Enemy> generateNormalEnemies() {
         return generateNormalEnemies(1);
     }
 
+    /** 
+     * @param chapterIndex
+     * @return List<Enemy>
+     */
     public static List<Enemy> generateNormalEnemies(int chapterIndex) {
         List<Enemy> normalPool = new ArrayList<>();
         int count = GameConfig.NORMAL_ENEMY_NAMES.length;
@@ -64,10 +71,19 @@ public class ChapterGenerator {
         return selected;
     }
 
+    /** 
+     * @param usedBossNames
+     * @return Enemy
+     */
     public static Enemy generateUniqueBoss(List<String> usedBossNames) {
         return generateUniqueBoss(usedBossNames, 1);
     }
 
+    /** 
+     * @param usedBossNames
+     * @param chapterIndex
+     * @return Enemy
+     */
     public static Enemy generateUniqueBoss(List<String> usedBossNames, int chapterIndex) {
         List<Enemy> allBosses = createAllBosses();
         List<Enemy> availableBosses = new ArrayList<>();
@@ -99,6 +115,9 @@ public class ChapterGenerator {
         );
     }
 
+    /** 
+     * @return List<Enemy>
+     */
     public static List<Enemy> createAllBosses() {
         List<Enemy> bosses = new ArrayList<>();
         int count = Math.min(GameConfig.BOSS_NAMES.length, BOSS_ABILITIES.length);

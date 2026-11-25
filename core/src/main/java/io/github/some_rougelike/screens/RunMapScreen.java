@@ -102,6 +102,15 @@ public class RunMapScreen extends PageScreen {
         }
     }
 
+    /** 
+     * @param width
+     * @param height
+     * @param bgColor
+     * @param borderColor
+     * @param borderThickness
+     * @param radius
+     * @return TextureRegionDrawable
+     */
     private TextureRegionDrawable createOutlinedRoundedRect(int width, int height, Color bgColor, Color borderColor, int borderThickness, int radius) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setBlending(Pixmap.Blending.None);
@@ -135,6 +144,13 @@ public class RunMapScreen extends PageScreen {
         return new TextureRegionDrawable(tex);
     }
 
+    /** 
+     * @param width
+     * @param height
+     * @param color
+     * @param radius
+     * @return TextureRegionDrawable
+     */
     private TextureRegionDrawable createSolidRoundedRect(int width, int height, Color color, int radius) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setBlending(Pixmap.Blending.None);
@@ -296,6 +312,9 @@ public class RunMapScreen extends PageScreen {
         uiRoot.addAction(Actions.fadeIn(0.5f, Interpolation.fade));
     }
 
+    /** 
+     * @param scale
+     */
     private void buildBossDebugUI(float scale) {
         uiRoot.top();
 
@@ -349,6 +368,11 @@ public class RunMapScreen extends PageScreen {
         uiRoot.add(debugScrollPane).expand().fill().padBottom(20 * scale).row();
     }
 
+    /** 
+     * @param content
+     * @param uiScale
+     * @return ScrollPane
+     */
     private ScrollPane createModernScrollPane(Actor content, float uiScale) {
         ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
 
@@ -373,6 +397,22 @@ public class RunMapScreen extends PageScreen {
         return scrollPane;
     }
 
+    /** 
+     * @param typeText
+     * @param pillBg
+     * @param nameText
+     * @param specialAbilityText
+     * @param target
+     * @param reward
+     * @param locked
+     * @param defeated
+     * @param scale
+     * @param bg
+     * @param width
+     * @param height
+     * @param onClick
+     * @return Group
+     */
     private Group createBlindCard(String typeText, TextureRegionDrawable pillBg, String nameText, String specialAbilityText, int target, int reward, boolean locked, boolean defeated, float scale, TextureRegionDrawable bg, int width, int height, Runnable onClick) {
         Group wrapper = new Group();
         wrapper.setSize(width, height);
@@ -477,6 +517,9 @@ public class RunMapScreen extends PageScreen {
         return wrapper;
     }
 
+    /** 
+     * @param selectedEnemy
+     */
     private void transitionToCombat(Enemy selectedEnemy) {
         if (isTransitioning || isPaused) return;
         isTransitioning = true;
@@ -520,6 +563,9 @@ public class RunMapScreen extends PageScreen {
         ));
     }
 
+    /** 
+     * @param paused
+     */
     @Override
     public void setPaused(boolean paused) {
         super.setPaused(paused);
@@ -566,6 +612,9 @@ public class RunMapScreen extends PageScreen {
         }
     }
 
+    /** 
+     * @param delta
+     */
     @Override
     public void render(float delta) {
         if (!isTransitioning && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -581,6 +630,10 @@ public class RunMapScreen extends PageScreen {
         pauseMenu.render(delta);
     }
 
+    /** 
+     * @param width
+     * @param height
+     */
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);

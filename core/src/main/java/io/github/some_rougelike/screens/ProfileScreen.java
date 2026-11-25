@@ -28,6 +28,10 @@ public class ProfileScreen extends PageScreen {
         }
     }
 
+    /** 
+     * @param width
+     * @param height
+     */
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);

@@ -22,6 +22,9 @@ public class Card {
     public Rank getRank() { return rank; }
     public int getValue() { return rank.value; }
 
+    /** 
+     * @return String
+     */
     @Override
     public String toString() {
         return rank.name() + " of " + suit.name();

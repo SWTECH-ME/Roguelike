@@ -29,6 +29,9 @@ public class HotCardState {
     public HotCardState() {
     }
 
+    /** 
+     * @return HotCardState
+     */
     public HotCardState copy() {
         HotCardState c = new HotCardState();
         c.heartsPlayedThisBlind = heartsPlayedThisBlind;
@@ -43,6 +46,9 @@ public class HotCardState {
         return c;
     }
 
+    /** 
+     * @param cardId
+     */
     public void resetCardState(String cardId) {
         if (cardId == null) return;
         if (HotCard.CROSSED_BLADES.equals(cardId)) {

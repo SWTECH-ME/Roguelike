@@ -9,12 +9,19 @@ import io.github.some_rougelike.GameConfig;
 
 public class AesSaveStrategy implements SaveEncryptionStrategy {
 
+    /** 
+     * @return SecretKeySpec
+     */
     private SecretKeySpec buildKey() {
         byte[] keyBytes = GameConfig.SAVE_ENCRYPTION_KEY.getBytes(StandardCharsets.UTF_8);
         byte[] fixedKey = Arrays.copyOf(keyBytes, 16);
         return new SecretKeySpec(fixedKey, GameConfig.SAVE_ENCRYPTION_ALGORITHM);
     }
 
+    /** 
+     * @param plainText
+     * @return String
+     */
     @Override
     public String encode(String plainText) {
         if (plainText == null) {
@@ -30,6 +37,10 @@ public class AesSaveStrategy implements SaveEncryptionStrategy {
         }
     }
 
+    /** 
+     * @param storedText
+     * @return String
+     */
     @Override
     public String decode(String storedText) {
         if (storedText == null || storedText.trim().isEmpty()) {

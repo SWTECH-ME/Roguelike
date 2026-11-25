@@ -42,16 +42,40 @@ public class SettingsUIBuilder {
         }
     }
 
+    /** 
+     * @param stage
+     * @param skin
+     * @param main
+     * @param scale
+     * @param windowModeController
+     */
     public void build(Stage stage, Skin skin, Main main, float scale, WindowModeController windowModeController) {
         UserSettingsData settings = SaveManager.getInstance().getSettings();
         boolean isBorderless = "Borderless Windowed".equals(settings.getDisplayMode());
         build(stage, skin, main, scale, windowModeController, isBorderless, true);
     }
 
+    /** 
+     * @param stage
+     * @param skin
+     * @param main
+     * @param scale
+     * @param windowModeController
+     * @param isBorderless
+     */
     public void build(Stage stage, Skin skin, Main main, float scale, WindowModeController windowModeController, boolean isBorderless) {
         build(stage, skin, main, scale, windowModeController, isBorderless, false);
     }
 
+    /** 
+     * @param stage
+     * @param skin
+     * @param main
+     * @param scale
+     * @param windowModeController
+     * @param isBorderless
+     * @param animate
+     */
     public void build(Stage stage, Skin skin, Main main, float scale, WindowModeController windowModeController, boolean isBorderless, boolean animate) {
         initTextures();
         final UserSettingsData settings = SaveManager.getInstance().getSettings();
@@ -290,6 +314,15 @@ public class SettingsUIBuilder {
         void onSelectionChanged(String selection);
     }
 
+    /** 
+     * @param labelText
+     * @param options
+     * @param defaultSelection
+     * @param skin
+     * @param scale
+     * @param listener
+     * @return Table
+     */
     private Table createArrowSelector(String labelText, String[] options, String defaultSelection, Skin skin, float scale, SelectorListener listener) {
         Table table = new Table();
         Label nameLabel = new Label(labelText, skin);
@@ -346,6 +379,13 @@ public class SettingsUIBuilder {
         return table;
     }
 
+    /** 
+     * @param labelText
+     * @param initialValue
+     * @param scale
+     * @param listener
+     * @return Table
+     */
     private Table createSliderRow(String labelText, float initialValue, float scale, ChangeListener listener) {
         Table table = new Table();
 
@@ -378,6 +418,12 @@ public class SettingsUIBuilder {
         return table;
     }
 
+    /** 
+     * @param text
+     * @param skin
+     * @param scale
+     * @return Label
+     */
     private Label createHoverAction(String text, Skin skin, float scale) {
         Label label = new Label(text, skin);
         label.setFontScale(scale);

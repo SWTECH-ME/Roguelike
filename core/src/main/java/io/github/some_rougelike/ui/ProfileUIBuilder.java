@@ -27,6 +27,12 @@ public class ProfileUIBuilder {
     private String currentUsernameText;
     private boolean usernameHovered = false;
 
+    /** 
+     * @param stage
+     * @param skin
+     * @param main
+     * @param scale
+     */
     public void build(Stage stage, Skin skin, Main main, float scale) {
         SaveManager saveManager = SaveManager.getInstance();
         currentUsernameText = saveManager.getUsername();
@@ -83,6 +89,13 @@ public class ProfileUIBuilder {
         stage.addActor(mainContainer);
     }
 
+    /** 
+     * @param statsTable
+     * @param stage
+     * @param skin
+     * @param scale
+     * @param bottomPad
+     */
     private void addEditableUsernameRow(Table statsTable, Stage stage, Skin skin, float scale, float bottomPad) {
         Label nameLabel = new Label("Username:", skin);
         nameLabel.setAlignment(Align.left);
@@ -185,6 +198,10 @@ public class ProfileUIBuilder {
         statsTable.add(valueContainer).width(GameConfig.PROFILE_VALUE_WIDTH * scale).right().top().padLeft(halfGap).padBottom(bottomPad).row();
     }
 
+    /** 
+     * @param valueLabel
+     * @param scale
+     */
     private void updateUsernameDisplay(Label valueLabel, float scale) {
         String displayed = usernameHovered ? currentUsernameText + "|" : currentUsernameText;
         valueLabel.setText(displayed);
@@ -203,6 +220,15 @@ public class ProfileUIBuilder {
         SaveManager.getInstance().setUsername(currentUsernameText);
     }
 
+    /** 
+     * @param statsTable
+     * @param labelText
+     * @param valueText
+     * @param skin
+     * @param scale
+     * @param valueColor
+     * @param bottomPad
+     */
     private void addStatRow(Table statsTable, String labelText, String valueText, Skin skin, float scale, Color valueColor, float bottomPad) {
         Label nameLabel = new Label(labelText, skin);
         nameLabel.setAlignment(Align.left);
@@ -221,6 +247,10 @@ public class ProfileUIBuilder {
         statsTable.add(valueLabel).width(GameConfig.PROFILE_VALUE_WIDTH * scale).right().padLeft(halfGap).padBottom(bottomPad).row();
     }
 
+    /** 
+     * @param saveManager
+     * @return String
+     */
     private String formatActiveRunText(SaveManager saveManager) {
         if (!saveManager.hasActiveRun()) {
             return "No active run";
@@ -234,6 +264,12 @@ public class ProfileUIBuilder {
             + " | $" + activeRun.getMoney();
     }
 
+    /** 
+     * @param text
+     * @param skin
+     * @param scale
+     * @return Label
+     */
     private Label createHoverAction(String text, Skin skin, float scale) {
         Label label = new Label(text, skin);
         label.setFontScale(scale);

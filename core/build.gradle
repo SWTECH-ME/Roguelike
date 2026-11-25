@@ -19,3 +19,7 @@ test {
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+javadoc {
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    options.addStringOption('Xdoclint:none', '-quiet')
+}

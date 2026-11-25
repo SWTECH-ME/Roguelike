@@ -35,10 +35,17 @@ public class SoundManager implements Disposable {
         register(SoundEvent.TEXT_POPUP, GameConfig.SOUND_NOTIFICATION);
     }
 
+    /** 
+     * @return SoundManager
+     */
     public static SoundManager getInstance() {
         return INSTANCE;
     }
 
+    /** 
+     * @param event
+     * @param assetPath
+     */
     public void register(SoundEvent event, String assetPath) {
         if (loaded)
             throw new IllegalStateException("[ERROR] Sound events must be registered before loading.");
@@ -80,6 +87,9 @@ public class SoundManager implements Disposable {
         loaded = true;
     }
 
+    /** 
+     * @param volume
+     */
     public void setMasterVolume(float volume) {
         masterVolume = MathUtils.clamp(volume, 0f, 1f);
         if (menuMusic != null) {
@@ -87,6 +97,9 @@ public class SoundManager implements Disposable {
         }
     }
 
+    /** 
+     * @return float
+     */
     public float getMasterVolume() {
         return masterVolume;
     }
@@ -98,6 +111,9 @@ public class SoundManager implements Disposable {
         }
     }
 
+    /** 
+     * @param volume
+     */
     public void setMenuMusicVolume(float volume) {
         menuMusicVolume = MathUtils.clamp(volume, 0f, 1f);
         if (menuMusic != null) {
@@ -105,18 +121,30 @@ public class SoundManager implements Disposable {
         }
     }
 
+    /** 
+     * @return float
+     */
     public float getMenuMusicVolume() {
         return menuMusicVolume;
     }
 
+    /** 
+     * @param volume
+     */
     public void setSfxVolume(float volume) {
         sfxVolume = MathUtils.clamp(volume, 0f, 1f);
     }
 
+    /** 
+     * @return float
+     */
     public float getSfxVolume() {
         return sfxVolume;
     }
 
+    /** 
+     * @param event
+     */
     public void play(SoundEvent event) {
         ensureLoaded();
 

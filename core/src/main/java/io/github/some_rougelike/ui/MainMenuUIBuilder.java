@@ -27,10 +27,24 @@ import io.github.some_rougelike.GameConfig;
 
 public class MainMenuUIBuilder {
 
+    /** 
+     * @param stage
+     * @param skin
+     * @param main
+     * @param animateUI
+     */
     public void build(Stage stage, Skin skin, Main main, boolean animateUI) {
         build(stage, skin, main, animateUI, null, new Array<>());
     }
 
+    /** 
+     * @param stage
+     * @param skin
+     * @param main
+     * @param animateUI
+     * @param trippyBackground
+     * @param generatedTextures
+     */
     public void build(Stage stage, Skin skin, Main main, boolean animateUI, TrippyBackground trippyBackground, Array<Texture> generatedTextures) {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
@@ -142,6 +156,12 @@ public class MainMenuUIBuilder {
         stage.addActor(leftMenu);
     }
 
+    /** 
+     * @param text
+     * @param skin
+     * @param scale
+     * @return Label
+     */
     private Label createMenuItem(String text, Skin skin, float scale) {
         Label label = new Label(text, skin);
         label.setFontScale(scale);
@@ -176,6 +196,9 @@ public class MainMenuUIBuilder {
         return label;
     }
 
+    /** 
+     * @param actor
+     */
     private void addSoundListeners(Actor actor) {
         actor.addListener(new ClickListener() {
             @Override

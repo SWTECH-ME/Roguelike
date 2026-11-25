@@ -54,6 +54,10 @@ public final class HotCardEffects {
         }
     }
 
+    /** 
+     * @param run
+     * @return boolean
+     */
     public static boolean allCountAsHearts(RunState run) {
         return run.hasHotCard(HotCard.BLEEDING_HEART);
     }
@@ -63,14 +67,27 @@ public final class HotCardEffects {
         return HandEvaluator.evaluate(cards, allCountAsHearts(run));
     }
 
+    /** 
+     * @param run
+     * @param c
+     * @return boolean
+     */
     private static boolean isHeart(RunState run, Card c) {
         return c.getSuit() == Suit.HEARTS || allCountAsHearts(run);
     }
 
+    /** 
+     * @param c
+     * @return boolean
+     */
     private static boolean isFace(Card c) {
         return c.getRank() == Rank.JACK || c.getRank() == Rank.QUEEN || c.getRank() == Rank.KING;
     }
 
+    /** 
+     * @param combo
+     * @return boolean
+     */
     private static boolean isFlush(HandEvaluator.Combo combo) {
         return combo == HandEvaluator.Combo.FLUSH
             || combo == HandEvaluator.Combo.STRAIGHT_FLUSH
@@ -106,6 +123,13 @@ public final class HotCardEffects {
         }
     }
 
+    /** 
+     * @param run
+     * @param played
+     * @param combo
+     * @param cardsLeftInDeck
+     * @return HandResult
+     */
     // ---------------------------------------------------------------- hand played
 
     public static HandResult onHandPlayed(RunState run, List<Card> played, HandEvaluator.Combo combo, int cardsLeftInDeck) {
@@ -252,6 +276,10 @@ public final class HotCardEffects {
         return r;
     }
 
+    /** 
+     * @param m
+     * @return String
+     */
     private static String fmt(double m) {
         double r = Math.round(m * 100) / 100.0;
         return r == Math.floor(r) ? String.valueOf((int) r) : String.valueOf(r);

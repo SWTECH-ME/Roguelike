@@ -15,6 +15,9 @@ public class TrippyBackground extends Widget {
     private static long lastFrameId = 0;
     private static boolean frozen = false;
 
+    /** 
+     * @param frozen
+     */
     public static void setFrozen(boolean frozen) {
         TrippyBackground.frozen = frozen;
     }
@@ -81,11 +84,18 @@ public class TrippyBackground extends Widget {
         pixmap.dispose();
     }
 
+    /** 
+     * @param c1
+     * @param c2
+     */
     public void setColors(Color c1, Color c2) {
         this.color1.set(c1);
         this.color2.set(c2);
     }
 
+    /** 
+     * @param delta
+     */
     @Override
     public void act(float delta) {
         super.act(delta);
@@ -99,6 +109,10 @@ public class TrippyBackground extends Widget {
         }
     }
 
+    /** 
+     * @param batch
+     * @param parentAlpha
+     */
     @Override
     public void draw(Batch batch, float parentAlpha) {
         float overscan = 150f; 

@@ -14,6 +14,9 @@ public class AnimatedImage extends Image {
         this.animation = animation;
     }
 
+    /** 
+     * @param delta
+     */
     @Override
     public void act(float delta) {
         super.act(delta);

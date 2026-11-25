@@ -97,21 +97,39 @@ public final class HandEvaluator {
         return best;
     }
 
+    /** 
+     * @param a
+     * @param b
+     * @return Combo
+     */
     private static Combo max(Combo a, Combo b) {
         if (b == null) return a;
         return b.ordinal() > a.ordinal() ? b : a;
     }
 
+    /** 
+     * @param cards
+     * @return boolean
+     */
     private static boolean allSameSuit(List<Card> cards) {
         Suit s = cards.get(0).getSuit();
         for (Card c : cards) if (c.getSuit() != s) return false;
         return true;
     }
 
+    /** 
+     * @param counts
+     * @param allowed
+     * @return boolean
+     */
     private static boolean onlyRanks(Map<Rank, Integer> counts, Set<Rank> allowed) {
         return allowed.containsAll(counts.keySet());
     }
 
+    /** 
+     * @param cards
+     * @return boolean
+     */
     private static boolean isBlackJack(List<Card> cards) {
         Card a = cards.get(0), b = cards.get(1);
         return (a.getRank() == Rank.ACE && b.getRank().getBaseValue() == 10)

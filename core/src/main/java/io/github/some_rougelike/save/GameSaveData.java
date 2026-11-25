@@ -12,6 +12,9 @@ public class GameSaveData {
     private RunSaveData activeRun = null;
     private String[] discoveredCombos = new String[0];
 
+    /** 
+     * @return String
+     */
     public String getUsername() {
         if (username == null || username.trim().isEmpty()) {
             username = GameConfig.getDefaultUsername();
@@ -19,6 +22,9 @@ public class GameSaveData {
         return username;
     }
 
+    /** 
+     * @param username
+     */
     public void setUsername(String username) {
         if (username == null || username.trim().isEmpty()) {
             this.username = GameConfig.getDefaultUsername();
@@ -30,6 +36,9 @@ public class GameSaveData {
         }
     }
 
+    /** 
+     * @return String[]
+     */
     public String[] getDiscoveredCombos() {
         if (discoveredCombos == null) {
             discoveredCombos = new String[0];
@@ -37,6 +46,9 @@ public class GameSaveData {
         return discoveredCombos;
     }
 
+    /** 
+     * @param discoveredCombos
+     */
     public void setDiscoveredCombos(String[] discoveredCombos) {
         this.discoveredCombos = discoveredCombos;
     }
@@ -44,14 +56,23 @@ public class GameSaveData {
     public GameSaveData() {
     }
 
+    /** 
+     * @return float[]
+     */
     public float[] getRankProgress() {
         return rankProgress;
     }
 
+    /** 
+     * @param rankProgress
+     */
     public void setRankProgress(float[] rankProgress) {
         this.rankProgress = rankProgress;
     }
 
+    /** 
+     * @return UserSettingsData
+     */
     public UserSettingsData getSettings() {
         if (settings == null) {
             settings = new UserSettingsData();
@@ -59,30 +80,51 @@ public class GameSaveData {
         return settings;
     }
 
+    /** 
+     * @param settings
+     */
     public void setSettings(UserSettingsData settings) {
         this.settings = settings;
     }
 
+    /** 
+     * @return int
+     */
     public int getHighScore() {
         return Math.max(0, highScore);
     }
 
+    /** 
+     * @param highScore
+     */
     public void setHighScore(int highScore) {
         this.highScore = Math.max(0, highScore);
     }
 
+    /** 
+     * @return boolean
+     */
     public boolean isHasActiveRun() {
         return hasActiveRun && activeRun != null;
     }
 
+    /** 
+     * @param hasActiveRun
+     */
     public void setHasActiveRun(boolean hasActiveRun) {
         this.hasActiveRun = hasActiveRun;
     }
 
+    /** 
+     * @return RunSaveData
+     */
     public RunSaveData getActiveRun() {
         return activeRun;
     }
 
+    /** 
+     * @param activeRun
+     */
     public void setActiveRun(RunSaveData activeRun) {
         this.activeRun = activeRun;
     }

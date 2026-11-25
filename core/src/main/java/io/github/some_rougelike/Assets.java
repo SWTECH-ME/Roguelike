@@ -14,6 +14,9 @@ public class Assets implements Disposable {
         assetManager = new AssetManager();
     }
 
+    /** 
+     * @return Assets
+     */
     public static Assets getInstance() {
         return INSTANCE;
     }
@@ -55,16 +58,28 @@ public class Assets implements Disposable {
         return assetManager.getProgress();
     }
     
+    /** 
+     * @param fileName
+     * @return Texture
+     */
     // --- Getter methods for various asset types ---
 
     public Texture getTexture(String fileName) {
         return assetManager.get(fileName, Texture.class);
     }
 
+    /** 
+     * @param fileName
+     * @return BitmapFont
+     */
     public BitmapFont getFont(String fileName) {
         return assetManager.get(fileName, BitmapFont.class);
     }
 
+    /** 
+     * @param fileName
+     * @return Skin
+     */
     public Skin getSkin(String fileName) {
         return assetManager.get(fileName, Skin.class);
     }
