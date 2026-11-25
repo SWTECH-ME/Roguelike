@@ -25,7 +25,7 @@ public class GameConfig {
     public static final float MAIN_MENU_SCALE = 1.5f;
     public static final float MAIN_MENU_FADE_DURATION = 0.5f;
     // Short fade-in duration when navigating between submenus (Collection, Profile, Settings, Friends) and Main Menu
-    public static final float SUBMENU_FADE_DURATION = 0.25f;
+    public static final float SUBMENU_FADE_DURATION = 0.35f;
     // Collections Debug:
     public static final boolean ALLOW_HIDING_COMBINATIONS = false;
     // Secret key sequence on the Main Menu to launch the scrollable 12-Boss test level
